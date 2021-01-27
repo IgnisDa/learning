@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# Based on script from https://github.com/jackdb/pg-app-dev-vm/blob/master/Vagrant-setup/bootstrap.sh
+
+set -e
+
+function coloredEcho(){
+  # taken from https://stackoverflow.com/a/53463162/11667450
+    red="\033[0;31m"
+    green="\033[0;32m"
+    yellow="\033[1;33m"
+    cyan="\033[1;36m"
+    blue="\033[1;34m"
+    NC="\033[0m" # No Color
+    printf "${!1}${2} ${NC}\n"
+}
+
+export DEBIAN_FRONTEND=noninteractive
+
+PROVISIONED_ON=/etc/vm_provision_on_timestamp
+if [ -f "$PROVISIONED_ON" ]
+then
+  echo "VM was already provisioned at: $(cat $PROVISIONED_ON)"
+  echo "To run system updates manually login via 'vagrant ssh' and run 'apt-get update && apt-get upgrade'"
+  echo ""
+  exit
+fi
+
+coloredEcho "cyan" "Adding apt-keys and installing environment packages"
+
+# Get installer for nodejs
+curl -sL https://deb.nodesource.com/setup_15.x | bash -
+# get installer for yarn
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+# Update package list
+apt-get update
+
+# Install postgresql, python3.9 and fish shell (required for development)
+apt-get -y install "yarn" "bat" "fish" "python3" "python3-pip" "nodejs" "gcc" "g++" "make"
+
+coloredEcho "yellow" "Environment packages installed successfully!"
+
+echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf
+sudo sysctl -p
+
+# Tag the provision time:
+date > "$PROVISIONED_ON"
+
+echo ""
+coloredEcho "blue" "Successfully created Krunch development virtual machine"

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# This script will be used to spin up the development servers for all the Krunch applications
+
+# change to the project folder
+yarn dev

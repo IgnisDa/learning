@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# This script will be used to install dependencies for all the Krunch applications
+
+# setup the git identities
+git config --global user.name "IgnisDa"
+git config --global user.email "ignisda2001@gmail.com"
+
+# install Gitzer to the system
+curl -sSL https://raw.githubusercontent.com/IgnisDa/Gitzer/main/get-gitzer.py | python3
+
+# replace the default file content viewer (cat) with bat
+mkdir -p $HOME/.local/bin
+ln -s /usr/bin/batcat $HOME/.local/bin/bat
+mkdir -p $HOME/.config/fish/
+echo "alias cat=\"batcat\"" >> $HOME/.config/fish/config.fish
+
+# set the default interactive shell as fish
+echo "if [[ \$(ps --no-header --pid=\$PPID --format=cmd) != \"fish\" ]]" >> $HOME/.bashrc
+echo "then" >> $HOME/.bashrc
+echo "   exec fish" >> $HOME/.bashrc
+echo "fi" >> $HOME/.bashrc
+
+# change to the project folder
+cd "/home/vagrant/Krunch"
+# install the dependencies for the frontend application
+yarn
