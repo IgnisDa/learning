@@ -1,6 +1,6 @@
 <template>
   <div id="hero-background">
-    <div class="max-w-6xl mx-auto container pt-5 flex flex-col h-full">
+    <div class="mx-auto container flex flex-col h-full">
       <HeroNavbar />
       <HeroText />
     </div>
