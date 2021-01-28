@@ -1,7 +1,8 @@
 <template>
   <div id="hero-background">
-    <div class="max-w-6xl mx-auto container pt-5">
+    <div class="max-w-6xl mx-auto container pt-5 flex flex-col h-full">
       <HeroNavbar />
+      <HeroText />
     </div>
   </div>
 </template>
