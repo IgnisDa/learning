@@ -7,7 +7,7 @@
       <div class="uppercase my-1 font-semibold text-3xl text-gray-700">
         About Us
       </div>
-      <div class="my-3 text-sm text-gray-700 italic">
+      <div class="my-3 text-sm text-gray-700 italic md:text-lg">
         Setibulum rutrum quam vitae fringilla tincidunt
       </div>
     </div>
