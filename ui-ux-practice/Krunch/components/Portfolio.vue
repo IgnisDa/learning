@@ -1,6 +1,6 @@
 <template>
   <div
-    id="#progress"
+    id="portfolio"
     class="mt-20 flex flex-col mx-auto justify-center items-center"
   >
     <div class="mx-auto text-center md:max-w-7xl">
@@ -27,7 +27,7 @@
       </div>
       <div>
         <button
-          class="mt-10 p-3 text-center mx-auto px-7 rounded-md uppercase border border-blue-400"
+          class="mt-10 p-3 text-center mx-auto px-7 rounded-md uppercase border border-blue-400 hover:text-gray-200 font-semibold hover:bg-blue-400 transition duration-200 ease-in"
         >
           Contact Now
         </button>
