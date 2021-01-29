@@ -2,6 +2,7 @@
   <div>
     <Hero />
     <About />
+    <Portfolio />
   </div>
 </template>
 
