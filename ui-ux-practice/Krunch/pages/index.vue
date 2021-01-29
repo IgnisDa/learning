@@ -5,6 +5,8 @@
     <Portfolio />
     <Testimonials />
     <Services />
+    <Team />
+    <Video />
   </div>
 </template>
 
