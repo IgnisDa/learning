@@ -20,3 +20,6 @@ echo "then" >> $HOME/.bashrc
 echo "   exec fish" >> $HOME/.bashrc
 echo "fi" >> $HOME/.bashrc
 
+# rust installer
+curl https://sh.rustup.rs -sSf | sh -s -- -y
+echo "set PATH \$PATH \$HOME/.cargo/bin" >> $HOME/.config/fish/config.fish
