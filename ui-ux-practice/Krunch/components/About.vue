@@ -1,6 +1,6 @@
 <template>
   <div
-    id="#about"
+    id="about"
     class="mt-20 flex flex-col md:max-w-7xl mx-auto justify-center items-center"
   >
     <div class="mx-auto text-center">
