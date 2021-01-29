@@ -3,6 +3,8 @@
     <Hero />
     <About />
     <Portfolio />
+    <Testimonials />
+    <Services />
   </div>
 </template>
 
