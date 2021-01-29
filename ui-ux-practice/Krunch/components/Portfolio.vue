@@ -16,7 +16,7 @@
       <div v-for="index in 8" :key="index" class="w-full md:w-1/2 lg:w-1/4">
         <img
           :src="require(`~/assets/images/portfolio-${index}.jpg`)"
-          alt="portfolio"
+          :alt="`portfolio-${index}.jpg`"
           class="h-full w-full object-cover"
         />
       </div>
