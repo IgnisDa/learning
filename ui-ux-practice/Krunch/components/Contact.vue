@@ -51,7 +51,7 @@
         ></textarea>
       </div>
     </form>
-    <div>
+    <div class="my-10">
       <button
         class="uppercase bg-blue-500 mx-5 my-2 md:mx-3 p-3 text-gray-50 text-sm font-bold tracking-wide px-8 rounded-md hover:bg-gray-800 transition duration-200 ease-in"
       >
