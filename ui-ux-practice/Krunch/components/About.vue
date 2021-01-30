@@ -13,7 +13,7 @@
     </div>
     <div class="w-20 h-0.5 mx-auto my-4 bg-blue-400"></div>
     <div class="flex flex-wrap mx-3">
-      <div class="w-full md:w-1/2 text-gray-600 my-auto md:p-3">
+      <div class="w-full md:w-1/2 text-gray-600 my-auto md:p-3 text-justify">
         <div>
           Lorem ipsum dolor sitamet, consectetur adipisicing elit, seddo eiusmod
           tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
