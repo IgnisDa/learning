@@ -14,7 +14,7 @@
     <div class="w-20 h-0.5 mx-auto my-4 bg-blue-400"></div>
     <form class="w-full sm:w-9/12">
       <div class="flex flex-wrap w-full px-3">
-        <div class="w-full sm:w-1/2 sm:pr-4 my-2">
+        <div class="w-full sm:w-1/2 sm:pr-4">
           <input
             id="your-name"
             type="text"
