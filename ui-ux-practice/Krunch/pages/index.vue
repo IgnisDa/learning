@@ -7,6 +7,7 @@
     <Services />
     <Team />
     <Video />
+    <LatestNews />
   </div>
 </template>
 
