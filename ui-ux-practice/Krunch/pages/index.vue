@@ -8,6 +8,7 @@
     <Team />
     <Video />
     <LatestNews />
+    <Contact />
   </div>
 </template>
 
