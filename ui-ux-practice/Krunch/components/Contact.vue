@@ -12,9 +12,9 @@
       </div>
     </div>
     <div class="w-20 h-0.5 mx-auto my-4 bg-blue-400"></div>
-    <form class="w-full md:w-9/12">
-      <div class="flex flex-wrap mx-3 w-full">
-        <div class="w-full sm:w-1/2 md:pr-4 my-5">
+    <form class="w-full sm:w-9/12">
+      <div class="flex flex-wrap w-full px-3">
+        <div class="w-full sm:w-1/2 sm:pr-4 my-2">
           <input
             id="your-name"
             type="text"
@@ -23,7 +23,7 @@
             class="rounded-sm w-full border-2 p-2"
           />
         </div>
-        <div class="w-full sm:w-1/2 md:pl-4 my-5">
+        <div class="w-full sm:w-1/2 sm:pl-4">
           <input
             id="their-name"
             type="text"
@@ -33,27 +33,27 @@
           />
         </div>
       </div>
-      <div>
+      <div class="w-full p-3 my-2">
         <input
           id="email"
           type="email"
           name="your-name"
           placeholder="Enter your email address"
-          class="w-full rounded-sm my-5 border-2 p-2 mx-3"
+          class="w-full rounded-sm border-2 p-2"
         />
       </div>
-      <div>
+      <div class="w-full p-3">
         <textarea
           id="message"
           name="message"
           placeholder="Your Message"
-          class="w-full h-60 resize-none rounded-sm my-5 border-2 p-2 mx-3"
+          class="w-full h-60 resize-none rounded-sm border-2 p-2"
         ></textarea>
       </div>
     </form>
     <div>
       <button
-        class="uppercase bg-blue-500 mx-5 my-2 md:mx-3 p-3 text-gray-50 text-sm font-bold tracking-wide md:px-8 rounded-md hover:bg-gray-800 transition duration-200 ease-in"
+        class="uppercase bg-blue-500 mx-5 my-2 md:mx-3 p-3 text-gray-50 text-sm font-bold tracking-wide px-8 rounded-md hover:bg-gray-800 transition duration-200 ease-in"
       >
         Send Message
       </button>
