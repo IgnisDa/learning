@@ -14,15 +14,17 @@
         target="_blank"
         href="https://github.com/IgnisDa/"
         class="text-blue-500"
-        >IgnisDa</a
       >
+        IgnisDa
+      </a>
       &amp; Tailwind-ed By
       <a
         target="_blank"
         href="https://github.com/IgnisDa/"
         class="text-blue-500"
-        >IgnisDa</a
       >
+        IgnisDa
+      </a>
     </div>
   </div>
 </template>
