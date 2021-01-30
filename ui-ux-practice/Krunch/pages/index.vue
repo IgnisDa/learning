@@ -9,6 +9,7 @@
     <Video />
     <LatestNews />
     <Contact />
+    <Footer />
   </div>
 </template>
 
