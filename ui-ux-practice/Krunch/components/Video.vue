@@ -1,7 +1,7 @@
 <template>
   <div
     id="video"
-    class="mt-20 flex flex-col md:max-w-7xl mx-auto justify-center items-center"
+    class="mt-20 flex flex-col mx-auto justify-center items-center"
   >
     <div>
       <FontAwesomeIcon
@@ -9,7 +9,7 @@
         :icon="['fas', 'play-circle']"
       />
       <div
-        class="mx-auto text-center text-lg text-white w-9/12 leading-loose italic"
+        class="mx-auto mt-3 md:mt-6 text-center text-lg md:text-xl text-white w-9/12 md:w-full leading-loose italic"
       >
         <div>
           Aenean commodo ligula eget dolor sociis natoque penatibus et magnis
