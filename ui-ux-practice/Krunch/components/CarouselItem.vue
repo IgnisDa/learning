@@ -28,7 +28,9 @@ export default {
     },
     active: {
       type: Boolean,
-      default: false,
+      default: () => {
+        return false
+      },
     },
   },
 }
