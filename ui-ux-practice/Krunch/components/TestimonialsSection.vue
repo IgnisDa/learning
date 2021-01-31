@@ -32,6 +32,12 @@
   </div>
 </template>
 
+<script>
+export default {
+  components: {},
+}
+</script>
+
 <style>
 #testimonials {
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
