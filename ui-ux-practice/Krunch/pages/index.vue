@@ -1,15 +1,15 @@
 <template>
   <div>
-    <Hero />
-    <About />
-    <Portfolio />
-    <Testimonials />
-    <Services />
-    <Team />
-    <Video />
-    <LatestNews />
-    <Contact />
-    <Footer />
+    <HeroSection />
+    <AboutSection />
+    <PortfolioSection />
+    <TestimonialsSection />
+    <ServicesSection />
+    <TeamSection />
+    <VideoSection />
+    <LatestNewsSection />
+    <ContactSection />
+    <FooterSection />
   </div>
 </template>
 
