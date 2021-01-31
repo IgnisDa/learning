@@ -3,9 +3,9 @@
     id="testimonials"
     class="mt-10 flex flex-col justify-center mx-auto my-auto"
   >
-    <div class="">
+    <div>
       <div
-        class="mx-auto text-center md:max-w-7xl uppercase font-semibold text-3xl text-gray-100"
+        class="mx-auto text-center md:max-w-7xl uppercase font-semibold text-3xl text-gray-100 mt-10 sm:mt-0"
       >
         Testimonials
       </div>
