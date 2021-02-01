@@ -1,5 +1,5 @@
 <template>
-  <div id="hero-background">
+  <div id="hero">
     <div class="mx-auto container flex flex-col h-full">
       <HeroNavbar />
       <HeroText />
@@ -8,7 +8,7 @@
 </template>
 
 <style scoped>
-#hero-background {
+#hero {
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)),
     url('~assets/images/hero-bg.jpg');
   height: 770px;
