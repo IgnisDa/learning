@@ -1,7 +1,7 @@
 <template>
   <div
     id="about"
-    class="mt-20 flex flex-col md:max-w-7xl mx-auto justify-center items-center"
+    class="mt-20 flex flex-col md:max-w-7xl mx-auto justify-center items-center scroll-margin-top"
   >
     <div class="mx-auto text-center">
       <div class="uppercase my-1 font-semibold text-3xl text-gray-700">

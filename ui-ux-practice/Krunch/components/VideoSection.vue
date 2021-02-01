@@ -1,7 +1,7 @@
 <template>
   <div
     id="video"
-    class="mt-20 flex flex-col mx-auto justify-center items-center"
+    class="mt-20 flex flex-col mx-auto justify-center items-center scroll-margin-top"
   >
     <div>
       <FontAwesomeIcon

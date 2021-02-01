@@ -1,7 +1,7 @@
 <template>
   <div
     id="contact"
-    class="mt-20 flex flex-col md:max-w-7xl mx-auto justify-center items-center"
+    class="mt-20 flex flex-col md:max-w-7xl mx-auto justify-center items-center scroll-margin-top"
   >
     <div class="mx-auto text-center">
       <div class="uppercase my-1 font-semibold text-3xl text-gray-700">
@@ -14,7 +14,7 @@
     <div class="w-20 h-0.5 mx-auto my-4 bg-blue-400"></div>
     <form class="w-full sm:w-9/12">
       <div class="flex flex-wrap w-full px-3 mb-5">
-        <div class="w-full sm:w-1/2 sm:pr-4">
+        <div class="w-full sm:w-1/2 sm:pr-4 mb-8 sm:mb-0">
           <input
             id="your-name"
             type="text"

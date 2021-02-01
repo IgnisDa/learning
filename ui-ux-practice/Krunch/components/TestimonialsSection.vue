@@ -1,7 +1,7 @@
 <template>
   <div
     id="testimonials"
-    class="mt-10 flex flex-col justify-center mx-auto my-auto"
+    class="mt-10 flex flex-col justify-center mx-auto my-auto scroll-margin-top"
   >
     <div>
       <div

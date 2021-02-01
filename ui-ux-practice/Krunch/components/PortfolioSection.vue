@@ -1,7 +1,7 @@
 <template>
   <div
     id="portfolio"
-    class="mt-20 flex flex-col mx-auto justify-center items-center"
+    class="mt-20 flex flex-col mx-auto justify-center items-center scroll-margin-top"
   >
     <div class="mx-auto text-center md:max-w-7xl">
       <div class="uppercase my-1 font-semibold text-3xl text-gray-700">
