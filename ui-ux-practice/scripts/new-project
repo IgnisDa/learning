@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# This script is meant to be used after setting up a new project using the script
+# https://github.com/IgnisDa/linux-configs/blob/master/scripts/new-project. This
+# will install all dependencies of the project, move it to a cache folder and
+# then create a symbolic link to it
+
+pwd="$PWD"
+directory="$(basename $PWD)"
+yarn install
+mkdir -p "$HOME/.project-cache/$directory"
+mv "$pwd/node_modules" "$HOME/.project-cache/$directory/node_modules"
+ln -s "$HOME/.project-cache/$directory/node_modules" "$pwd/node_modules"
