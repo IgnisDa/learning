@@ -14,7 +14,7 @@
         <div class="uppercase font-bold text-gray-50 text-sm hidden sm:block">
           <NuxtLink
             :to="{ name: 'index' }"
-            class="ml-10 transition duration-300 text-blue-500 hover:text-blue-400"
+            class="ml-10 transition duration-300 hover:text-blue-400"
           >
             Home
           </NuxtLink>
@@ -59,3 +59,33 @@
     </div>
   </div>
 </template>
+
+<script>
+export default {
+  mounted() {
+    const section = document.querySelectorAll('.section')
+    const sections = {}
+    let i = 0
+
+    Array.prototype.forEach.call(section, function (e) {
+      sections[e.id] = e.offsetTop
+    })
+
+    window.onscroll = function () {
+      const scrollPosition =
+        document.documentElement.scrollTop || document.body.scrollTop
+
+      for (i in sections) {
+        if (sections[i] <= scrollPosition) {
+          document
+            .querySelector('.text-blue-500')
+            .classList.remove('text-blue-500')
+          document
+            .querySelector('a[href*=' + i + ']')
+            .classList.add('text-blue-500')
+        }
+      }
+    }
+  },
+}
+</script>
