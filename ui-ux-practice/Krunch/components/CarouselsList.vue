@@ -1,10 +1,16 @@
 <template>
-  <div class="carousel-view text-white">
-    <div v-for="(testimonial, index) in allTestimonialsGetter" :key="index + 0">
-      <CarouselItem
-        :testimonial="testimonial"
-        :active="index === currentIndex"
-      />
+  <div class="text-white">
+    <div
+      v-for="(testimonial, index) in allTestimonialsGetter"
+      :key="index"
+      class="overflow-x-hidden"
+    >
+      <transition tag="div" name="slide">
+        <CarouselItem
+          :testimonial="testimonial"
+          :active="index === currentIndex"
+        />
+      </transition>
     </div>
     <div class="carousel-controls flex justify-center mt-10 mb-10 sm:mb-0">
       <div v-for="(_testimonial, index) in allTestimonialsGetter" :key="index">
@@ -36,3 +42,17 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.slide-enter-active {
+  animation: slideIn 1s;
+}
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+</style>
