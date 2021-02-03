@@ -6,6 +6,7 @@
 
 pwd="$PWD"
 directory="$(basename $PWD)"
+rm node_modules
 yarn install
 mkdir -p "$HOME/.project-cache/$directory"
 mv "$pwd/node_modules" "$HOME/.project-cache/$directory/node_modules"
