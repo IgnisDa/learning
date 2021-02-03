@@ -1,15 +1,16 @@
 <template>
   <div>
-    <HeroSection />
-    <AboutSection />
-    <PortfolioSection />
-    <TestimonialsSection />
-    <ServicesSection />
-    <TeamSection />
-    <VideoSection />
-    <LatestNewsSection />
-    <ContactSection />
-    <FooterSection />
+    <MobileNavbar></MobileNavbar>
+    <HeroSection></HeroSection>
+    <AboutSection></AboutSection>
+    <PortfolioSection></PortfolioSection>
+    <TestimonialsSection></TestimonialsSection>
+    <ServicesSection></ServicesSection>
+    <TeamSection></TeamSection>
+    <VideoSection></VideoSection>
+    <LatestNewsSection></LatestNewsSection>
+    <ContactSection></ContactSection>
+    <FooterSection></FooterSection>
   </div>
 </template>
 
