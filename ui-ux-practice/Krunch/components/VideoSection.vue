@@ -4,10 +4,13 @@
     class="mt-20 flex flex-col mx-auto justify-center items-center scroll-margin-top"
   >
     <div>
-      <FontAwesomeIcon
-        class="h-20 w-20 fill-current text-white mx-auto cursor-pointer"
-        :icon="['fas', 'play-circle']"
-      />
+      <div class="flex">
+        <FontAwesomeIcon
+          class="fill-current text-white mx-auto cursor-pointer"
+          :icon="['fas', 'play-circle']"
+          size="6x"
+        ></FontAwesomeIcon>
+      </div>
       <div
         class="mx-auto mt-3 md:mt-6 text-center text-lg md:text-xl text-white w-9/12 md:w-full leading-loose italic"
       >
