@@ -19,9 +19,10 @@
         class="w-full md:w-1/3 my-5 p-2"
       >
         <FontAwesomeIcon
-          class="h-9 w-9 fill-current text-blue-500"
+          class="fill-current text-blue-500"
           :icon="section.icon"
-        />
+          size="2x"
+        ></FontAwesomeIcon>
         <div
           class="my-3 uppercase text-xl font-bold text-gray-800 tracking-wide"
         >
