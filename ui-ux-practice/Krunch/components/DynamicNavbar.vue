@@ -3,18 +3,22 @@
     <div
       v-show="showNavbar"
       id="navbar"
-      class="bg-black py-2 md:py-6 md:px-10 bg-opacity-80 w-full fixed"
+      class="bg-black py-2 md:py-6 md:px-10 bg-opacity-80 w-full fixed z-50"
     >
       <div class="md:max-w-6xl mx-auto">
         <div class="flex justify-between items-center mx-6 md:mx-0">
           <NuxtLink :to="{ name: 'index' }">
             <div class="font-bold text-white text-3xl">Krunch</div>
           </NuxtLink>
-          <div class="transition duration-300 hover:bg-gray-900 md:hidden p-2">
+          <div
+            class="transition duration-300 hover:bg-gray-900 md:hidden p-2"
+            @click="toggleNavbar"
+          >
             <FontAwesomeIcon
-              class="h-6 w-6 fill-current transition duration-200 ease-in text-white"
+              class="fill-current transition duration-200 flex ease-in text-white"
               :icon="['fas', 'bars']"
-            />
+              size="lg"
+            ></FontAwesomeIcon>
           </div>
           <div class="uppercase font-bold text-gray-50 text-sm hidden sm:block">
             <NuxtLink
@@ -67,10 +71,17 @@
 </template>
 
 <script>
+import { mapMutations, mapState } from 'vuex'
+
 export default {
   data: () => ({
     showNavbar: false,
   }),
+  computed: {
+    ...mapState({
+      isOpen: (state) => state.navbar.isOpen,
+    }),
+  },
   mounted() {
     window.addEventListener('scroll', this.onScroll)
   },
@@ -78,6 +89,9 @@ export default {
     window.removeEventListener('scroll', this.onScroll)
   },
   methods: {
+    ...mapMutations({
+      toggleNavbar: 'navbar/toggleNavbar',
+    }),
     onScroll() {
       const heroOffsetHeight = document.getElementById('hero').offsetHeight
       const currentScrollPos = window.pageYOffset
