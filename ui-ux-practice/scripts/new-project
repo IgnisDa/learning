@@ -6,8 +6,8 @@
 
 pwd="$PWD"
 directory="$(basename $PWD)"
-rm node_modules
-yarn install
-mkdir -p "$HOME/.project-cache/$directory"
-mv "$pwd/node_modules" "$HOME/.project-cache/$directory/node_modules"
+rm -rf node_modules
+rm -rf "$HOME/.project-cache/$directory/node_modules"
+mkdir -p "$HOME/.project-cache/$directory/node_modules"
 ln -s "$HOME/.project-cache/$directory/node_modules" "$pwd/node_modules"
+yarn install
