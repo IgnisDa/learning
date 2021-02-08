@@ -3,6 +3,7 @@ from pathlib import Path
 
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 
 data_directory = Path(__file__).parent.parent.resolve() / "sample_data"
@@ -37,3 +38,5 @@ for i in range(j, j + 7):
     print(y_pred[0])
     ind = features_nd.tolist().index(X_test[i].tolist())
     print(data[ind].strip())
+
+print(accuracy_score(y_test, y_pred))
