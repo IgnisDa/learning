@@ -39,4 +39,4 @@ for i in range(j, j + 7):
     ind = features_nd.tolist().index(X_test[i].tolist())
     print(data[ind].strip())
 
-print(accuracy_score(y_test, y_pred))
+print("Accuracy:", accuracy_score(y_test, y_pred))
