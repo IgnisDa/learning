@@ -5,9 +5,16 @@ description = ""
 authors = ["Diptesh Choudhuri <ignisda2001@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.7.1"
 nltk = "^3.5"
 scikit-learn = "^0.24.1"
+jupyterlab = "^3.0.7"
+tweepy = "^3.10.0"
+textblob = "^0.15.3"
+wordcloud = "^1.8.1"
+pandas = "^1.2.2"
+numpy = "^1.20.1"
+matplotlib = "^3.3.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
