@@ -15,6 +15,7 @@ Vagrant.configure("2") do |config|
   config.vm.network "forwarded_port", guest: 8533, host: 8533, host_ip: "0.0.0.0"
   # This folder is synced to the machine
   config.vm.synced_folder ".", "/home/vagrant/learning"
+  config.ssh.forward_x11 = true
   # VirtualBox is the default provider, and we specify some specific settings here
   config.vm.provider "virtualbox" do |vb|
     vb.memory = "2048"
