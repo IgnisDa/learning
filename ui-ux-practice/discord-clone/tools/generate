@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+# use `../tools/generate` to run this script from the frontend folder
+
+# since the node_modules folder is a symbolic link, the `yarn generate`
+# doesn't work as expected (problems in resolving require statements
+# correctly), we use this script. It moves the frontend directory to a
+# different location, sets up a correct node_modules and then runs the
+# command there. The generated `dist` folder is copied back to the
+# correct location. This also takes care of caching the node_modules
+# at the build location to make it faster during subsequent runs.
+
+# save the name of the CWD
+directory="$(basename $PWD)"
+# build directory
+build_dir="$HOME/.project-build/$directory/"
+# create the build directory
+mkdir -p "$build_dir"
+# save the current path
+pwd="$PWD"
+# copy the directory to a temporary location
+rsync -a --progress "." "$build_dir" --exclude "node_modules"
+cd "$build_dir"
+# install the project dependencies
+yarn install
+# generate the production build
+yarn generate
+# delete the target directory if it exists
+rm -rf "$pwd/dist"
+# move the file to the correct location
+rsync -a --progress "dist/" "$pwd/dist"

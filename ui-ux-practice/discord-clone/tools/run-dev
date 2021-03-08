@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# This script will be used to spin up the development servers for all the discord-clone applications
+
+yarn dev
