@@ -12,6 +12,7 @@ module.exports = {
         'dark-but-not-black': '#2C2F33',
         'not-quite-black': '#23272A',
         'almost-black': '#202225',
+        'light-black': '#36393F',
       },
     },
   },
