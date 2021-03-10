@@ -1,6 +1,6 @@
 <template>
   <div
-    class="rounded-full bg-not-quite-black flex justify-center items-center cursor-pointer"
+    class="flex items-center justify-center rounded-full cursor-pointer bg-not-quite-black"
   >
     <span class="text-gray-300 uppercase">
       {{ getInitials(serverName) }}

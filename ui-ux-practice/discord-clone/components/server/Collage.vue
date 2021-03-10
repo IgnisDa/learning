@@ -1,9 +1,9 @@
 <template>
-  <div class="grid grid-cols-2 grid-rows-2 mx-auto p-1">
+  <div class="grid grid-cols-2 grid-rows-2 p-1 mx-auto">
     <div
       v-for="(image, index) in images"
       :key="index"
-      class="flex justify-center items-center"
+      class="flex items-center justify-center"
     >
       <img
         v-if="image !== ''"

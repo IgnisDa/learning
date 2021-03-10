@@ -1,13 +1,13 @@
 <template>
   <div>
     <div
-      class="col-start-1 row-end-2 bg-dark-but-not-black h-full w-12 mx-auto"
+      class="w-12 h-full col-start-1 row-end-2 mx-auto bg-dark-but-not-black"
       style="border-radius: 85px 85px 100px 100px"
     ></div>
-    <div class="space-y-2 flex flex-col items-center col-start-1 row-end-2">
-      <div class="h-8 w-8 flex justify-center items-center my-2">
+    <div class="flex flex-col items-center col-start-1 row-end-2 space-y-2">
+      <div class="flex items-center justify-center w-8 h-8 my-2">
         <FontAwesomeIcon
-          class="fill-current text-blue-400 p-1"
+          class="p-1 text-blue-400 fill-current"
           :icon="['fa', 'folder']"
         ></FontAwesomeIcon>
       </div>

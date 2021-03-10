@@ -1,30 +1,34 @@
 <template>
-  <div class="w-full">
+  <div class="flex flex-col w-full space-y-2">
     <div
       v-for="(folderInfo, _, serverFolderIndex) in serverFolders"
       :key="`${serverFolderIndex}-folder`"
-      class="rounded-t-2xl rounded-b-full w-full grid"
+      class="grid w-full rounded-b-full rounded-t-2xl"
     >
       <div
-        class="col-start-1 row-end-2 bg-dark-but-not-black h-full w-12 mx-auto"
+        class="w-12 h-full col-start-1 row-end-2 mx-auto bg-dark-but-not-black"
         style="border-radius: 85px 85px 100px 100px"
       ></div>
-      <div class="col-start-1 row-end-2">
-        <transition name="toggle-folder" tag="div">
+      <div class="flex flex-col col-start-1 row-end-2 space-y-2">
+        <transition
+          name="toggle-folder"
+          tag="div"
+          class="flex flex-col space-y-2"
+        >
           <div
             v-if="folderInfo.open"
-            class="space-y-2 flex flex-col items-center"
+            class="flex flex-col items-center space-y-2"
           >
             <div
-              class="h-8 w-8 flex justify-center items-center my-2 cursor-pointer"
+              class="flex items-center justify-center w-8 h-8 my-2 cursor-pointer"
               @click="folderInfo.open = false"
             >
               <FontAwesomeIcon
-                class="fill-current text-blue-400 p-1"
+                class="p-1 text-blue-400 fill-current"
                 :icon="['fa', 'folder']"
               ></FontAwesomeIcon>
             </div>
-            <div class="w-full flex-col flex space-y-2">
+            <div class="flex flex-col w-full space-y-2">
               <ServerInfo
                 v-for="(server, folderIndex) in folderInfo.folders"
                 :key="`${folderIndex}-folder-item`"

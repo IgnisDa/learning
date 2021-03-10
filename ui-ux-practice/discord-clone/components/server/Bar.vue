@@ -1,21 +1,21 @@
 <template>
   <div
     id="server-bar"
-    class="bg-almost-black h-screen overflow-auto flex flex-col space-y-2"
+    class="flex flex-col h-screen space-y-2 overflow-auto bg-almost-black"
     style="width: 72px"
   >
-    <div class="flex my-2 justify-center">
-      <div class="flex p-2 bg-dark-but-not-black rounded-full">
+    <div class="flex justify-center my-2">
+      <div class="flex p-2 rounded-full bg-dark-but-not-black">
         <FontAwesomeIcon
-          class="h-8 w-8 fill-current text-gray-200"
+          class="w-8 h-8 text-gray-200 fill-current"
           :icon="['fab', 'discord']"
         ></FontAwesomeIcon>
       </div>
     </div>
-    <div class="flex justify-center items-center">
+    <div class="flex items-center justify-center">
       <div class="h-0.5 flex-none bg-gray-800 w-3/6"></div>
     </div>
-    <div class="flex justify-center flex-col space-y-2 items-center">
+    <div class="flex flex-col items-center justify-center space-y-2">
       <div v-for="(server, index) in servers" :key="index" class="w-full">
         <ServerInfo
           :notifications="server.notifications"
@@ -29,33 +29,33 @@
     </div>
     <div class="flex justify-center">
       <div
-        class="flex p-2 bg-gray-700 rounded-full hover:rounded-xl hover:bg-green-500 transition-border-radius-and-color text-green-500 hover:text-green-100 cursor-pointer"
+        class="flex p-2 text-green-500 bg-gray-700 rounded-full cursor-pointer hover:rounded-xl hover:bg-green-500 transition-border-radius-and-color hover:text-green-100"
       >
         <FontAwesomeIcon
-          class="h-8 w-8 p-1 fill-current"
+          class="w-8 h-8 p-1 fill-current"
           :icon="['fa', 'plus']"
         ></FontAwesomeIcon>
       </div>
     </div>
     <div class="flex justify-center">
       <div
-        class="flex p-2 bg-gray-700 rounded-full hover:rounded-xl hover:bg-green-500 transition-border-radius-and-color text-green-500 hover:text-green-100 cursor-pointer"
+        class="flex p-2 text-green-500 bg-gray-700 rounded-full cursor-pointer hover:rounded-xl hover:bg-green-500 transition-border-radius-and-color hover:text-green-100"
       >
         <FontAwesomeIcon
-          class="h-8 w-8 p-1 fill-current"
+          class="w-8 h-8 p-1 fill-current"
           :icon="['fa', 'compass']"
         ></FontAwesomeIcon>
       </div>
     </div>
-    <div class="flex justify-center items-center">
+    <div class="flex items-center justify-center">
       <div class="h-0.5 flex-none bg-gray-800 w-3/6"></div>
     </div>
     <div class="flex justify-center">
       <div
-        class="flex p-2 bg-gray-700 rounded-full hover:rounded-xl hover:bg-green-500 transition-border-radius-and-color text-green-500 hover:text-green-100 cursor-pointer"
+        class="flex p-2 text-green-500 bg-gray-700 rounded-full cursor-pointer hover:rounded-xl hover:bg-green-500 transition-border-radius-and-color hover:text-green-100"
       >
         <FontAwesomeIcon
-          class="h-8 w-8 fill-current"
+          class="w-8 h-8 fill-current"
           :icon="['fa', 'download']"
         ></FontAwesomeIcon>
       </div>

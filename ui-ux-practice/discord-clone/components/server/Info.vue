@@ -1,14 +1,14 @@
 <template>
-  <div class="flex w-full items-center relative">
+  <div class="relative flex items-center w-full">
     <div
       v-if="unread || notifications"
-      class="w-2 h-2 absolute rounded-full -translate-x-1 transform bg-white"
+      class="absolute w-2 h-2 transform -translate-x-1 bg-white rounded-full"
     ></div>
-    <div class="w-full flex justify-center items-center flex-grow">
+    <div class="flex items-center justify-center flex-grow w-full">
       <div class="relative">
         <img
           v-if="image !== ''"
-          class="h-12 w-12 cursor-pointer rounded-full hover:rounded-xl transition-border-radius duration-1000"
+          class="w-12 h-12 duration-1000 rounded-full cursor-pointer hover:rounded-xl transition-border-radius"
           :src="require(`~/assets/server-icons/${image}`)"
           :alt="`${serverName}-icon`"
         />
@@ -19,7 +19,7 @@
         ></ServerInfoInitials>
         <div
           v-if="notifications !== 0"
-          class="absolute bottom-0 right-0 flex justify-center items-center border-4 border-almost-black bg-red-600 text-white rounded-full font-semibold text-xs h-6 w-6 cursor-pointer"
+          class="absolute bottom-0 right-0 flex items-center justify-center w-6 h-6 text-xs font-semibold text-white bg-red-600 border-4 rounded-full cursor-pointer border-almost-black"
         >
           {{ notifications }}
         </div>
