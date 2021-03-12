@@ -17,6 +17,9 @@ import {
   faInbox,
   faSearch,
   faQuestion,
+  faGift,
+  faImage,
+  faSadCry,
 } from '@fortawesome/free-solid-svg-icons'
 import { faDiscord, faAlgolia } from '@fortawesome/free-brands-svg-icons'
 
@@ -42,6 +45,9 @@ library.add(
   faInbox,
   faQuestion,
   faSearch,
+  faGift,
+  faImage,
+  faSadCry,
   faAlgolia
 )
 

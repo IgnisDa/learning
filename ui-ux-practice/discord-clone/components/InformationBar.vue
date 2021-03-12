@@ -1,6 +1,6 @@
 <template>
   <div
-    class="absolute inset-x-0 flex items-center justify-center flex-grow h-12 border-b border-black bg-light-black border-opacity-70"
+    class="absolute inset-x-0 z-10 flex items-center justify-center flex-grow h-12 border-b border-black bg-light-black border-opacity-70"
   >
     <div class="flex items-center mx-3 space-x-2">
       <FontAwesomeIcon
