@@ -10,6 +10,13 @@ import {
   faCog,
   faMicrophone,
   faUserFriends,
+  faHashtag,
+  faThumbtack,
+  faBell,
+  faUsers,
+  faInbox,
+  faSearch,
+  faQuestion,
 } from '@fortawesome/free-solid-svg-icons'
 import { faDiscord, faAlgolia } from '@fortawesome/free-brands-svg-icons'
 
@@ -28,6 +35,13 @@ library.add(
   faMicrophone,
   faUserFriends,
   faDiscord,
+  faHashtag,
+  faThumbtack,
+  faBell,
+  faUsers,
+  faInbox,
+  faQuestion,
+  faSearch,
   faAlgolia
 )
 

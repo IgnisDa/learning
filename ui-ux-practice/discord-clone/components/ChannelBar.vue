@@ -1,34 +1,45 @@
 <template>
   <div id="channel-bar" class="flex flex-col bg-dark-but-not-black">
-    <div class="flex-grow px-3 py-2">
-      <div
-        class="flex items-center px-2 py-2 space-x-4 tracking-tight text-gray-300 rounded-md hover:bg-light-black"
-      >
-        <FontAwesomeIcon
-          class="w-6 h-6 fill-current text-gray-50"
-          :icon="['fas', 'user-friends']"
-        ></FontAwesomeIcon>
-        <div class="flex items-center justify-between flex-grow">
-          <div>Friends</div>
-          <div
-            class="flex items-center justify-center w-4 h-4 text-sm font-bold bg-red-600 rounded-full"
-          >
-            1
+    <div
+      class="flex items-center justify-center h-12 border-b border-black shadow-2xl bg-dark-but-not-black border-opacity-70"
+    >
+      <input
+        type="text"
+        placeholder="Find or start a conversation"
+        class="w-full px-2 py-1 mx-2 text-sm font-light tracking-tight text-gray-500 focus:outline-none bg-almost-black"
+      />
+    </div>
+    <div class="flex-grow mx-3">
+      <div>
+        <div
+          class="flex items-center py-2 space-x-4 tracking-tight text-gray-300 rounded-md hover:bg-light-black"
+        >
+          <FontAwesomeIcon
+            class="w-6 h-6 fill-current text-gray-50"
+            :icon="['fas', 'user-friends']"
+          ></FontAwesomeIcon>
+          <div class="flex items-center justify-between flex-grow">
+            <div>Friends</div>
+            <div
+              class="flex items-center justify-center w-4 h-4 text-sm font-bold bg-red-600 rounded-full"
+            >
+              1
+            </div>
+          </div>
+        </div>
+        <div
+          class="flex items-center py-2 space-x-5 tracking-tight text-gray-300 rounded-md hover:bg-light-black"
+        >
+          <FontAwesomeIcon
+            class="w-6 h-6 fill-current text-gray-50"
+            :icon="['fab', 'algolia']"
+          ></FontAwesomeIcon>
+          <div class="flex items-center justify-between flex-grow">
+            <div>Nitro</div>
           </div>
         </div>
       </div>
-      <div
-        class="flex items-center px-2 py-2 space-x-5 tracking-tight text-gray-300 rounded-md hover:bg-light-black"
-      >
-        <FontAwesomeIcon
-          class="w-6 h-6 fill-current text-gray-50"
-          :icon="['fab', 'algolia']"
-        ></FontAwesomeIcon>
-        <div class="flex items-center justify-between flex-grow">
-          <div>Nitro</div>
-        </div>
-      </div>
-      <div class="mx-1 my-5">
+      <div class="my-5">
         <div class="flex items-center justify-between mx-1 my-1">
           <div class="text-xs text-gray-400 uppercase">Direct Messages</div>
           <FontAwesomeIcon
