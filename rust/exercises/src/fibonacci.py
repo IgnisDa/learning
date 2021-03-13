@@ -4,10 +4,10 @@ ITERATIONS = 255
 
 
 def iterate_func(func, num):
-    time_1 = time.time()
-    for _ in range(1, num):
+    time_1 = time.process_time()
+    for _ in range(1, ITERATIONS):
         func(num)
-    return round((time.time() - time_1) * 1000000), func(num)
+    return round((time.process_time() - time_1) * 1e9), func(num)
 
 
 def fibonacci_memory(n):
@@ -57,6 +57,6 @@ dynamic = iterate_func(fibonacci_dynamic, n)
 
 assert memory[1] == dynamic[1] == recursion[1]
 
-print(f"Recursion method took: '{recursion[0]}' micro seconds")
-print(f"Dynamic method took: '{dynamic[0]}' micro seconds")
-print(f"Memory optimized method took: '{memory[0]}' micro seconds")
+print(f"Recursion method took: '{recursion[0]}' nano seconds")
+print(f"Dynamic method took: '{dynamic[0]}' nano seconds")
+print(f"Memory optimized method took: '{memory[0]}' nano seconds")
