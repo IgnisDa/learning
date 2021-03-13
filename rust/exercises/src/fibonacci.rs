@@ -17,9 +17,9 @@ fn main() {
     assert_eq!(recursion.1, dynamic.1);
     assert_eq!(memory.1, dynamic.1);
 
-    println!("Recursion method took: '{}' micro seconds", recursion.0);
-    println!("Dynamic method took: '{}' micro seconds", dynamic.0);
-    println!("Memory optimized method took: '{}' micro seconds", memory.0);
+    println!("Recursion method took: '{}' nano seconds", recursion.0);
+    println!("Dynamic method took: '{}' nano seconds", dynamic.0);
+    println!("Memory optimized method took: '{}' nano seconds", memory.0);
 }
 
 fn fibonacci_memory(n: u64) -> u64 {
@@ -67,5 +67,5 @@ fn iterate_func(func: fn(u64) -> u64, num: u64) -> (u128, u64) {
     for _ in 1..ITERATIONS {
         func(num);
     }
-    return (now.elapsed().as_micros(), func(num));
+    return (now.elapsed().as_nanos(), func(num));
 }
