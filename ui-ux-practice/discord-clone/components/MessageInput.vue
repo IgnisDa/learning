@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex items-center justify-between px-2 py-1 mx-4 space-x-3 bg-black rounded-md bg-opacity-20 h-11"
+    class="flex items-center justify-between px-2 py-1 mx-auto space-x-3 rounded-md bg-not-quite-black h-11"
   >
     <FontAwesomeIcon
       class="flex-none w-6 h-6 text-gray-300 cursor-pointer fill-current hover:text-gray-200"
