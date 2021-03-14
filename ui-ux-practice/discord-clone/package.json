@@ -18,6 +18,7 @@
     "@fortawesome/vue-fontawesome": "^2.0.2",
     "@nuxtjs/pwa": "^3.3.5",
     "core-js": "^3.8.3",
+    "lorem-ipsum": "^2.0.3",
     "nuxt": "^2.14.12",
     "slugify": "^1.4.7"
   },
