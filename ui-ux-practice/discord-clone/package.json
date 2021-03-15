@@ -20,7 +20,8 @@
     "core-js": "^3.8.3",
     "lorem-ipsum": "^2.0.3",
     "nuxt": "^2.14.12",
-    "slugify": "^1.4.7"
+    "slugify": "^1.4.7",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@nuxtjs/eslint-config": "^5.0.0",
