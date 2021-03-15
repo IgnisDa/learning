@@ -1,5 +1,8 @@
 <template>
-  <div id="user-bar" class="h-screen overflow-auto bg-dark-but-not-black">
+  <div
+    id="user-bar"
+    class="hidden h-screen overflow-auto bg-dark-but-not-black xl:block"
+  >
     <div
       class="fixed flex items-center justify-around h-12 px-2 space-x-3 border-b border-black bg-light-black border-opacity-70"
     >
@@ -64,26 +67,50 @@ import { getRandomString } from '~/utils.js'
 export default {
   data: () => ({
     users: {
-      'tailwind labs': ['simonswiss'],
-      'community manager': ['Sophia'],
-      pro: ['andrew.welch'],
+      'tailwind labs': [],
+      'community manager': [],
+      pro: [],
       booster: ['alistair'],
-      online: [
-        '10b2',
-        'Adam Listek',
-        'Aditya',
-        'adprasetyo',
-        'Agoto',
-        'abstruse',
-        'arn',
-        'Atom',
-        'axsuul',
-        'bakunawa',
-        'bbworld',
-        'benzi',
-      ],
+      online: [],
     },
   }),
+  async fetch() {
+    const { results: onlineUsers } = await this.$axios.$get(
+      'https://randomuser.me/api/?results=20'
+    )
+    const online = []
+    for (const user of onlineUsers) {
+      online.push(user.login.username)
+    }
+    this.users.online = online
+
+    const { results: proUsers } = await this.$axios.$get(
+      `https://randomuser.me/api/?results=${Math.floor(Math.random() * 6) + 1}`
+    )
+    const pro = []
+    for (const user of proUsers) {
+      pro.push(user.login.username)
+    }
+    this.users.pro = pro
+
+    const { results: labUsers } = await this.$axios.$get(
+      `https://randomuser.me/api/?results=${Math.floor(Math.random() * 6) + 1}`
+    )
+    const lab = []
+    for (const user of labUsers) {
+      lab.push(user.login.username)
+    }
+    this.users['tailwind labs'] = lab
+
+    const { results: managers } = await this.$axios.$get(
+      `https://randomuser.me/api/?results=${Math.floor(Math.random() * 6) + 1}`
+    )
+    const manager = []
+    for (const user of managers) {
+      manager.push(user.login.username)
+    }
+    this.users['community manager'] = manager
+  },
   methods: {
     getImage(name) {
       return slugify(name, { lower: true })
