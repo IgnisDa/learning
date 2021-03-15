@@ -11,6 +11,7 @@
           class="w-12 h-12 duration-1000 rounded-full cursor-pointer hover:rounded-xl transition-border-radius"
           :src="`https://picsum.photos/seed/${getRandomString()}/300`"
           :alt="`${serverName}-icon`"
+          loading="lazy"
         />
         <ServerInfoInitials
           v-else

@@ -6,6 +6,7 @@
           :src="`https://picsum.photos/seed/${getRandomString()}/300`"
           class="flex-none object-cover w-10 h-10 rounded-full"
           alt="kitty"
+          loading="lazy"
         />
         <div class="flex flex-col pr-20 space-y-1">
           <div class="flex items-center space-x-2">

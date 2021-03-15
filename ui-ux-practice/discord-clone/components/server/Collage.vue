@@ -10,6 +10,7 @@
         :src="`https://picsum.photos/seed/${getRandomString()}/300`"
         class="rounded-full p-0.5"
         :alt="`${server.name}-icon`"
+        loading="lazy"
       />
       <ServerInfoInitials
         v-else
