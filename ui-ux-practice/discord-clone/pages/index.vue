@@ -3,7 +3,7 @@
     <div class="flex-grow mt-12 mb-4 overflow-auto">
       <div v-for="index in 200" :key="index" class="flex py-2 space-x-3">
         <img
-          src="https://picsum.photos/300.webp"
+          :src="`https://picsum.photos/seed/${getRandomString()}/300`"
           class="flex-none object-cover w-10 h-10 rounded-full"
           alt="kitty"
         />
@@ -26,6 +26,7 @@
 
 <script>
 import { LoremIpsum } from 'lorem-ipsum'
+import { getRandomString } from '~/utils.js'
 
 export default {
   methods: {
@@ -36,6 +37,9 @@ export default {
       return new Date(
         start.getTime() + Math.random() * (end.getTime() - start.getTime())
       ).toLocaleDateString('en-US')
+    },
+    getRandomString() {
+      return getRandomString()
     },
     getRandomText() {
       const lorem = new LoremIpsum({

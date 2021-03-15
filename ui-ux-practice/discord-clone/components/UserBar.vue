@@ -44,7 +44,7 @@
               class="flex items-center py-2 space-x-3 text-green-500"
             >
               <img
-                :src="require(`~/assets/user-images/${getImage(username)}.png`)"
+                :src="`https://picsum.photos/seed/${getRandomString()}/300`"
                 :alt="`'s image`"
                 class="w-8 h-8 rounded-full"
               />
@@ -58,7 +58,8 @@
 </template>
 
 <script>
-const slugify = require('slugify')
+import slugify from 'slugify'
+import { getRandomString } from '~/utils.js'
 
 export default {
   data: () => ({
@@ -85,9 +86,10 @@ export default {
   }),
   methods: {
     getImage(name) {
-      // console.log(slugify(name))
       return slugify(name, { lower: true })
-      // return 'default'
+    },
+    getRandomString() {
+      return getRandomString()
     },
   },
 }

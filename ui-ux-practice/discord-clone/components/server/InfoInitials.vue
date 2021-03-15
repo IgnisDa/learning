@@ -2,7 +2,7 @@
   <div
     class="flex items-center justify-center rounded-full cursor-pointer bg-not-quite-black"
   >
-    <span class="text-gray-300 uppercase">
+    <span class="flex-none text-gray-300 uppercase">
       {{ getInitials(serverName) }}
     </span>
   </div>

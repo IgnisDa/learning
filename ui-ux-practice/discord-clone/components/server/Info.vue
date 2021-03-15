@@ -7,9 +7,9 @@
     <div class="flex items-center justify-center flex-grow w-full">
       <div class="relative">
         <img
-          v-if="image !== ''"
+          v-if="noImage !== true"
           class="w-12 h-12 duration-1000 rounded-full cursor-pointer hover:rounded-xl transition-border-radius"
-          :src="require(`~/assets/server-icons/${image}`)"
+          :src="`https://picsum.photos/seed/${getRandomString()}/300`"
           :alt="`${serverName}-icon`"
         />
         <ServerInfoInitials
@@ -29,15 +29,17 @@
 </template>
 
 <script>
+import { getRandomString } from '~/utils.js'
+
 export default {
   props: {
     serverName: {
       type: String,
       required: true,
     },
-    image: {
-      type: String,
-      default: '',
+    noImage: {
+      type: Boolean,
+      default: false,
     },
     notifications: {
       type: Number,
@@ -56,6 +58,9 @@ export default {
         initials += names[names.length - 1].substring(0, 1).toUpperCase()
       }
       return initials
+    },
+    getRandomString() {
+      return getRandomString()
     },
   },
 }

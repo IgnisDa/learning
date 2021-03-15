@@ -34,7 +34,7 @@
                 :key="`${folderIndex}-folder-item`"
                 :notifications="server.notifications"
                 :server-name="server.name"
-                :image="server.icon"
+                :no-image="server.noImage"
                 :unread="server.unread"
               >
               </ServerInfo>
@@ -43,7 +43,7 @@
           <ServerCollage
             v-else
             class="w-12 h-12 cursor-pointer"
-            :images="firstFourImages(folderInfo)"
+            :servers="firstFourServers(folderInfo)"
             @click.native="folderInfo.open = true"
           ></ServerCollage>
         </transition>
@@ -61,13 +61,13 @@ export default {
     },
   },
   methods: {
-    firstFourImages(folderInfo) {
-      const images = []
+    firstFourServers(folderInfo) {
+      const servers = []
       for (const folder in folderInfo.folders) {
         if (parseInt(folder) === 4) break
-        images.push(folderInfo.folders[folder].icon)
+        servers.push(folderInfo.folders[folder])
       }
-      return images
+      return servers
     },
   },
 }

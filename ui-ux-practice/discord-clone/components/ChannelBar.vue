@@ -56,11 +56,7 @@
             <div class="relative flex-none">
               <img
                 class="w-8 h-8 rounded-full"
-                :src="
-                  directMessage.image !== undefined
-                    ? require(`~/assets/direct-messages/${directMessage.image}`)
-                    : require('~/assets/direct-messages/default.png')
-                "
+                :src="`https://picsum.photos/seed/${getRandomString()}/300`"
                 :alt="`Direct message with ${directMessage.name}`"
               />
               <div
@@ -131,6 +127,8 @@
 </template>
 
 <script>
+import { getRandomString } from '~/utils.js'
+
 export default {
   data: () => ({
     directMessages: [
@@ -151,5 +149,10 @@ export default {
       { name: 'SplendidDust', image: 'splendid-dust.png', online: true },
     ],
   }),
+  methods: {
+    getRandomString() {
+      return getRandomString()
+    },
+  },
 }
 </script>

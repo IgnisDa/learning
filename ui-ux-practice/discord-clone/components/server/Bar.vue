@@ -20,8 +20,8 @@
         <ServerInfo
           :notifications="server.notifications"
           :server-name="server.name"
-          :image="server.icon"
           :unread="server.unread"
+          :no-image="server.noImage"
         >
         </ServerInfo>
       </div>
@@ -67,57 +67,44 @@
 export default {
   data: () => ({
     servers: [
-      { name: 'Nuxt.js', icon: 'nuxtjs.png', unread: true },
-      { name: 'Tailwind CSS', icon: 'tailwindcss.png' },
-      { name: 'Vue Land', icon: 'vue-land.png' },
-      { name: 'Python', icon: 'python.png', unread: true },
-      {
-        name: 'The Coding Den',
-        icon: 'coding-den.png',
-        notifications: 1,
-      },
-      { name: 'Django', icon: 'django.png', notifications: 2 },
-      { name: 'Unixporn', icon: 'unixporn.png' },
+      { name: 'Nuxt.js', unread: true },
+      { name: 'Tailwind CSS' },
+      { name: 'Vue Land' },
+      { name: 'Python', unread: true },
+      { name: 'The Coding Den', notifications: 1 },
+      { name: 'Django', notifications: 2 },
+      { name: 'Unixporn', noImage: true },
     ],
     serverFolders: {
       folderOne: {
         open: true,
         folders: [
-          { name: 'CSI Core Team', icon: 'csi-core-team.png', unread: true },
-          { name: "enigma's fam", icon: "enigma's-fam.png" },
-          { name: 'Swarg Lok', icon: 'swarg-lok.png' },
-          { name: "DiabLo's Server", icon: "diablo's-server.png" },
-          { name: 'EB08', icon: 'eb08.png' },
-          {
-            name: 'SEAS BU 2024',
-            icon: 'seas-bu.png',
-            unread: true,
-            notifications: 10,
-          },
-          { name: 'Bennett University', icon: 'bennett-university.png' },
-          { name: 'CSS Sucks', icon: '' },
+          { name: 'CSI Core Team', unread: true },
+          { name: "enigma's fam" },
+          { name: 'Swarg Lok' },
+          { name: "DiabLo's Server", noImage: true },
+          { name: 'EB08' },
+          { name: 'SEAS BU 2024', unread: true, notifications: 10 },
+          { name: 'Bennett University' },
+          { name: 'CSS Sucks', noImage: true },
         ],
       },
       folderTwo: {
         open: false,
         folders: [
-          { name: 'Nuxt.js', icon: 'nuxtjs.png', unread: true },
-          { name: 'Tailwind CSS', icon: 'tailwindcss.png' },
-          { name: 'Vue Land', icon: 'vue-land.png' },
-          { name: 'Python', icon: 'python.png', unread: true },
-          {
-            name: 'The Coding Den',
-            icon: 'coding-den.png',
-            notifications: 1,
-          },
-          { name: 'CSI Core Team', icon: 'csi-core-team.png', unread: true },
-          { name: "enigma's fam", icon: "enigma's-fam.png" },
-          { name: 'Swarg Lok', icon: 'swarg-lok.png' },
-          { name: "DiabLo's Server", icon: "diablo's-server.png" },
-          { name: 'EB08', icon: 'eb08.png' },
-          { name: 'SEAS BU 2024', icon: 'seas-bu.png', unread: true },
-          { name: 'Bennett University', icon: 'bennett-university.png' },
-          { name: 'CSS Sucks', icon: '' },
+          { name: 'Nuxt.js', unread: true, noImage: true },
+          { name: 'Tailwind CSS' },
+          { name: 'Vue Land' },
+          { name: 'Python', unread: true },
+          { name: 'The Coding Den', notifications: 1 },
+          { name: 'CSI Core Team', unread: true },
+          { name: "enigma's fam" },
+          { name: 'Swarg Lok', noImage: true },
+          { name: "DiabLo's Server" },
+          { name: 'EB08', noImage: true },
+          { name: 'SEAS BU 2024', unread: true },
+          { name: 'Bennett University' },
+          { name: 'CSS Sucks' },
         ],
       },
     },

@@ -9,7 +9,7 @@
       <InformationBar class="flex-none"></InformationBar>
       <Nuxt class="flex-grow bg-light-black" />
     </div>
-    <UserBar style="width: 240px" class="h-full"></UserBar>
+    <UserBar style="width: 240px" class="flex-none h-full"></UserBar>
   </div>
 </template>
 
