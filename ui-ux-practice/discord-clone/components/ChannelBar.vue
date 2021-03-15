@@ -53,11 +53,12 @@
             :key="index"
             class="flex items-center space-x-3"
           >
-            <div class="relative flex-none">
+            <div v-if="!directMessage.deleted" class="relative flex-none">
               <img
                 class="w-8 h-8 rounded-full"
                 :src="`https://picsum.photos/seed/${getRandomString()}/300`"
                 :alt="`Direct message with ${directMessage.name}`"
+                loading="lazy"
               />
               <div
                 class="absolute bottom-0 right-0 w-3 h-3 rounded-full ring ring-dark-but-not-black"
@@ -67,6 +68,14 @@
                     : 'border-4 border-gray-400 bg-gray-800',
                 ]"
               ></div>
+            </div>
+            <div v-else class="flex-none">
+              <img
+                class="w-8 h-8 rounded-full"
+                src="https://discord.com/assets/6debd47ed13483642cf09e832ed0bc1b.png"
+                :alt="`Direct message with ${directMessage.name}`"
+                loading="lazy"
+              />
             </div>
             <div class="text-gray-400 truncate">
               <div v-if="!directMessage.deleted">
@@ -81,7 +90,9 @@
                 </div>
               </div>
               <div v-else>
-                <div class="text-sm truncate">Deleted User {{ uuid4() }}</div>
+                <div class="text-sm truncate">
+                  Deleted User {{ getRandomString() }}
+                </div>
               </div>
             </div>
           </div>
@@ -98,6 +109,7 @@
               :src="`https://picsum.photos/seed/${getRandomString()}/900`"
               class="w-9/12 rounded-full"
               alt="ignisda icon"
+              loading="lazy"
             />
             <div
               class="absolute bottom-0.5 right-3 h-2.5 border-2 border-gray-400 w-2.5 bg-gray-800 rounded-full"
@@ -132,7 +144,7 @@
 </template>
 
 <script>
-import { v4 as uuid4 } from 'uuid'
+import { LoremIpsum } from 'lorem-ipsum'
 import { getRandomString } from '~/utils.js'
 
 export default {
@@ -147,7 +159,7 @@ export default {
       const online = deleted ? false : Math.random() < 0.5
       let description = null
       if (Math.random() > 0.5) {
-        description = user.login.sha256
+        description = this.getRandomDescription()
       }
       directMessages.push({
         name: user.login.username,
@@ -162,8 +174,8 @@ export default {
     getRandomString() {
       return getRandomString()
     },
-    uuid4() {
-      return uuid4()
+    getRandomDescription() {
+      return new LoremIpsum().generateWords(10)
     },
   },
 }
