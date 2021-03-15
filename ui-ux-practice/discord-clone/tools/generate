@@ -12,8 +12,10 @@
 
 # save the name of the CWD
 directory="$(basename $PWD)"
-# build directory
-build_dir="$HOME/.project-build/$directory/"
+# random directory to store run
+random_dir="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 130 ; echo '')"
+# create the build directory
+build_dir="$HOME/.project-build/$random_dir/$directory/"
 # create the build directory
 mkdir -p "$build_dir"
 # save the current path
