@@ -1,7 +1,7 @@
 <template>
   <div id="channel-bar" class="flex flex-col bg-dark-but-not-black">
     <div
-      class="flex items-center justify-center h-12 border-b border-black shadow-2xl bg-dark-but-not-black border-opacity-70"
+      class="flex items-center justify-center flex-none h-12 border-b border-black shadow-2xl bg-dark-but-not-black border-opacity-70"
     >
       <input
         type="text"
@@ -9,7 +9,7 @@
         class="w-full px-2 py-1 mx-2 text-sm font-light tracking-tight text-gray-500 focus:outline-none bg-almost-black"
       />
     </div>
-    <div class="flex-grow mx-3">
+    <div class="flex-grow pr-2 mx-3 overflow-x-hidden overflow-y-auto">
       <div>
         <div
           class="flex items-center py-2 space-x-4 tracking-tight text-gray-300 rounded-md hover:bg-light-black"
@@ -39,15 +39,15 @@
           </div>
         </div>
       </div>
-      <div class="my-5">
-        <div class="flex items-center justify-between mx-1 my-1">
+      <div class="flex flex-col my-5">
+        <div class="flex items-center justify-between flex-none mx-1 my-1">
           <div class="text-xs text-gray-400 uppercase">Direct Messages</div>
           <FontAwesomeIcon
             class="w-3 h-3 text-gray-400 fill-current"
             :icon="['fas', 'plus']"
           ></FontAwesomeIcon>
         </div>
-        <div class="flex flex-col my-4 space-y-3">
+        <div class="flex flex-col flex-grow my-4 space-y-3">
           <div
             v-for="(directMessage, index) in directMessages"
             :key="index"
@@ -68,15 +68,20 @@
                 ]"
               ></div>
             </div>
-            <div class="text-gray-400">
-              <div class="text-sm truncate">
-                {{ directMessage.name }}
+            <div class="text-gray-400 truncate">
+              <div v-if="!directMessage.deleted">
+                <div class="text-sm truncate">
+                  {{ directMessage.name }}
+                </div>
+                <div
+                  v-if="directMessage.description"
+                  class="text-xs tracking-tighter truncate"
+                >
+                  {{ directMessage.description }}
+                </div>
               </div>
-              <div
-                v-if="directMessage.description"
-                class="text-xs tracking-tighter"
-              >
-                {{ directMessage.description }}
+              <div v-else>
+                <div class="text-sm truncate">Deleted User {{ uuid4() }}</div>
               </div>
             </div>
           </div>
@@ -90,8 +95,8 @@
         <div class="w-1/3">
           <div class="relative flex">
             <img
-              :src="require('~/assets/images/ignisda-icon.png')"
-              class="w-9/12"
+              :src="`https://picsum.photos/seed/${getRandomString()}/900`"
+              class="w-9/12 rounded-full"
               alt="ignisda icon"
             />
             <div
@@ -127,32 +132,46 @@
 </template>
 
 <script>
+import { v4 as uuid4 } from 'uuid'
 import { getRandomString } from '~/utils.js'
 
 export default {
-  data: () => ({
-    directMessages: [
-      { name: 'BouncePrime', image: 'bounce-prime.png' },
-      {
-        name: 'Python',
-        image: 'python.png',
-        description: 'Playing Commands: !help',
-        online: true,
-      },
-      { name: 'MEE6', image: 'mee6.png' },
-      { name: 'Shanku Danku', image: 'shanku-danku.png', online: true },
-      { name: 'manan', image: 'manan.png' },
-      { name: 'Calvin Candle', image: 'calvin-candle.png' },
-      { name: 'singhtanmay345', image: 'singh-tanmay.png', online: true },
-      { name: 'patryk.tech', image: 'patryk-tech.png' },
-      { name: 'Deleted User', deleted: true },
-      { name: 'SplendidDust', image: 'splendid-dust.png', online: true },
-    ],
-  }),
+  data: () => ({ directMessages: [] }),
+  async fetch() {
+    const { results } = await this.$axios.$get(
+      'https://randomuser.me/api/?results=20'
+    )
+    const directMessages = []
+    for (const user of results) {
+      const deleted = Math.random() < 0.1
+      const online = deleted ? false : Math.random() < 0.5
+      let description = null
+      if (Math.random() > 0.5) {
+        description = user.login.sha256
+      }
+      directMessages.push({
+        name: user.login.username,
+        online,
+        deleted,
+        description,
+      })
+    }
+    this.directMessages = directMessages
+  },
   methods: {
     getRandomString() {
       return getRandomString()
     },
+    uuid4() {
+      return uuid4()
+    },
   },
 }
 </script>
+
+<style lang="scss" scoped>
+::-webkit-scrollbar {
+  background: transparent;
+  width: 0;
+}
+</style>
