@@ -50,6 +50,7 @@
                 :src="`https://picsum.photos/seed/${getRandomString()}/300`"
                 :alt="`'s image`"
                 class="w-8 h-8 rounded-full"
+                loading="lazy"
               />
               <div>{{ username }}</div>
             </div>
@@ -75,41 +76,15 @@ export default {
     },
   }),
   async fetch() {
-    const { results: onlineUsers } = await this.$axios.$get(
-      'https://randomuser.me/api/?results=20'
+    this.users.online = await this.getUsers(20)
+    this.users.pro = await this.getUsers(Math.floor(Math.random() * 6))
+    this.users['tailwind labs'] = await this.getUsers(
+      Math.floor(Math.random() * 6)
     )
-    const online = []
-    for (const user of onlineUsers) {
-      online.push(user.login.username)
-    }
-    this.users.online = online
 
-    const { results: proUsers } = await this.$axios.$get(
-      `https://randomuser.me/api/?results=${Math.floor(Math.random() * 6) + 1}`
+    this.users['community manager'] = await this.getUsers(
+      Math.floor(Math.random() * 6)
     )
-    const pro = []
-    for (const user of proUsers) {
-      pro.push(user.login.username)
-    }
-    this.users.pro = pro
-
-    const { results: labUsers } = await this.$axios.$get(
-      `https://randomuser.me/api/?results=${Math.floor(Math.random() * 6) + 1}`
-    )
-    const lab = []
-    for (const user of labUsers) {
-      lab.push(user.login.username)
-    }
-    this.users['tailwind labs'] = lab
-
-    const { results: managers } = await this.$axios.$get(
-      `https://randomuser.me/api/?results=${Math.floor(Math.random() * 6) + 1}`
-    )
-    const manager = []
-    for (const user of managers) {
-      manager.push(user.login.username)
-    }
-    this.users['community manager'] = manager
   },
   methods: {
     getImage(name) {
@@ -117,6 +92,16 @@ export default {
     },
     getRandomString() {
       return getRandomString()
+    },
+    async getUsers(numUsers) {
+      const { results } = await this.$axios.$get(
+        `https://randomuser.me/api/?results=${numUsers}`
+      )
+      const users = []
+      for (const user of results) {
+        users.push(user.login.username)
+      }
+      return users
     },
   },
 }
