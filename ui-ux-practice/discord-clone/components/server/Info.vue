@@ -8,7 +8,7 @@
       <div class="relative">
         <img
           v-if="noImage !== true"
-          class="w-12 h-12 duration-1000 rounded-full cursor-pointer hover:rounded-xl transition-border-radius"
+          class="w-12 h-12 duration-300 cursor-pointer hover:rounded-xl transition-border-radius rounded-[100px]"
           :src="`https://picsum.photos/seed/${getRandomString()}/300`"
           :alt="`${serverName}-icon`"
           loading="lazy"
@@ -20,7 +20,7 @@
         ></ServerInfoInitials>
         <div
           v-if="notifications !== 0"
-          class="absolute bottom-0 right-0 flex items-center justify-center w-6 h-6 text-xs font-semibold text-white bg-red-600 border-4 rounded-full cursor-pointer border-almost-black"
+          class="absolute bottom-0 right-0 flex items-center justify-center w-6 h-6 text-xs font-semibold text-white bg-red-600 border-4 rounded-full cursor-pointer pointer-events-none border-almost-black"
         >
           {{ notifications }}
         </div>
