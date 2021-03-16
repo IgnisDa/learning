@@ -1,32 +1,41 @@
 #!/usr/bin/env bash
 
-# use `../tools/generate` to run this script from the frontend folder
+# use `tools/generate` to run this script from the frontend folder
 
-# since the node_modules folder is a symbolic link, the `yarn generate`
-# doesn't work as expected (problems in resolving require statements
-# correctly), we use this script. It moves the frontend directory to a
-# different location, sets up a correct node_modules and then runs the
-# command there. The generated `dist` folder is copied back to the
-# correct location. This also takes care of caching the node_modules
-# at the build location to make it faster during subsequent runs.
+# since the node_modules folder is a symbolic link, the `yarn generate` doesn't work as
+# expected (problems in resolving require statements correctly), we use this script. It
+# moves the frontend directory to a different location, sets up a correct node_modules and
+# then runs the command there. The generated `dist` folder is copied back to the correct
+# location. This also takes care of caching the node_modules at the build location to make
+# it faster during subsequent runs.
 
 # save the name of the CWD
 directory="$(basename $PWD)"
 # random directory to store run
-random_dir="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 130 ; echo '')"
+random_str="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 20 ; echo '')"
+date="$(date +%Y-%m-%d-%T)"
+random_dir="$date-$random_str"
 # create the build directory
-build_dir="$HOME/.project-build/$random_dir/$directory/"
-# create the build directory
+build_base="$HOME/.project-build/$directory"
+build_dir="$build_base/$random_dir/"
+# create the base and build directory
+mkdir -p "$build_base"
 mkdir -p "$build_dir"
+# send the build files to the target location to install dependencies
+cp "./package.json" "$build_base/package.json"
+cp "./yarn.lock" "$build_base/yarn.lock"
 # save the current path
 pwd="$PWD"
 # copy the directory to a temporary location
 rsync -a --progress "." "$build_dir" --exclude "node_modules"
-cd "$build_dir"
+cd "$build_base"
 # install the project dependencies
 yarn install
+echo "Project will be built in '$build_dir'"
+cd "$build_dir"
+cp -r "$build_base/node_modules" "$build_dir/node_modules"
 # generate the production build
-yarn generate
+npm run generate
 # delete the target directory if it exists
 rm -rf "$pwd/dist"
 # move the file to the correct location
