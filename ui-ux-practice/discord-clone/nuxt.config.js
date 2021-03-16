@@ -48,5 +48,8 @@ export default {
       poll: 1000,
     },
   },
+  tailwindcss: {
+    jit: true,
+  },
   target: 'static',
 }
