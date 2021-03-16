@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex items-center justify-center rounded-full cursor-pointer bg-not-quite-black"
+    class="flex items-center justify-center hover:bg-[#7289DA] transition-border-radius-and-color duration-300 cursor-pointer bg-not-quite-black rounded-[100px] hover:rounded-lg"
   >
     <span class="flex-none text-gray-300 uppercase">
       {{ getInitials(serverName) }}
