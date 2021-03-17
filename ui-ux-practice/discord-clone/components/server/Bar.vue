@@ -5,9 +5,11 @@
     style="width: 72px"
   >
     <div class="flex justify-center my-2">
-      <div class="flex p-2 rounded-full bg-dark-but-not-black">
+      <div
+        class="flex p-2 transition-border-radius-and-color duration-200 rounded-[100px] hover:rounded-lg cursor-pointer bg-dark-but-not-black hover:bg-[#7289DA]"
+      >
         <FontAwesomeIcon
-          class="w-8 h-8 text-gray-200 fill-current"
+          class="w-8 h-8 m-0.5 text-gray-200 fill-current"
           :icon="['fab', 'discord']"
         ></FontAwesomeIcon>
       </div>
@@ -29,7 +31,7 @@
     </div>
     <div class="flex justify-center">
       <div
-        class="flex p-2 text-green-500 bg-gray-700 rounded-full cursor-pointer hover:rounded-xl hover:bg-green-500 transition-border-radius-and-color hover:text-green-100"
+        class="flex p-2 text-green-500 bg-gray-700 rounded-[100px] cursor-pointer hover:rounded-xl hover:bg-green-500 transition-border-radius-and-color hover:text-green-100"
       >
         <FontAwesomeIcon
           class="w-8 h-8 p-1 fill-current"
@@ -39,7 +41,7 @@
     </div>
     <div class="flex justify-center">
       <div
-        class="flex p-2 text-green-500 bg-gray-700 rounded-full cursor-pointer hover:rounded-xl hover:bg-green-500 transition-border-radius-and-color hover:text-green-100"
+        class="flex p-2 text-green-500 bg-gray-700 rounded-[100px] cursor-pointer hover:rounded-xl hover:bg-green-500 transition-border-radius-and-color hover:text-green-100"
       >
         <FontAwesomeIcon
           class="w-8 h-8 p-1 fill-current"
@@ -52,7 +54,7 @@
     </div>
     <div class="flex justify-center">
       <div
-        class="flex p-2 text-green-500 bg-gray-700 rounded-full cursor-pointer hover:rounded-xl hover:bg-green-500 transition-border-radius-and-color hover:text-green-100"
+        class="flex p-2 text-green-500 bg-gray-700 rounded-[100px] cursor-pointer hover:rounded-xl hover:bg-green-500 transition-border-radius-and-color hover:text-green-100"
       >
         <FontAwesomeIcon
           class="w-8 h-8 fill-current"
