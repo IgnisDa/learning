@@ -2,7 +2,8 @@
   <div class="relative flex items-center w-full">
     <div
       v-if="unread || notifications"
-      class="absolute w-2 h-2 transform -translate-x-1 bg-white rounded-full"
+      class="absolute w-2 h-2 duration-300 transform -translate-x-1 bg-white rounded-full transition-height"
+      :class="{ 'h-5': hovered }"
     ></div>
     <div class="flex items-center justify-center flex-grow w-full">
       <div class="relative">
@@ -12,6 +13,8 @@
           :src="`https://picsum.photos/seed/${getRandomString()}/300`"
           :alt="`${serverName}-icon`"
           loading="lazy"
+          @mouseover="hovered = true"
+          @mouseleave="hovered = false"
         />
         <ServerInfoInitials
           v-else
@@ -51,6 +54,9 @@ export default {
       default: false,
     },
   },
+  data: () => ({
+    hovered: false,
+  }),
   methods: {
     getInitials(string) {
       const names = string.split(' ')
