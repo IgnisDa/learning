@@ -5,6 +5,7 @@ module.exports = {
       transitionProperty: {
         'border-radius': 'border-radius',
         'border-radius-and-color': 'border-radius, background-color',
+        height: 'height',
       },
       borderRadius: {
         half: '50%',
