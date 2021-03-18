@@ -1,7 +1,7 @@
 <template>
   <div
     id="server-bar"
-    class="flex flex-col h-screen space-y-2 overflow-auto bg-almost-black"
+    class="flex flex-col h-screen space-y-2 overflow-y-auto bg-almost-black"
     style="width: 72px"
   >
     <div class="flex justify-center my-2">
@@ -75,7 +75,7 @@ export default {
       { name: 'Python', unread: true },
       { name: 'The Coding Den', notifications: 1 },
       { name: 'Django', notifications: 2 },
-      { name: 'Unixporn', noImage: true },
+      { name: 'Unixporn', noImage: true, unread: true },
     ],
     serverFolders: {
       folderOne: {
