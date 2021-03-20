@@ -6,8 +6,7 @@
       class="grid w-full rounded-b-full rounded-t-2xl"
     >
       <div
-        class="w-12 h-full col-start-1 row-end-2 mx-auto bg-dark-but-not-black"
-        style="border-radius: 85px 85px 100px 100px"
+        class="w-12 h-full col-start-1 row-end-2 mx-auto bg-dark-but-not-black rounded-[85px]"
       ></div>
       <div class="flex flex-col col-start-1 row-end-2 space-y-2">
         <transition
