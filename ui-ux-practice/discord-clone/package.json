@@ -29,8 +29,6 @@
     "@nuxtjs/eslint-module": "^3.0.2",
     "@nuxtjs/stylelint-module": "^4.0.0",
     "@nuxtjs/tailwindcss": "^4.0.1",
-    "@tailwindcss/jit": "^0.1.1",
-    "@tailwindcss/postcss7-compat": "npm:@tailwindcss/postcss7-compat",
     "autoprefixer": "^9",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.18.0",
@@ -39,8 +37,8 @@
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^7.5.0",
     "fibers": "^5.0.0",
-    "postcss": "^7",
     "prettier": "^2.2.1",
+    "postcss": "^8.2.8",
     "sass": "^1.32.7",
     "sass-loader": "10",
     "stylelint": "^13.11.0",
@@ -50,7 +48,6 @@
     "stylelint-config-sass-guidelines": "^8.0.0",
     "stylelint-config-standard": "^20.0.0",
     "stylelint-scss": "^3.19.0",
-    "tailwindcss": "npm:@tailwindcss/postcss7-compat",
     "tailwindcss-debug-screens": "^2.0.0"
   }
 }
