@@ -1,9 +1,8 @@
 <template>
   <div class="relative flex items-center w-full">
     <div
-      v-if="unread || notifications"
-      class="absolute w-2 h-2 duration-300 transform -translate-x-1 bg-white rounded-full transition-height"
-      :class="{ 'h-5': hovered }"
+      class="absolute w-2 duration-300 transform -translate-x-1 bg-white rounded-full transition-height"
+      :class="classes"
     ></div>
     <div class="flex items-center justify-center flex-grow w-full">
       <div
@@ -62,7 +61,42 @@ export default {
   data: () => ({
     hovered: false,
     showTooltip: false,
+    classes: ['h-0'],
   }),
+  computed: {
+    getClasses() {
+      const classes = ['h-0']
+      if (this.hovered) {
+        classes.splice(classes.indexOf('h-0'), 1)
+        classes.push('h-5')
+      }
+      if (this.unread || this.notifications) {
+        classes.splice(classes.indexOf('h-0'), 1)
+        classes.push('h-2')
+      }
+      return classes
+    },
+  },
+  watch: {
+    hovered() {
+      if (this.hovered) {
+        this.classes.splice(this.classes.indexOf('h-2'), 1)
+        this.classes.push('h-5')
+      } else if (!this.hovered && (this.unread || this.notifications)) {
+        this.classes.splice(this.classes.indexOf('h-5'), 1)
+        this.classes.push('h-2')
+      } else {
+        this.classes.splice(this.classes.indexOf('h-5'), 1)
+        this.classes.push('h-0')
+      }
+    },
+  },
+  mounted() {
+    if (this.unread || this.notifications) {
+      this.classes.splice(this.classes.indexOf('h-0'), 1)
+      this.classes.push('h-2')
+    }
+  },
   methods: {
     handleMouseOver() {
       this.hovered = true
