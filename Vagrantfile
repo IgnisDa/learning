@@ -25,6 +25,15 @@ Vagrant.configure("2") do |config|
   config.vm.provision :shell, :path => "tools/Vagrant/bootstrap"
   # This script installs each specific application's dependencies
   config.vm.provision :shell, :path => "tools/Vagrant/setup-deps", privileged: false
+  # set the API key for the wakatime plugin if it exists in the system
+  wakatime_file = File.join(ENV['HOME'],".wakatime.cfg")
+  if File.file?(wakatime_file)
+    file_data = File.read(wakatime_file)
+    $script = <<-SCRIPT
+      echo -e "#{file_data}" >> $HOME/.wakatime.cfg
+    SCRIPT
+    config.vm.provision "shell", inline: $script, privileged: false
+  end
   # This script sets some environment variables that are essential to development
   # This is done by adding a custom script to /etc/profile.d/
   config.vm.provision :shell, :path => "tools/shell/env-vars"
