@@ -72,6 +72,8 @@ apt-get update
 
 # Install postgresql, python3.9 and fish shell (required for development)
 apt-get -y install "yarn" "postgresql-$PG_VERSION" "postgresql-contrib-$PG_VERSION" "bat" "fish" "python3" "python3-pip" "nodejs" "gcc" "g++" "make" "exa" "openjdk-15-jdk" "openjdk-15-jre"
+add-apt-repository ppa:neovim-ppa/stable -y
+apt-get -y install neovim
 
 coloredEcho "yellow" "Environment packages installed successfully!"
 
