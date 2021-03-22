@@ -7,3 +7,5 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+rand = "0.8.3" # Random number generators and other randomness functionality.
+colored = "2.0.0"  # The most simple way to add colors in your terminal
