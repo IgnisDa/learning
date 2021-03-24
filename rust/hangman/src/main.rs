@@ -22,9 +22,8 @@ fn main() {
                     .expect("Please input only positive integers less than 255");
                 if 5 <= word_size && word_size <= 10 {
                     temp_bool = false;
-                } else {
-                    println!("{}", "Please input integers between 5 and 10".cyan());
                 }
+                println!("{}", "Please input integers between 5 and 10".cyan());
             }
             Err(e) => {
                 println!("There was an error reading input: {}", e);

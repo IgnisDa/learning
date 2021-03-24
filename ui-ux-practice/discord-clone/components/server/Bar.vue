@@ -1,8 +1,7 @@
 <template>
   <div
     id="server-bar"
-    class="flex flex-col h-screen space-y-2 overflow-y-auto bg-almost-black"
-    style="width: 72px"
+    class="flex flex-col h-screen space-y-2 overflow-y-auto bg-almost-black w-[72px]"
   >
     <div class="flex justify-center my-2">
       <div
@@ -126,7 +125,6 @@ export default {
 
 <style lang="scss" scoped>
 ::-webkit-scrollbar {
-  background: transparent;
-  width: 0;
+  @apply bg-transparent w-0;
 }
 </style>
