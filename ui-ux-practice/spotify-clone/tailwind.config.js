@@ -7,6 +7,9 @@ module.exports = {
         'dark-black': '#121212',
         'spotify-green': '#1DB954',
       },
+      transitionProperty: {
+        width: 'width',
+      },
     },
   },
   variants: {

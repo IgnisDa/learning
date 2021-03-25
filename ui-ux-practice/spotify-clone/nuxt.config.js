@@ -18,7 +18,11 @@ export default {
   css: ['~/assets/css/global.scss'],
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
-  plugins: [],
+  plugins: [
+    // install ignisnents
+    // '~/plugins/ignisnents.js',
+    '~/plugins/fontawesome.js',
+  ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
   components: true,
