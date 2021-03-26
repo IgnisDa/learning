@@ -41,6 +41,8 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/pwa
     '@nuxtjs/pwa',
+    // https://http.nuxtjs.org/
+    '@nuxt/http',
   ],
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
