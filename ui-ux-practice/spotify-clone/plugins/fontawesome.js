@@ -12,6 +12,9 @@ import {
   faStepBackward,
   faRandom,
   faRedo,
+  faHeart,
+  faLaptop,
+  faAngleUp,
 } from '@fortawesome/free-solid-svg-icons'
 
 // This is important, we are going to let Nuxt.js worry about the CSS
@@ -29,7 +32,10 @@ library.add(
   faStepForward,
   faStepBackward,
   faRandom,
-  faRedo
+  faRedo,
+  faHeart,
+  faLaptop,
+  faAngleUp
 )
 
 // Register the component globally
