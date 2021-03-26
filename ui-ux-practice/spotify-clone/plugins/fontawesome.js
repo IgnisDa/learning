@@ -8,6 +8,10 @@ import {
   faLayerGroup,
   faLaptopHouse,
   faVolumeUp,
+  faStepForward,
+  faStepBackward,
+  faRandom,
+  faRedo,
 } from '@fortawesome/free-solid-svg-icons'
 
 // This is important, we are going to let Nuxt.js worry about the CSS
@@ -21,7 +25,11 @@ library.add(
   faKey,
   faLayerGroup,
   faLaptopHouse,
-  faVolumeUp
+  faVolumeUp,
+  faStepForward,
+  faStepBackward,
+  faRandom,
+  faRedo
 )
 
 // Register the component globally
