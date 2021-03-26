@@ -1,7 +1,7 @@
 <template>
   <div id="control-bar" class="h-[90px] bg-dark-black flex items-center">
     <div class="w-[32%] pl-4 flex items-center h-full justify-start space-x-4">
-      <div class="relative w-14 h-14">
+      <div class="relative cursor-pointer w-14 h-14">
         <img
           src="https://i.scdn.co/image/ab67616d000048514dea4c1cdf30c359dbaec318"
           alt="spotify-image-thumbnail"
@@ -10,11 +10,11 @@
           @mouseout="hoverOnImage = false"
         />
         <div
-          class="absolute p-1 bg-black rounded-full top-1 right-1 bg-opacity-70"
+          class="absolute p-1 bg-black rounded-full pointer-events-none top-1 right-1 bg-opacity-70"
         >
           <FontAwesomeIcon
             :icon="['fas', 'angle-up']"
-            class="w-5 h-5 text-gray-100 cursor-pointer"
+            class="w-5 h-5 text-gray-100 cursor-pointer pointer-events-none"
             :class="{ hidden: !hoverOnImage }"
           ></FontAwesomeIcon>
         </div>
@@ -81,7 +81,6 @@
             class="w-4 h-4 text-gray-400 cursor-pointer"
           ></FontAwesomeIcon>
         </button>
-
         <button
           class="transition-transform duration-200 focus:outline-none pressed-effect"
         >
@@ -169,9 +168,16 @@ export default {
     hoverOnImage: false,
     audio: {
       name: 'Eenie Meenie',
-      artists: ['Justin Beiber', 'Sean Kingston'],
+      artists: ['Sean Kingston', 'Justin Beiber'],
     },
   }),
+  head() {
+    if (this.audioPlayingState) {
+      return { title: `${this.audio.name} ‧ ${this.getAudioArtists}` }
+    } else {
+      return { title: 'Spotify Player' }
+    }
+  },
   computed: {
     ...mapState({
       audioPlayingState: (state) => state.audio.playing,
