@@ -1,8 +1,24 @@
 <template>
   <div id="control-bar" class="h-[90px] bg-dark-black flex items-center">
     <div class="w-[32%]"></div>
-    <div class="w-[36%] flex flex-col items-center h-full justify-center py-2">
-      <div class="flex items-center justify-center h-2/3">
+    <div class="w-[36%] flex flex-col items-center h-full justify-center py-3">
+      <div class="flex items-center justify-center space-x-6 h-2/3">
+        <button
+          class="transition-transform duration-200 focus:outline-none pressed-effect"
+        >
+          <FontAwesomeIcon
+            :icon="['fas', 'redo']"
+            class="w-4 h-4 text-gray-100 cursor-pointer"
+          ></FontAwesomeIcon>
+        </button>
+        <button
+          class="transition-transform duration-200 focus:outline-none pressed-effect"
+        >
+          <FontAwesomeIcon
+            :icon="['fas', 'step-backward']"
+            class="w-4 h-4 text-gray-100 cursor-pointer"
+          ></FontAwesomeIcon>
+        </button>
         <button
           class="transition-transform duration-200 focus:outline-none pressed-effect"
           @click="toggleAudioPlayingMutation()"
@@ -10,6 +26,23 @@
           <FontAwesomeIcon
             :icon="['fas', audioPlayingState ? 'pause-circle' : 'play-circle']"
             class="w-8 h-8 text-gray-100 cursor-pointer"
+          ></FontAwesomeIcon>
+        </button>
+        <button
+          class="transition-transform duration-200 focus:outline-none pressed-effect"
+        >
+          <FontAwesomeIcon
+            :icon="['fas', 'step-forward']"
+            class="w-4 h-4 text-gray-100 cursor-pointer"
+          ></FontAwesomeIcon>
+        </button>
+
+        <button
+          class="transition-transform duration-200 focus:outline-none pressed-effect"
+        >
+          <FontAwesomeIcon
+            :icon="['fas', 'random']"
+            class="w-4 h-4 text-gray-100 cursor-pointer"
           ></FontAwesomeIcon>
         </button>
       </div>
@@ -30,8 +63,8 @@
         </div>
       </div>
     </div>
-    <div class="w-[32%] flex items-center h-full justify-end">
-      <div class="flex items-center space-x-2">
+    <div class="w-[32%] flex items-center h-full justify-end space-x-4 mr-4">
+      <div class="flex items-center space-x-3">
         <FontAwesomeIcon
           class="w-5 h-5 text-gray-400"
           :icon="['fas', 'key']"
@@ -50,16 +83,25 @@
           class="flex-none w-5 h-5 text-gray-400"
           :icon="['fas', 'volume-up']"
         ></FontAwesomeIcon>
-        <div class="relative flex-grow w-24 h-1 rounded-2xl bg-light-black">
-          <div
-            class="absolute inset-0 h-full bg-gray-500 transition-width"
-            :style="{ width: `${audioVolume}%` }"
-          ></div>
-          <div
-            class="absolute z-10 w-2 h-2 bg-white rounded-full cursor-pointer bottom-[]"
-            :style="{ left: `${audioVolume}%` }"
-          ></div>
-        </div>
+        <input
+          v-model="audioVolume"
+          min="0"
+          max="100"
+          type="range"
+          class="flex-grow w-24 h-1 appearance-none slider focus:outline-none rounded-2xl bg-light-black"
+        />
+        <!-- <div class="flex-grow w-24 h-1 rounded-2xl bg-light-black">
+          <div class="flex items-center h-full">
+            <div
+              class="h-full bg-gray-500 transition-width"
+              :style="{ width: `${audioVolume}%` }"
+            ></div>
+            <div
+              draggable="true"
+              class="z-10 w-2 h-2 bg-white rounded-full cursor-pointer bottom-[]"
+            ></div>
+          </div>
+        </div> -->
       </div>
     </div>
     <audio id="audio-holder" class="hidden" preload="metadata">
@@ -154,6 +196,6 @@ export default {
 }
 
 .slider::-webkit-slider-thumb {
-  @apply appearance-none h-2 w-2 rounded-full bg-white outline-none;
+  @apply appearance-none h-2 w-2 rounded-full bg-gray-200 outline-none cursor-pointer;
 }
 </style>
