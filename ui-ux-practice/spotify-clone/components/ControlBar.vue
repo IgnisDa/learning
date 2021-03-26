@@ -1,6 +1,51 @@
 <template>
   <div id="control-bar" class="h-[90px] bg-dark-black flex items-center">
-    <div class="w-[32%]"></div>
+    <div class="w-[32%] pl-4 flex items-center h-full justify-start space-x-4">
+      <div class="relative w-14 h-14">
+        <img
+          src="https://i.scdn.co/image/ab67616d000048514dea4c1cdf30c359dbaec318"
+          alt="spotify-image-thumbnail"
+          class="object-cover"
+          @mouseover="hoverOnImage = true"
+          @mouseout="hoverOnImage = false"
+        />
+        <div
+          class="absolute p-1 bg-black rounded-full top-1 right-1 bg-opacity-70"
+        >
+          <FontAwesomeIcon
+            :icon="['fas', 'angle-up']"
+            class="w-5 h-5 text-gray-100 cursor-pointer"
+            :class="{ hidden: !hoverOnImage }"
+          ></FontAwesomeIcon>
+        </div>
+      </div>
+      <div class="flex flex-col space-y-[1px]">
+        <div
+          class="text-sm font-semibold text-gray-200 cursor-pointer hover:underline"
+        >
+          {{ audio.name }}
+        </div>
+        <div class="space-x-1 text-xs tracking-tight text-gray-400">
+          <span
+            v-for="(artist, index) in audio.artists"
+            :key="index"
+            class="cursor-pointer hover:underline"
+          >
+            {{ artist }}
+          </span>
+        </div>
+      </div>
+      <div class="flex space-x-4">
+        <FontAwesomeIcon
+          :icon="['fas', 'heart']"
+          class="w-4 h-4 text-gray-400 cursor-pointer"
+        ></FontAwesomeIcon>
+        <FontAwesomeIcon
+          :icon="['fas', 'laptop']"
+          class="w-4 h-4 text-gray-400 cursor-pointer"
+        ></FontAwesomeIcon>
+      </div>
+    </div>
     <div class="w-[36%] flex flex-col items-center h-full justify-center py-3">
       <div class="flex items-center justify-center space-x-6 h-2/3">
         <button
@@ -8,7 +53,7 @@
         >
           <FontAwesomeIcon
             :icon="['fas', 'redo']"
-            class="w-4 h-4 text-gray-100 cursor-pointer"
+            class="w-4 h-4 text-gray-400 cursor-pointer"
           ></FontAwesomeIcon>
         </button>
         <button
@@ -16,7 +61,7 @@
         >
           <FontAwesomeIcon
             :icon="['fas', 'step-backward']"
-            class="w-4 h-4 text-gray-100 cursor-pointer"
+            class="w-4 h-4 text-gray-400 cursor-pointer"
           ></FontAwesomeIcon>
         </button>
         <button
@@ -33,7 +78,7 @@
         >
           <FontAwesomeIcon
             :icon="['fas', 'step-forward']"
-            class="w-4 h-4 text-gray-100 cursor-pointer"
+            class="w-4 h-4 text-gray-400 cursor-pointer"
           ></FontAwesomeIcon>
         </button>
 
@@ -42,7 +87,7 @@
         >
           <FontAwesomeIcon
             :icon="['fas', 'random']"
-            class="w-4 h-4 text-gray-100 cursor-pointer"
+            class="w-4 h-4 text-gray-400 cursor-pointer"
           ></FontAwesomeIcon>
         </button>
       </div>
@@ -63,7 +108,7 @@
         </div>
       </div>
     </div>
-    <div class="w-[32%] flex items-center h-full justify-end space-x-4 mr-4">
+    <div class="w-[32%] flex items-center h-full justify-end space-x-4 pr-4">
       <div class="flex items-center space-x-3">
         <FontAwesomeIcon
           class="w-5 h-5 text-gray-400"
@@ -121,11 +166,19 @@ export default {
     currentDuration: '00:00',
     totalDuration: '00:00',
     audioVolume: 60,
+    hoverOnImage: false,
+    audio: {
+      name: 'Eenie Meenie',
+      artists: ['Justin Beiber', 'Sean Kingston'],
+    },
   }),
   computed: {
     ...mapState({
       audioPlayingState: (state) => state.audio.playing,
     }),
+    getAudioArtists() {
+      return this.audio.artists.join(', ')
+    },
   },
   watch: {
     progressBarWidth(newValue) {
