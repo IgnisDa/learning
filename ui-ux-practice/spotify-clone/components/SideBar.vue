@@ -10,9 +10,13 @@
         <div
           v-for="(area, index) in areas"
           :key="index"
-          class="flex items-center px-2 py-[6px] rounded-sm cursor-pointer hover:bg-light-black"
+          class="flex items-center px-2 py-[6px] rounded-sm cursor-pointer hover:bg-light-black space-x-[1rem]"
         >
-          <!-- <ig-icon :id="`${area.icon}-icon`" name="area.icon" size="lg" class="text-gray-100"></ig-icon> -->
+          <ig-icon
+            :id="`${area.icon}-icon`"
+            :name="area.icon"
+            class="text-gray-100"
+          ></ig-icon>
           <div class="font-semibold capitalize text-gray-50">
             {{ area.label }}
           </div>
@@ -23,9 +27,13 @@
           <div
             v-for="(action, index) in actions"
             :key="index"
-            class="flex items-center px-2 cursor-pointer"
+            class="flex items-center px-2 cursor-pointer space-x-[1rem]"
           >
-            <!-- <ig-icon :id="`${action.icon}-icon`" name="area.icon" size="lg" class="text-gray-100"></ig-icon> -->
+            <ig-icon
+              :id="`${action.icon}-icon`"
+              :name="action.icon"
+              class="text-gray-100"
+            ></ig-icon>
             <div class="font-semibold capitalize text-gray-50">
               {{ action.label }}
             </div>
