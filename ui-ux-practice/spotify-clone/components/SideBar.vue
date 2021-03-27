@@ -1,5 +1,5 @@
 <template>
-  <div id="sidebar" class="w-[232px] bg-gradient-to-b from-dark-black to-black">
+  <div id="sidebar" class="w-[232px] bg-dark-black">
     <div class="flex flex-col">
       <img
         :src="require('~/assets/images/logo-written.png')"
