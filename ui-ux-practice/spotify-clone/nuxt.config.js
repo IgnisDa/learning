@@ -20,7 +20,8 @@ export default {
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [
     // install ignisnents
-    // '~/plugins/ignisnents.js',
+    '~/plugins/ignisnents.js',
+    // install fontawesome
     '~/plugins/fontawesome.js',
   ],
 
@@ -50,12 +51,6 @@ export default {
 
   // Added later
   telemetry: false,
-  watchers: {
-    webpack: {
-      aggregateTimeout: 300,
-      poll: 1000,
-    },
-  },
   target: 'static',
   tailwindcss: {
     jit: true,
