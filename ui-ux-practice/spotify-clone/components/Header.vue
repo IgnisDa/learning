@@ -1,7 +1,7 @@
 <template>
   <div
     id="header"
-    class="h-[60px] flex items-center justify-between absolute inset-x-0 px-6 z-[-1]"
+    class="h-[60px] flex items-center justify-between absolute inset-x-0 px-6 z-[1]"
   >
     <div class="flex items-center space-x-4">
       <div
@@ -32,7 +32,7 @@
       >
         <div class="h-7 w-7">
           <img
-            src="https://placekitten.com/300/300"
+            src="https://placedog.net/300/300?id=100"
             alt="user icon"
             class="object-contain w-full h-full rounded-full"
           />
@@ -41,7 +41,7 @@
         <div>
           <FontAwesomeIcon
             :icon="['fas', 'caret-down']"
-            class="w-6 h-6 pr-1 text-gray-200"
+            class="w-6 h-6 pr-1 text-gray-200 cursor-pointer"
           ></FontAwesomeIcon>
         </div>
       </div>
