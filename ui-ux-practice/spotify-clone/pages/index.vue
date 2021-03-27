@@ -1,32 +1,60 @@
 <template>
   <div class="flex flex-col w-full px-6 mb-6 overflow-y-auto">
     <div class="flex-none">
-      <div v-for="i in 20" :id="i" :key="i">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Neque cum ullam
-        nihil est omnis, enim blanditiis rem eum cumque, numquam quo ea vero
-        fuga minus nemo voluptate similique at fugit! Lorem ipsum dolor sit amet
-        consectetur adipisicing elit. Asperiores quis a similique ratione autem
-        provident quas, consequatur facere. Doloribus quidem, quia cumque
-        repellendus non, nostrum officia numquam similique, atque quo expedita
-        saepe. Quisquam alias, asperiores aut reiciendis temporibus ea aperiam
-        iste tempora dolorum repellendus magni esse fugit non soluta cum
-        laboriosam quidem numquam sint. Mollitia suscipit exercitationem porro,
-        nemo officia sequi molestiae quibusdam fuga labore ratione voluptatum
-        architecto, unde ut soluta debitis harum aperiam aliquid, sed ad quasi.
-        Doloribus, ratione unde. Ratione omnis voluptatum suscipit blanditiis
-        consequuntur ad temporibus fuga maiores dolor architecto, dolorem
-        assumenda incidunt quas, veniam esse odit!
-        <span>hello hello</span>666666 <span>hello hello</span>666666
-        <span>hello hello</span>666666 <span>hello hello</span>666666
-        <span>hello hello</span>666666 <span>hello hello</span>666666
-        <span>hello hello</span>666666 <span>hello hello</span>666666
-        <span>hello hello</span>666666 <span>hello hello</span>666666
-        <span>hello hello</span>666666 <span>hello hello</span>666666
+      <div>
+        <div class="text-3xl font-extrabold text-gray-50">
+          <span>Good afternoon</span>
+        </div>
+        <div
+          class="grid grid-cols-1 my-6 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 xl:grid-cols-4"
+        >
+          <CardHorizontal
+            v-for="(audioDetails, index) in audios"
+            :key="index"
+            :audio-details="audioDetails"
+          ></CardHorizontal>
+        </div>
+      </div>
+      <div class="mt-6">
+        <div class="text-2xl font-extrabold tracking-wider text-gray-50">
+          <span class="cursor-pointer hover:underline">Recently played</span>
+        </div>
+        <div
+          class="grid grid-cols-2 my-6 overflow-hidden gap-x-6 gap-y-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 h-[290px]"
+        >
+          <CardVertical
+            v-for="(audioDetails, index) in audios"
+            :key="index"
+            :audio-details="audioDetails"
+          ></CardVertical>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-export default {}
+export default {
+  async asyncData({ $http }) {
+    const getAudioDetails = (data) => {
+      const audios = []
+      for (const audio of data.results.splice(0, 8)) {
+        const audioObj = {
+          imageUrl: audio.artworkUrl100,
+          name: audio.trackName,
+          playlist: audio.collectionName,
+        }
+        audios.push(audioObj)
+      }
+      return audios
+    }
+    const res = await $http.get(
+      'https://itunes.apple.com/search?country=IN&term=maroon5&limit=2000'
+    )
+    const data = await res.json()
+    const audios = getAudioDetails(data)
+    return { audios }
+  },
+  methods: {},
+}
 </script>
