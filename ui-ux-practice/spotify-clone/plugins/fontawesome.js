@@ -15,6 +15,7 @@ import {
   faHeart,
   faLaptop,
   faAngleUp,
+  faCaretDown,
 } from '@fortawesome/free-solid-svg-icons'
 
 // This is important, we are going to let Nuxt.js worry about the CSS
@@ -35,7 +36,8 @@ library.add(
   faRedo,
   faHeart,
   faLaptop,
-  faAngleUp
+  faAngleUp,
+  faCaretDown
 )
 
 // Register the component globally
