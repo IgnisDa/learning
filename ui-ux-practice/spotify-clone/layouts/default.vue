@@ -5,10 +5,10 @@
   >
     <div class="flex flex-grow">
       <SideBar class="flex-none"></SideBar>
-      <div class="relative flex flex-col w-full">
+      <div class="relative flex flex-col flex-grow w-full">
         <BackgroundColorOverlay></BackgroundColorOverlay>
         <Header class="flex-none"></Header>
-        <Nuxt class="flex-grow" />
+        <Nuxt class="flex-grow h-0 mt-20 main" />
       </div>
     </div>
     <div class="flex-none">
@@ -25,3 +25,13 @@ export default {
   }),
 }
 </script>
+
+<style lang="scss" scoped>
+.main::-webkit-scrollbar {
+  @apply bg-opacity-0 w-3;
+}
+
+.main::-webkit-scrollbar-thumb {
+  @apply bg-gray-500 hover:bg-gray-400 transition-colors duration-200;
+}
+</style>
