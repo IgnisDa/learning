@@ -109,24 +109,33 @@
     </div>
     <div class="w-[32%] flex items-center h-full justify-end space-x-4 pr-4">
       <div class="flex items-center space-x-3">
-        <FontAwesomeIcon
-          class="w-5 h-5 text-gray-400"
-          :icon="['fas', 'key']"
-        ></FontAwesomeIcon>
-        <FontAwesomeIcon
-          class="w-5 h-5 text-gray-400"
-          :icon="['fas', 'layer-group']"
-        ></FontAwesomeIcon>
-        <FontAwesomeIcon
-          class="w-5 h-5 text-gray-400"
-          :icon="['fas', 'laptop-house']"
-        ></FontAwesomeIcon>
+        <div title="Lyrics">
+          <ig-icon
+            size="xs"
+            name="key"
+            class="text-gray-200 cursor-pointer"
+          ></ig-icon>
+        </div>
+        <div title="Queue">
+          <ig-icon
+            size="xs"
+            name="archive"
+            class="text-gray-200 cursor-pointer"
+          ></ig-icon>
+        </div>
+        <div title="Connect to a device">
+          <ig-icon
+            size="xs"
+            name="tablet"
+            class="text-gray-200 cursor-pointer"
+          ></ig-icon>
+        </div>
       </div>
       <div class="flex items-center space-x-2">
-        <FontAwesomeIcon
-          class="flex-none w-5 h-5 text-gray-400"
-          :icon="['fas', 'volume-up']"
-        ></FontAwesomeIcon>
+        <ig-icon
+          :name="audioVolume === '0' ? 'volume-x' : 'volume-2'"
+          class="text-gray-200"
+        ></ig-icon>
         <input
           v-model="audioVolume"
           min="0"
@@ -134,18 +143,6 @@
           type="range"
           class="flex-grow w-24 h-1 appearance-none slider focus:outline-none rounded-2xl bg-light-black"
         />
-        <!-- <div class="flex-grow w-24 h-1 rounded-2xl bg-light-black">
-          <div class="flex items-center h-full">
-            <div
-              class="h-full bg-gray-500 transition-width"
-              :style="{ width: `${audioVolume}%` }"
-            ></div>
-            <div
-              draggable="true"
-              class="z-10 w-2 h-2 bg-white rounded-full cursor-pointer bottom-[]"
-            ></div>
-          </div>
-        </div> -->
       </div>
     </div>
     <audio id="audio-holder" class="hidden" preload="metadata">
