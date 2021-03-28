@@ -9,9 +9,7 @@
           class="grid grid-cols-1 my-6 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 xl:grid-cols-4"
         >
           <CardHorizontal
-            v-for="(audioDetails, index) in audios.sort(
-              () => 0.5 - Math.random()
-            )"
+            v-for="(audioDetails, index) in audios"
             :key="index"
             :audio-details="audioDetails"
           ></CardHorizontal>
@@ -25,9 +23,7 @@
           class="grid grid-cols-2 my-6 overflow-hidden gap-x-6 gap-y-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 h-[290px] sm:h-[318px] md:h-[314px] lg:h-[305px] 2xl:h-[260px]"
         >
           <CardVertical
-            v-for="(audioDetails, index) in audios.sort(
-              () => 0.5 - Math.random()
-            )"
+            v-for="(audioDetails, index) in audios"
             :key="index"
             :audio-details="audioDetails"
           ></CardVertical>
