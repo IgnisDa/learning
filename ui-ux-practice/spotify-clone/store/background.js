@@ -1,12 +1,12 @@
 export const state = () => ({
-  backgroundColor: 'green',
+  backgroundColor: 'blue',
 })
 
 const COLORS = ['red', 'green', 'blue', 'light-black']
 
 export const mutations = {
-  setBackgroundColor(state, color) {
-    state.backgroundColor = color
+  resetBackgroundColor(state) {
+    state.backgroundColor = 'blue'
   },
   randomBackgroundColor(state) {
     state.backgroundColor = COLORS[Math.floor(Math.random() * COLORS.length)]

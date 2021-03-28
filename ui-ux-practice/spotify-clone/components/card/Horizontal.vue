@@ -3,8 +3,8 @@
     role="horizontal-card"
     class="flex items-center space-x-4 overflow-hidden rounded shadow-2xl cursor-pointer bg-light-black bg-opacity-60"
     style="backdrop-filter: blur(50px)"
-    @mouseover="handleHover()"
-    @mouseout="handleHover()"
+    @mouseover="handleHoverOver()"
+    @mouseout="handleHoverOut()"
   >
     <div class="flex-none w-20 h-20">
       <img
@@ -36,20 +36,17 @@ export default {
     hovered: false,
   }),
   methods: {
-    handleHover() {
-      if (this.hovered) {
-        this.hovered = false
-      } else {
-        this.hovered = true
-      }
+    handleHoverOver() {
+      this.hovered = true
       this.randomBackgroundColorMutation()
     },
     handleHoverOut() {
       this.hovered = false
-      this.randomBackgroundColorMutation()
+      this.resetBackgroundColorMutation()
     },
     ...mapMutations({
       randomBackgroundColorMutation: 'background/randomBackgroundColor',
+      resetBackgroundColorMutation: 'background/resetBackgroundColor',
     }),
   },
 }

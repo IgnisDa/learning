@@ -3,8 +3,8 @@
     role="vertical-card"
     class="rounded shadow-2xl cursor-pointer bg-light-black bg-opacity-30 px-2 py-3 h-[290px] sm:h-[318px] md:h-[314px] lg:h-[305px] 2xl:h-[260px]"
     style="backdrop-filter: blur(50px)"
-    @mouseover="handleHover()"
-    @mouseout="handleHover()"
+    @mouseover="handleHoverOver()"
+    @mouseout="handleHoverOut()"
   >
     <div class="flex flex-col items-center justify-between w-full h-full">
       <div
@@ -48,20 +48,17 @@ export default {
     hovered: false,
   }),
   methods: {
-    handleHover() {
-      if (this.hovered) {
-        this.hovered = false
-      } else {
-        this.hovered = true
-      }
+    handleHoverOver() {
+      this.hovered = true
       this.randomBackgroundColorMutation()
     },
     handleHoverOut() {
       this.hovered = false
-      this.randomBackgroundColorMutation()
+      this.resetBackgroundColorMutation()
     },
     ...mapMutations({
       randomBackgroundColorMutation: 'background/randomBackgroundColor',
+      resetBackgroundColorMutation: 'background/resetBackgroundColor',
     }),
   },
 }
