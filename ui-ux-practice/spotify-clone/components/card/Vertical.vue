@@ -1,13 +1,15 @@
 <template>
   <div
     role="vertical-card"
-    class="h-[290px] rounded shadow-2xl cursor-pointer bg-light-black bg-opacity-60 p-2"
+    class="rounded shadow-2xl cursor-pointer bg-light-black bg-opacity-30 px-2 py-3 h-[290px] sm:h-[318px] md:h-[314px] lg:h-[305px] 2xl:h-[260px]"
     style="backdrop-filter: blur(50px)"
     @mouseover="hovered = true"
     @mouseout="hovered = false"
   >
     <div class="flex flex-col items-center justify-between w-full h-full">
-      <div class="relative flex-none w-20 h-20 xl:h-44 xl:w-44">
+      <div
+        class="relative flex-none w-20 h-20 md:h-28 md:w-28 xl:h-36 xl:w-36 2xl:h-40 2xl:w-40"
+      >
         <img
           :src="audioDetails.imageUrl"
           :alt="audioDetails.name"
