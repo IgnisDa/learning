@@ -18,7 +18,7 @@
           <ig-icon
             :id="`${area.icon}-icon`"
             :name="area.icon"
-            class="text-gray-100"
+            variant="secondary"
           ></ig-icon>
           <div class="font-semibold capitalize text-gray-50">
             {{ area.label }}
@@ -35,7 +35,7 @@
             <ig-icon
               :id="`${action.icon}-icon`"
               :name="action.icon"
-              class="text-gray-100"
+              variant="secondary"
             ></ig-icon>
             <div class="font-semibold capitalize text-gray-50">
               {{ action.label }}

@@ -9,7 +9,8 @@
       <ig-icon
         name="play"
         size="lg"
-        class="text-white transform translate-x-0.5"
+        class="transform translate-x-0.5"
+        variant="secondary"
       ></ig-icon>
     </div>
   </div>

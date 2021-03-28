@@ -9,7 +9,8 @@
       >
         <ig-icon
           name="arrow-left"
-          class="text-gray-200 cursor-pointer"
+          class="cursor-pointer"
+          variant="secondary"
         ></ig-icon>
       </div>
       <div
@@ -17,7 +18,8 @@
       >
         <ig-icon
           name="arrow-right"
-          class="text-gray-200 cursor-pointer"
+          class="cursor-pointer"
+          variant="secondary"
         ></ig-icon>
       </div>
     </div>

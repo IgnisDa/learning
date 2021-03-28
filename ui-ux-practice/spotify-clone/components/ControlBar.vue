@@ -119,28 +119,31 @@
           <ig-icon
             size="xs"
             name="key"
-            class="text-gray-200 cursor-pointer"
+            class="cursor-pointer"
+            variant="secondary"
           ></ig-icon>
         </div>
         <div title="Queue">
           <ig-icon
             size="xs"
             name="archive"
-            class="text-gray-200 cursor-pointer"
+            class="cursor-pointer"
+            variant="secondary"
           ></ig-icon>
         </div>
         <div title="Connect to a device">
           <ig-icon
             size="xs"
             name="tablet"
-            class="text-gray-200 cursor-pointer"
+            class="cursor-pointer"
+            variant="secondary"
           ></ig-icon>
         </div>
       </div>
       <div class="flex items-center space-x-2">
         <ig-icon
           :name="audioVolume === '0' ? 'volume-x' : 'volume-2'"
-          class="text-gray-200"
+          variant="secondary"
         ></ig-icon>
         <input
           v-model="audioVolume"
