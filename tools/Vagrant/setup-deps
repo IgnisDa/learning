@@ -20,9 +20,11 @@ git clone https://github.com/IgnisDa/linux-configs.git $HOME/.config
 # load all the custom scripts
 CUSTOM_SCRIPTS_DIR="$HOME/custom-scripts"
 git clone https://github.com/IgnisDa/custom-scripts.git $CUSTOM_SCRIPTS_DIR
-chmod +x $CUSTOM_SCRIPTS_DIR/build
-chmod +x $CUSTOM_SCRIPTS_DIR/run
-chmod +x $CUSTOM_SCRIPTS_DIR/setup
+for file in "$CUSTOM_SCRIPTS_DIR"/*; do
+    if grep -Fq "~ADD_SCRIPT~" "$file"; then
+        chmod +x "$file"
+    fi
+done
 
 # use the starship prompt
 curl -fsSL https://starship.rs/install.sh > /tmp/install.sh
