@@ -1,5 +1,8 @@
 <template>
-  <div id="control-bar" class="h-[90px] bg-dark-black flex items-center">
+  <div
+    id="control-bar"
+    class="h-[90px] bg-[#181818] border-t-[0.1px] border-gray-700 flex items-center"
+  >
     <div class="w-[32%] pl-4 flex items-center h-full justify-start space-x-4">
       <div class="relative cursor-pointer w-14 h-14">
         <img
