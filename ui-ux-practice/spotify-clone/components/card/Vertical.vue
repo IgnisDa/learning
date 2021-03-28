@@ -3,8 +3,8 @@
     role="vertical-card"
     class="rounded shadow-2xl cursor-pointer bg-light-black bg-opacity-30 px-2 py-3 h-[290px] sm:h-[318px] md:h-[314px] lg:h-[305px] 2xl:h-[260px]"
     style="backdrop-filter: blur(50px)"
-    @mouseover="hovered = true"
-    @mouseout="hovered = false"
+    @mouseover="handleHover()"
+    @mouseout="handleHover()"
   >
     <div class="flex flex-col items-center justify-between w-full h-full">
       <div
@@ -36,6 +36,7 @@
 </template>
 
 <script>
+import { mapMutations } from 'vuex'
 export default {
   props: {
     audioDetails: {
@@ -43,10 +44,25 @@ export default {
       type: Object,
     },
   },
-  data() {
-    return {
-      hovered: false,
-    }
+  data: () => ({
+    hovered: false,
+  }),
+  methods: {
+    handleHover() {
+      if (this.hovered) {
+        this.hovered = false
+      } else {
+        this.hovered = true
+      }
+      this.randomBackgroundColorMutation()
+    },
+    handleHoverOut() {
+      this.hovered = false
+      this.randomBackgroundColorMutation()
+    },
+    ...mapMutations({
+      randomBackgroundColorMutation: 'background/randomBackgroundColor',
+    }),
   },
 }
 </script>

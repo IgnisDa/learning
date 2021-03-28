@@ -3,8 +3,8 @@
     role="horizontal-card"
     class="flex items-center space-x-4 overflow-hidden rounded shadow-2xl cursor-pointer bg-light-black bg-opacity-60"
     style="backdrop-filter: blur(50px)"
-    @mouseout="hovered = false"
-    @mouseover="hovered = true"
+    @mouseover="handleHover()"
+    @mouseout="handleHover()"
   >
     <div class="flex-none w-20 h-20">
       <img
@@ -23,6 +23,8 @@
 </template>
 
 <script>
+import { mapMutations } from 'vuex'
+
 export default {
   props: {
     audioDetails: {
@@ -30,10 +32,25 @@ export default {
       type: Object,
     },
   },
-  data() {
-    return {
-      hovered: false,
-    }
+  data: () => ({
+    hovered: false,
+  }),
+  methods: {
+    handleHover() {
+      if (this.hovered) {
+        this.hovered = false
+      } else {
+        this.hovered = true
+      }
+      this.randomBackgroundColorMutation()
+    },
+    handleHoverOut() {
+      this.hovered = false
+      this.randomBackgroundColorMutation()
+    },
+    ...mapMutations({
+      randomBackgroundColorMutation: 'background/randomBackgroundColor',
+    }),
   },
 }
 </script>
