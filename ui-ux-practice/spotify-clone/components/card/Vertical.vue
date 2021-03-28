@@ -13,6 +13,9 @@
         <img
           :src="audioDetails.imageUrl"
           :alt="audioDetails.name"
+          height="auto"
+          width="auto"
+          loading="lazy"
           class="object-cover w-full h-full"
         />
         <CardPlayIcon

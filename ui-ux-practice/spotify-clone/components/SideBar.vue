@@ -3,6 +3,9 @@
     <div class="flex flex-col">
       <img
         :src="require('~/assets/images/logo-written.png')"
+        height="auto"
+        width="auto"
+        loading="lazy"
         alt="spotify-logo"
         class="object-contain h-10 m-6"
       />

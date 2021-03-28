@@ -3,6 +3,7 @@
     role="horizontal-card"
     class="flex items-center space-x-4 overflow-hidden rounded shadow-2xl cursor-pointer bg-light-black bg-opacity-60"
     style="backdrop-filter: blur(50px)"
+    loading="lazy"
     @mouseover="handleHoverOver()"
     @mouseout="handleHoverOut()"
   >
@@ -10,6 +11,8 @@
       <img
         :src="audioDetails.imageUrl"
         :alt="audioDetails.name"
+        height="auto"
+        width="auto"
         class="object-cover w-full h-full"
       />
     </div>

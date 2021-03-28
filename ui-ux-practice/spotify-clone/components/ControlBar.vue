@@ -9,6 +9,9 @@
           src="https://i.scdn.co/image/ab67616d000048514dea4c1cdf30c359dbaec318"
           alt="spotify-image-thumbnail"
           class="object-cover"
+          loading="lazy"
+          height="auto"
+          width="auto"
           @mouseover="hoverOnImage = true"
           @mouseout="hoverOnImage = false"
         />

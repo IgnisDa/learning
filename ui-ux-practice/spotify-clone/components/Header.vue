@@ -33,6 +33,9 @@
         <div class="h-7 w-7">
           <img
             src="https://placedog.net/300/300?id=100"
+            height="auto"
+            width="auto"
+            loading="lazy"
             alt="user icon"
             class="object-contain w-full h-full rounded-full"
           />
