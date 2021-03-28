@@ -1,5 +1,11 @@
+const ignisnents = require('ignisnents/dist/tailwind-preset.js')
+
 module.exports = {
-  darkMode: 'class', // or 'media' or 'class'
+  darkMode: 'class',
+  purge: {
+    content: ['node_modules/ignisnents/src/components/**/*.vue'],
+  },
+  presets: [ignisnents],
   theme: {
     extend: {
       colors: {
@@ -11,9 +17,6 @@ module.exports = {
         width: 'width',
       },
     },
-  },
-  variants: {
-    extend: {},
   },
   plugins: [
     require('tailwindcss-debug-screens'),
