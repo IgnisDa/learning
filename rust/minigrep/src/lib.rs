@@ -28,13 +28,13 @@ impl Config {
         let filename = args[2].clone();
         let case_sensitive_flag = args.get(3);
         let case_sensitive_flag = if case_sensitive_flag.is_some() {
-            true
-        } else {
             false
+        } else {
+            true
         };
 
         let mut case_sensitive = env::var("CASE_INSENSITIVE").is_err();
-        if case_sensitive_flag {
+        if !case_sensitive_flag {
             case_sensitive = false
         };
 
