@@ -114,6 +114,8 @@ sudo sysctl -p
 
 # Tag the provision time:
 date > "$PROVISIONED_ON"
+timedatectl set-ntp true
+timedatectl set-timezone Asia/Kolkata
 
 coloredEcho "cyan" "Installing global python packages"
 pip3 install poetry
