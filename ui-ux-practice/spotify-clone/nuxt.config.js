@@ -52,7 +52,4 @@ export default {
   // Added later
   telemetry: false,
   target: 'static',
-  tailwindcss: {
-    jit: true,
-  },
 }
