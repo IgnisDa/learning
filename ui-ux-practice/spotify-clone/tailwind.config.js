@@ -1,6 +1,7 @@
 const ignisnents = require('ignisnents/dist/tailwind-preset.js')
 
 module.exports = {
+  mode: 'jit',
   darkMode: 'class',
   purge: {
     content: ['node_modules/ignisnents/src/components/**/*.vue'],
