@@ -2,26 +2,49 @@ import passwordGenerator from 'generate-password'
 
 export const state = () => ({
   generatedPassword: '',
-  config: {},
+  length: 20,
+  lowercase: true,
+  uppercase: false,
+  numbers: false,
+  symbols: false,
 })
 
 export const mutations = {
   generateAndSetPassword(state) {
-    state.generatedPassword = passwordGenerator.generate(state.config)
+    if (
+      !state.uppercase &&
+      !state.lowercase &&
+      !state.numbers &&
+      !state.symbols
+    ) {
+      state.generatedPassword = passwordGenerator.generate({ lowercase: true })
+    } else {
+      state.generatedPassword = passwordGenerator.generate({
+        length: state.length,
+        uppercase: state.uppercase,
+        lowercase: state.lowercase,
+        numbers: state.numbers,
+        symbols: state.symbols,
+      })
+    }
   },
   setPasswordLength(state, length) {
-    state.config.length = length
+    state.length = length
   },
   togglePasswordIncludeUppercase(state) {
-    state.config.uppercase = !state.config.uppercase
+    state.uppercase = !state.uppercase
   },
   togglePasswordIncludeLowercase(state) {
-    state.config.lowercase = !state.config.lowercase
+    if (!state.uppercase && !state.numbers && !state.symbols) {
+      state.lowercase = true
+    } else {
+      state.lowercase = !state.lowercase
+    }
   },
   togglePasswordIncludeNumbers(state) {
-    state.config.numbers = !state.config.numbers
+    state.numbers = !state.numbers
   },
   togglePasswordIncludeSymbols(state) {
-    state.config.symbols = !state.config.symbols
+    state.symbols = !state.symbols
   },
 }
