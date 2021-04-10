@@ -52,4 +52,5 @@ export default {
   colorMode: {
     classSuffix: '',
   },
+  watch: ['~/store/*.js'],
 }
