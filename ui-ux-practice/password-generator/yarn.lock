@@ -4551,6 +4551,11 @@ functional-red-black-tree@^1.0.1:
   resolved "https://registry.yarnpkg.com/functional-red-black-tree/-/functional-red-black-tree-1.0.1.tgz#1b0ab3bd553b2a0d6399d29c0e3ea0b252078327"
   integrity sha1-GwqzvVU7Kg1jmdKcDj6gslIHgyc=
 
+generate-password@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/generate-password/-/generate-password-1.6.0.tgz#9dff4fcca7f831e6832d464509910fab333d0323"
+  integrity sha512-YUJTQkApkLT/fru0QdYWP0lVZdPKhF5kXCP24sgI4gR/vFMJFopCj5t1+9FAKIYcML/nxzx2PMkA1ymO1FC+tQ==
+
 gensync@^1.0.0-beta.2:
   version "1.0.0-beta.2"
   resolved "https://registry.yarnpkg.com/gensync/-/gensync-1.0.0-beta.2.tgz#32a6ee76c3d7f52d46b2b1ae5d93fea8580a25e0"
@@ -5055,9 +5060,9 @@ iferr@^0.1.5:
   integrity sha1-xg7taebY/bazEEofy8ocGS3FtQE=
 
 ignisnents@^1.1.4:
-  version "1.1.4"
-  resolved "https://registry.yarnpkg.com/ignisnents/-/ignisnents-1.1.4.tgz#67c944424fd5c037d3816b7756375d6c42823dcd"
-  integrity sha512-Sow4JkuoIXM22i4dFwU0owWo9X3wfOFWRRdYwcA1x3idSxlvgx7HC9N8/tW4BbPnWMrRhiMEZoYEnh+XdhNDEQ==
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/ignisnents/-/ignisnents-1.2.0.tgz#bcd8184dc5668d9de58db116cfb30ab910767b6d"
+  integrity sha512-+jrljbhHDDAMsLiVHE1Br+36qcz/rg9nqgJ46ShIkMzrWuXyxrGxiCP6IUznt37j32ck+MLGhHld9XZRQMoXGw==
 
 ignore@^4.0.6:
   version "4.0.6"
