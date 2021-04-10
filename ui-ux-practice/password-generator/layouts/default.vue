@@ -1,10 +1,10 @@
 <template>
   <div
-    class="h-screen bg-yellow-400 dark:bg-cyan-900"
+    class="flex flex-col h-screen bg-yellow-400 dark:bg-cyan-900"
     :class="{ 'debug-screens': mode !== 'production' }"
   >
-    <NavBar></NavBar>
-    <Nuxt />
+    <NavBar class="flex-none"></NavBar>
+    <Nuxt class="flex-grow" />
   </div>
 </template>
 
