@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@nuxtjs/pwa": "^3.3.5",
+    "generate-password": "^1.6.0",
     "ignisnents": "^1.1.4",
     "nuxt": "^2.15.3"
   },
