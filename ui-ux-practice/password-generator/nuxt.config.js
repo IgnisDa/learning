@@ -48,7 +48,6 @@ export default {
   googleFonts: {
     families: {
       'Josefin+Sans': [500],
-      Sacramento: true,
     },
   },
   telemetry: false,
