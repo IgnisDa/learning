@@ -25,12 +25,9 @@
 
 <script>
 import Toggler from './Toggler.vue'
+
 export default {
   components: { Toggler },
-  data: () => ({
-    clicked: true,
-  }),
-  computed: {},
   methods: {
     toggleColorMode() {
       if (this.$colorMode.value === 'light') {
