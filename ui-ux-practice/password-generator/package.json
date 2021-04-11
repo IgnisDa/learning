@@ -11,15 +11,21 @@
     "lint": "yarn lint:js && yarn lint:style"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.34",
+    "@fortawesome/free-brands-svg-icons": "^5.15.2",
+    "@fortawesome/free-solid-svg-icons": "^5.15.2",
+    "@fortawesome/vue-fontawesome": "^2.0.2",
     "@nuxtjs/pwa": "^3.3.5",
     "generate-password": "^1.6.0",
     "ignisnents": "^1.1.4",
-    "nuxt": "^2.15.3"
+    "nuxt": "^2.15.3",
+    "nuxt-clipboard2": "^0.2.1"
   },
   "devDependencies": {
     "@nuxtjs/color-mode": "^2.0.5",
     "@nuxtjs/eslint-config": "^5.0.0",
     "@nuxtjs/eslint-module": "^3.0.2",
+    "@nuxtjs/google-fonts": "^1.3.0",
     "@nuxtjs/stylelint-module": "^4.0.0",
     "@nuxtjs/tailwindcss": "^4.0.1",
     "autoprefixer": "^9",
