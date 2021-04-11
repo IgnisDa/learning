@@ -15,6 +15,9 @@ module.exports = {
         fuchsia: colors.fuchsia,
         cyan: colors.cyan,
       },
+      fontFamily: {
+        display: ['Josefin Sans', 'sans-serif'],
+      },
     },
   },
   variants: {
