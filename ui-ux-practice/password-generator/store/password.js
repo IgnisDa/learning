@@ -17,16 +17,15 @@ export const mutations = {
       !state.numbers &&
       !state.symbols
     ) {
-      state.generatedPassword = passwordGenerator.generate({ lowercase: true })
-    } else {
-      state.generatedPassword = passwordGenerator.generate({
-        length: state.length,
-        uppercase: state.uppercase,
-        lowercase: state.lowercase,
-        numbers: state.numbers,
-        symbols: state.symbols,
-      })
+      state.lowercase = true
     }
+    state.generatedPassword = passwordGenerator.generate({
+      length: state.length,
+      uppercase: state.uppercase,
+      lowercase: state.lowercase,
+      numbers: state.numbers,
+      symbols: state.symbols,
+    })
   },
   setPasswordLength(state, length) {
     state.length = length
