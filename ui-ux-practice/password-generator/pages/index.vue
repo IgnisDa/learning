@@ -1,12 +1,34 @@
 <template>
-  <div class="flex items-center justify-center">
-    <div class="bg-red-100">
-      <div>{{ generatedPassword }}</div>
-      <div>
+  <div class="flex flex-col items-center justify-center w-full">
+    <div
+      class="flex flex-col items-center w-10/12 px-5 py-3 space-y-3 bg-gray-300 rounded-xl dark:bg-warm-gray-800 sm:w-2/3 md:w-2/3 lg:w-1/2 xl:w-5/12 2xl:1/4"
+    >
+      <div
+        class="w-full text-lg font-extrabold tracking-wide text-left sm:text-xl md:text-2xl"
+      >
+        Password Generator
+      </div>
+      <div class="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl">
+        <span v-if="generatedPassword.length !== 0">
+          {{ generatedPassword }}
+        </span>
+        <span v-else>Click Generate</span>
+      </div>
+      <div class="flex flex-col items-center w-full space-y-1">
+        <div>
+          <input
+            v-model="length"
+            type="range"
+            class="focus:outline-none"
+            min="10"
+            max="50"
+            step="1"
+          />
+        </div>
         <div
           v-for="(action, index) in actions"
           :key="index"
-          class="flex items-center"
+          class="flex items-center justify-between w-full px-3"
         >
           <div>{{ action.label }}</div>
           <toggler
@@ -16,12 +38,8 @@
         </div>
       </div>
       <div>
-        <button
-          class="appearance-none"
-          @click="generateAndSetPasswordMutation()"
-        >
-          Generate
-        </button>
+        <generate-button @click.native="generateAndSetPasswordMutation()">
+        </generate-button>
       </div>
     </div>
   </div>
@@ -62,8 +80,15 @@ export default {
   computed: {
     ...mapState({
       generatedPassword: (state) => state.password.generatedPassword,
-      length: (state) => state.password.length,
     }),
+    length: {
+      get() {
+        return this.$store.state.password.length
+      },
+      set(newValue) {
+        return this.$store.commit('password/setPasswordLength', newValue)
+      },
+    },
   },
   mounted() {},
   methods: {
