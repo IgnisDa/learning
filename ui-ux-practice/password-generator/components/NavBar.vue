@@ -1,7 +1,7 @@
 <template>
   <div class="flex justify-center">
     <div
-      class="z-10 flex items-center p-2 mt-3 space-x-3 rounded-lg shadow-2xl dark:bg-fuchsia-600"
+      class="z-10 flex items-center p-2 mt-3 space-x-3 border border-black rounded-lg shadow-2xl dark:bg-fuchsia-600"
     >
       <ig-icon
         name="moon"
