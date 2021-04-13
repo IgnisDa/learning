@@ -2,8 +2,8 @@
 # This script will be used to install dependencies for all the {{cookiecutter.project_name}} applications
 
 # setup the git identities
-git config --global user.name "{{cookiecutter.github_name}}"
-git config --global user.email "{{cookiecutter.github_email}}"
+git config --global user.name "Diptesh Choudhuri"
+git config --global user.email "ignisda2001@gmail.com"
 
 # remove the default fish shell prompt
 set fish_greeting
