@@ -1,4 +1,3 @@
-
 # Created by https://www.toptal.com/developers/gitignore/api/django,vscode,vuejs,vagrant,python,node
 # Edit at https://www.toptal.com/developers/gitignore?templates=django,vscode,vuejs,vagrant,python,node
 
@@ -366,3 +365,4 @@ yarn-error.log*
 .vscode
 
 practice-only
+.cargo
