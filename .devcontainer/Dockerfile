@@ -1,4 +1,4 @@
 FROM ignisda/developr-workspace
 
-RUN sudo apk add libpq postgresql-dev openjdk11-jre openjdk11-jdk maven g++ \
-    build-base libzmq musl-dev zeromq-dev
+RUN sudo apt-get -y install default-jre maven python3-venv ; \
+    sudo yarn global add @nestjs/cli
