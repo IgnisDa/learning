@@ -1,0 +1,53 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type CarPicture {
+  id: Int!
+  car: Car!
+  url: String!
+}
+
+type Car {
+  id: Int!
+  carPictures: [CarPicture!]!
+  name: String!
+  year: Float!
+  model: String
+}
+
+type User {
+  id: String!
+  username: String!
+  email: String!
+  password: String
+}
+
+type Query {
+  car(id: Int!): Car!
+  cars: [Car!]!
+}
+
+type Mutation {
+  deleteAllCars: Boolean!
+  createCar(carInput: CarInput!): Car!
+  addCarPicture(carPictureInput: CarPictureInput!, id: Int!): Boolean!
+  createUser(userCreateInput: UserCreateInput!): User!
+  login: User!
+}
+
+input CarInput {
+  name: String!
+  year: Int!
+  model: String!
+}
+
+input CarPictureInput {
+  url: String!
+}
+
+input UserCreateInput {
+  username: String!
+  email: String!
+  password: String!
+}

@@ -1,0 +1,4 @@
+frontend_folder := "frontend"
+
+default:
+    { cd "{{frontend_folder}}" && pnpm run start:dev ;}
