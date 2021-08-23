@@ -23,9 +23,20 @@ type User {
   password: String
 }
 
+type LoginResult {
+  user: User!
+  token: String!
+}
+
 type Query {
   car(id: Int!): Car!
   cars: [Car!]!
+  login(user: LoginUserInput!): LoginResult!
+}
+
+input LoginUserInput {
+  username: String!
+  password: String!
 }
 
 type Mutation {
@@ -33,7 +44,6 @@ type Mutation {
   createCar(carInput: CarInput!): Car!
   addCarPicture(carPictureInput: CarPictureInput!, id: Int!): Boolean!
   createUser(userCreateInput: UserCreateInput!): User!
-  login: User!
 }
 
 input CarInput {
