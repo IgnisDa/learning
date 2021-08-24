@@ -28,10 +28,6 @@ export class CarService {
   }
 
   async findOne(id: number) {
-    console.log(
-      await this.carPictureRepository.find(),
-      await this.carRepository.find(),
-    );
     return await this.carRepository.findOne(id);
   }
 

@@ -13,28 +13,9 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validate(username: string, password: string) {
-    const user = await this.userService.getUserByUsername(username);
-    if (!user) {
-      return null;
-    }
-    const passwordValid = password === user.password;
-    return passwordValid ? user : null;
-  }
-
-  login(user: User): { access_token: string } {
-    const payload = {
-      username: user.username,
-      sub: user.id,
-    };
-
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
-  }
-
   async validateUserByPassword(loginAttempt: LoginUserInput) {
     // This will be used for the initial login
+
     let userToAttempt: User;
     if (loginAttempt.username) {
       userToAttempt = await this.userService.getUserByUsername(
@@ -62,6 +43,12 @@ export class AuthService {
     }
 
     return undefined;
+  }
+
+  async validateJwtPayload(payload: JwtPayload) {
+    // This will be used when the user has already logged in and has a JWT
+    const user = await this.userService.getUserByUsername(payload.username);
+    return user ? user : undefined;
   }
 
   createJwt(user: User): { data: JwtPayload; token: string } {
