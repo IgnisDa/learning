@@ -1,6 +1,8 @@
 set dotenv-load := true
 
+backend_folder := "backend"
 frontend_folder := "frontend"
 
 default:
-    { cd "{{frontend_folder}}" && pnpm run start:dev ;}
+    { cd "{{backend_folder}}" && pnpm run start:dev & \
+    cd "{{frontend_folder}}" && pnpm run dev ;}
