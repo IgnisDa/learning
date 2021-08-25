@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { operationStore, query } from '@urql/svelte';
-	const carsOperation = operationStore(`
+	const cars = operationStore(`
 		query {
 			cars {
 				id
@@ -8,8 +8,19 @@
 			}
 		}
 		`);
-	const cars = query(carsOperation);
+	query(cars);
 </script>
 
-Prerender this page
-{JSON.stringify($cars.data.cars)}
+<div>
+	{#if $cars.fetching}
+		<p>Loading...</p>
+	{:else if $cars.error}
+		<p>Oh no... {$cars.error.message}</p>
+	{:else}
+		<ul>
+			{#each $cars.data.cars as car}
+				<li>{car.name}</li>
+			{/each}
+		</ul>
+	{/if}
+</div>

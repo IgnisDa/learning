@@ -5,9 +5,10 @@ specifiers:
   '@typescript-eslint/eslint-plugin': ^4.19.0
   '@typescript-eslint/parser': ^4.19.0
   '@urql/svelte': ^1.3.0
-  eslint: ^7.22.0
+  eslint: ^7.32.0
   eslint-config-prettier: ^8.1.0
   eslint-plugin-svelte3: ^3.2.0
+  frontend-commons: https://github.com/IgnisDa/frontend-commons.git
   graphql: ^15.5.1
   prettier: ~2.2.1
   prettier-plugin-svelte: ^2.2.0
@@ -16,10 +17,13 @@ specifiers:
   svelte-preprocess: ^4.0.0
   tslib: ^2.0.0
   typescript: ^4.0.0
+  vite-plugin-windicss: ^1.2.8
+  windicss: ^3.1.7
 
 dependencies:
   '@urql/svelte': 1.3.0_graphql@15.5.1+svelte@3.42.2
   graphql: 15.5.1
+  windicss: 3.1.7
 
 devDependencies:
   '@sveltejs/kit': 1.0.0-next.156_svelte@3.42.2
@@ -28,6 +32,7 @@ devDependencies:
   eslint: 7.32.0
   eslint-config-prettier: 8.3.0_eslint@7.32.0
   eslint-plugin-svelte3: 3.2.0_eslint@7.32.0+svelte@3.42.2
+  frontend-commons: github.com/IgnisDa/frontend-commons/dcbe7f1f46418507f959e4db1e82126486a549ec
   prettier: 2.2.1
   prettier-plugin-svelte: 2.3.1_prettier@2.2.1+svelte@3.42.2
   svelte: 3.42.2
@@ -35,8 +40,15 @@ devDependencies:
   svelte-preprocess: 4.8.0_svelte@3.42.2+typescript@4.3.5
   tslib: 2.3.1
   typescript: 4.3.5
+  vite-plugin-windicss: 1.2.8
 
 packages:
+
+  /@antfu/utils/0.2.4:
+    resolution: {integrity: sha512-2bZNkVfL9IZESmvE26UKi8SzyvSoaIsGXDcnbHFMtmGMqUiB1fXpAJ1ijGf+tSqKRQ5yagck2U1Qk0p+705/kw==}
+    dependencies:
+      '@types/throttle-debounce': 2.1.0
+    dev: true
 
   /@babel/code-frame/7.12.11:
     resolution: {integrity: sha512-Zt1yodBx1UcyiePMSkWnU4hPqhwq7hGi2nFL1LeA3EUl+q2LQx16MISgJ0+z7dnmgvP9QtIleuETGOiOH1RcIw==}
@@ -185,6 +197,10 @@ packages:
       '@types/node': 16.7.1
     dev: true
 
+  /@types/throttle-debounce/2.1.0:
+    resolution: {integrity: sha512-5eQEtSCoESnh2FsiLTxE121IiE60hnMqcb435fShf4bpLRjEu1Eoekht23y6zXS9Ts3l+Szu3TARnTsA0GkOkQ==}
+    dev: true
+
   /@typescript-eslint/eslint-plugin/4.29.3_fd14c0002fbbfb85b8a0070d0dffb93d:
     resolution: {integrity: sha512-tBgfA3K/3TsZY46ROGvoRxQr1wBkclbVqRQep97MjVHJzcRBURRY3sNFqLk0/Xr//BY5hM9H2p/kp+6qim85SA==}
     engines: {node: ^10.12.0 || >=12.0.0}
@@ -311,6 +327,30 @@ packages:
       svelte: 3.42.2
       wonka: 4.0.15
     dev: false
+
+  /@windicss/config/1.2.8:
+    resolution: {integrity: sha512-v9vyIiG8GYUTYo874ExlVu1i6vlsWo4RFZWiDGfPKdN7GBRCcJcEV+X+j3AZPPIsx5JvD5TXQlDvkbYIqYWYbQ==}
+    dependencies:
+      debug: 4.3.2
+      jiti: 1.11.0
+      windicss: 3.1.7
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
+  /@windicss/plugin-utils/1.2.8:
+    resolution: {integrity: sha512-JwnFMJMCX/+Re4iItozvbWC3yz/7WJNOJJkgDKQ9X5Ran1sfNjx9m3LCijsYLf0MULCplZJIh/HzdxjxZMNFUA==}
+    dependencies:
+      '@antfu/utils': 0.2.4
+      '@windicss/config': 1.2.8
+      debug: 4.3.2
+      fast-glob: 3.2.7
+      magic-string: 0.25.7
+      micromatch: 4.0.4
+      windicss: 3.1.7
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
 
   /acorn-jsx/5.3.2_acorn@7.4.1:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -916,6 +956,11 @@ packages:
     resolution: {integrity: sha1-6PvzdNxVb/iUehDcsFctYz8s+hA=}
     dev: true
 
+  /jiti/1.11.0:
+    resolution: {integrity: sha512-/2c7e61hxxTIN34UeHBB0LCJ5Tq64kgJDV7GR+++e8XRxCKRIKmB8tH6ww1W+Z6Kgd6By+C3RSCu1lXjbPT68A==}
+    hasBin: true
+    dev: true
+
   /js-tokens/4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
     dev: true
@@ -1443,6 +1488,19 @@ packages:
     resolution: {integrity: sha512-l8lCEmLcLYZh4nbunNZvQCJc5pv7+RCwa8q/LdUx8u7lsWvPDKmpodJAJNwkAhJC//dFY48KuIEmjtd4RViDrA==}
     dev: true
 
+  /vite-plugin-windicss/1.2.8:
+    resolution: {integrity: sha512-KLoFfsEh5RAyw2OjW+lrIdgkRAMa9KM1sKPYf8pYgVIj4PL6xBbJlbvWOZnZdW1rFjLtF3KzPT35HEmj6MV8XQ==}
+    peerDependencies:
+      vite: ^2.0.1
+    dependencies:
+      '@windicss/plugin-utils': 1.2.8
+      chalk: 4.1.2
+      debug: 4.3.2
+      windicss: 3.1.7
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
   /vite/2.5.0:
     resolution: {integrity: sha512-Dn4B+g54PJsMG5WCc4QeFy1ygMXRdTtFrUPegqfk4+vzVQcbF/DqqmI/1bxezArzbujBJg/67QeT5wz8edfJVQ==}
     engines: {node: '>=12.2.0'}
@@ -1464,6 +1522,11 @@ packages:
       isexe: 2.0.0
     dev: true
 
+  /windicss/3.1.7:
+    resolution: {integrity: sha512-Q/HQ9j+r2R0fdt85zAjccdo11kHWzQmpkuwIUQIO6PSypyDmBTfN14aAy4szLrpgo2woyuHM7Y+kir4IG4qnKQ==}
+    engines: {node: '>= 12'}
+    hasBin: true
+
   /wonka/4.0.15:
     resolution: {integrity: sha512-U0IUQHKXXn6PFo9nqsHphVCE5m3IntqZNB9Jjn7EB1lrR7YTDY3YWgFvEvwniTzXSvOH/XMzAZaIfJF/LvHYXg==}
     dev: false
@@ -1479,4 +1542,10 @@ packages:
 
   /yallist/4.0.0:
     resolution: {integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==}
+    dev: true
+
+  github.com/IgnisDa/frontend-commons/dcbe7f1f46418507f959e4db1e82126486a549ec:
+    resolution: {tarball: https://codeload.github.com/IgnisDa/frontend-commons/tar.gz/dcbe7f1f46418507f959e4db1e82126486a549ec}
+    name: frontend-commons
+    version: 1.0.0
     dev: true

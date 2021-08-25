@@ -1,3 +1,4 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { UserCreateInput } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
@@ -10,6 +11,7 @@ export class UserResolver {
   @Mutation(() => User)
   async createUser(@Args('userCreateInput') userCreateInput: UserCreateInput) {
     const resp = await this.userService.createUser(userCreateInput);
-    return resp;
+    if (!resp.status) throw new HttpException(resp.resp, HttpStatus.CONFLICT);
+    return resp.resp;
   }
 }
