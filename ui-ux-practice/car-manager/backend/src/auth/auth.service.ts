@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User } from 'src/user/entities/user.entity';
+import { UserDto } from 'src/user/dto/user.dto';
+import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
-import { LoginResult } from './dto/login-result.dto';
-import { LoginUserInput } from './dto/login-user.dto';
+import { LoginResult } from './dto/login-user.result';
+import { LoginUserInput } from './dto/login-user.input';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 @Injectable()
@@ -16,7 +17,7 @@ export class AuthService {
   async validateUserByPassword(loginAttempt: LoginUserInput) {
     // This will be used for the initial login
 
-    let userToAttempt: User;
+    let userToAttempt: UserEntity;
     if (loginAttempt.username) {
       userToAttempt = await this.userService.getUserByUsername(
         loginAttempt.username,
@@ -34,7 +35,7 @@ export class AuthService {
 
     if (isMatch) {
       // If there is a successful match, generate a JWT for the user
-      const token = this.createJwt(userToAttempt).token;
+      const token = this.createJwt(userToAttempt);
       const result: LoginResult = {
         user: userToAttempt,
         token,
@@ -51,17 +52,12 @@ export class AuthService {
     return user ? user : undefined;
   }
 
-  createJwt(user: User): { data: JwtPayload; token: string } {
+  createJwt(user: UserDto): string {
     const data: JwtPayload = {
       id: user.id,
       username: user.username,
     };
-
     const jwt = this.jwtService.sign(data);
-
-    return {
-      data,
-      token: jwt,
-    };
+    return jwt;
   }
 }
