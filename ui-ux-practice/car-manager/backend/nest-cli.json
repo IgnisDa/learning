@@ -3,7 +3,17 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "plugins": [
-      "@nestjs/graphql"
+      {
+        "name": "@nestjs/graphql",
+        "options": {
+          "typeFileNameSuffix": [
+            ".input.ts",
+            ".dto.ts",
+            ".result.ts"
+          ],
+          "introspectComments": true
+        }
+      }
     ]
   }
 }
