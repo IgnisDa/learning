@@ -1,8 +1,8 @@
-import { ObjectType } from '@nestjs/graphql';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 
 @ObjectType({ description: 'Details about the user object' })
 export class UserDto {
-  /* The primary key of the user */
+  @Field(() => ID, { description: 'The primary key of the user' })
   id: string;
 
   /* The name of the user */

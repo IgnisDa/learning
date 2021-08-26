@@ -19,7 +19,7 @@ type Car {
 """Details about the user object"""
 type UserDto {
   """The primary key of the user"""
-  id: String!
+  id: ID!
 
   """The name of the user"""
   username: String!
