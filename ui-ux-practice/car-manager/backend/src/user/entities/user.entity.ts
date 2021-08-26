@@ -1,4 +1,3 @@
-import { Field, ObjectType } from '@nestjs/graphql';
 import {
   Column,
   Entity,
@@ -8,33 +7,25 @@ import {
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
-@ObjectType()
 @Entity()
-export class User {
-  /* The primary key of the user */
-  @Field()
+export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  /* The name of the user */
-  @Field()
   @Column({ unique: true })
   username: string;
 
-  /* The email of the user */
-  @Field()
-  @Column('text', { unique: true })
+  @Column({ unique: true })
   email: string;
 
-  /* The password of the user */
-  @Field()
   @Column()
-  password?: string;
+  password: string;
 
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword() {
-    this.password = await bcrypt.hash(this.password, 10);
+    const salt = await bcrypt.genSalt(15);
+    this.password = await bcrypt.hash(this.password, salt);
   }
 
   public async checkPassword(password: string): Promise<boolean> {
