@@ -32,6 +32,8 @@
     "apollo-server-core": "^3.1.2",
     "apollo-server-express": "2.25.2",
     "bcrypt": "^5.0.1",
+    "class-transformer": "^0.4.0",
+    "class-validator": "^0.13.1",
     "graphql": "^15.5.1",
     "joi": "^17.4.2",
     "passport": "^0.4.1",
@@ -41,7 +43,8 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
-    "typeorm": "^0.2.37"
+    "typeorm": "^0.2.37",
+    "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.0.0",
@@ -54,6 +57,7 @@
     "@types/passport-jwt": "^3.0.6",
     "@types/passport-local": "^1.0.34",
     "@types/supertest": "^2.0.11",
+    "@types/zxcvbn": "^4.4.1",
     "@typescript-eslint/eslint-plugin": "^4.28.2",
     "@typescript-eslint/parser": "^4.28.2",
     "eslint": "^7.30.0",
