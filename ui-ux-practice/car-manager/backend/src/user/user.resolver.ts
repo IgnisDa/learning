@@ -7,7 +7,9 @@ import { UserService } from './user.service';
 export class UserResolver {
   constructor(private userService: UserService) {}
 
-  @Mutation(() => CreateUserResultUnion)
+  @Mutation(() => CreateUserResultUnion, {
+    description: 'Mutation to create a new user',
+  })
   async createUser(@Args('userCreateInput') userCreateInput: CreateUserInput) {
     const resp = await this.userService.createUser(userCreateInput);
     if (!resp.status) {
