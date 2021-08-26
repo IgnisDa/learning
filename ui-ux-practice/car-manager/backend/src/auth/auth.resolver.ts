@@ -2,36 +2,46 @@ import { Resolver, Query, Args } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { GqlAuthGuard } from './guards/gql-auth.guard';
-import { User } from 'src/user/entities/user.entity';
-import { LoginUserInput } from './dto/login-user.dto';
-import { AuthenticationError } from 'apollo-server-core';
-import { LoginResult } from './dto/login-result.dto';
+import { LoginUserInput } from './dto/login-user.input';
+import { LoginResultUnion } from './dto/login-user.result';
 import { CurrentUser } from './current-user.decorator';
+import { UserDto } from 'src/user/dto/user.dto';
+import { RefreshTokenResultUnion } from './dto/refresh-token.result';
 
-@Resolver('Auth')
+@Resolver()
 export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
 
-  @Query(() => LoginResult)
-  async login(@Args('user') user: LoginUserInput) {
-    const res = await this.authService.validateUserByPassword(user);
-    if (res) return res;
-    throw new AuthenticationError(
-      'Could not log-in with the provided credentials',
-    );
+  @Query(() => LoginResultUnion, {
+    description: 'Query to login using a username and password',
+  })
+  async loginUser(@Args('LoginUserInput') loginUserInput: LoginUserInput) {
+    const res = await this.authService.validateUserByPassword(loginUserInput);
+    if (res)
+      return {
+        __typename: 'LoginResult',
+        ...res,
+      };
+    return {
+      __typename: 'LoginError',
+      message: 'Could not login with the provided credentials',
+    };
   }
 
   @UseGuards(GqlAuthGuard)
-  @Query(() => String)
-  async refreshToken(@CurrentUser() user: User) {
-    if (!user)
-      throw new AuthenticationError(
-        'Could not log in with the provided credentials',
-      );
-    const result = this.authService.createJwt(user);
-    if (result) return result.token;
-    throw new AuthenticationError(
-      'Could not log in with the provided credentials',
-    );
+  @Query(() => RefreshTokenResultUnion, {
+    description: 'Get the refresh token using the authorization request header',
+  })
+  async refreshToken(@CurrentUser() user: UserDto) {
+    const token = this.authService.createJwt(user);
+    if (token)
+      return {
+        __typename: 'RefreshToken',
+        token: token,
+      };
+    return {
+      __typename: 'RefreshTokenError',
+      message: 'Could not log in with the provided credentials',
+    };
   }
 }
