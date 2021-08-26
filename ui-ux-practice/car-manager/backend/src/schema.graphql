@@ -16,22 +16,27 @@ type Car {
   model: String
 }
 
-type User {
+"""Details about the user object"""
+type UserDto {
+  """The primary key of the user"""
   id: String!
+
+  """The name of the user"""
   username: String!
+
+  """The email of the user"""
   email: String!
-  password: String
 }
 
 type LoginResult {
-  user: User!
+  user: UserDto!
   token: String!
 }
 
 type Query {
   car(id: Int!): Car!
   cars: [Car!]!
-  login(user: LoginUserInput!): LoginResult!
+  login(LoginUserInput: LoginUserInput!): LoginResult!
   refreshToken: String!
 }
 
@@ -44,7 +49,7 @@ type Mutation {
   deleteAllCars: Boolean!
   createCar(carInput: CarInput!): Car!
   addCarPicture(carPictureInput: CarPictureInput!, id: Int!): Boolean!
-  createUser(userCreateInput: UserCreateInput!): User!
+  createUser(userCreateInput: CreateUserInput!): CreateUserResultUnion!
 }
 
 input CarInput {
@@ -57,8 +62,29 @@ input CarPictureInput {
   url: String!
 }
 
-input UserCreateInput {
+"""Result type returned as the result when new user is created"""
+union CreateUserResultUnion = CreateUserError | UserDto
+
+"""Type returned for the errors when a new user is created"""
+type CreateUserError {
+  """The error associated with username"""
+  usernameError: String
+
+  """The error associated with email"""
+  emailError: String
+
+  """The error associated with password"""
+  passwordError: String
+}
+
+"""Type to use while creating a new user"""
+input CreateUserInput {
+  """The username of the new user"""
   username: String!
+
+  """The email of the new user"""
   email: String!
+
+  """The password of the new user"""
   password: String!
 }
