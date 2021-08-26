@@ -9,7 +9,8 @@
           "typeFileNameSuffix": [
             ".input.ts",
             ".dto.ts",
-            ".result.ts"
+            ".result.ts",
+            ".interface.ts"
           ],
           "introspectComments": true
         }
