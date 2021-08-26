@@ -1,18 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import { User } from './entities/user.entity';
+import { UserEntity } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
-import { UserCreateInput } from './dto/create-user.dto';
+import { CreateUserInput } from './dto/create-user.input';
 import { checkPropertiesExists } from 'src/utils';
+import { CreateUserError } from './dto/create-user.result';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(UserEntity)
+    private userRepository: Repository<UserEntity>,
   ) {}
 
-  async createUser(userCreateInput: UserCreateInput) {
-    const errors = { username: null, email: null };
+  async createUser(userCreateInput: CreateUserInput) {
+    const errors: CreateUserError = {
+      usernameError: null,
+      emailError: null,
+      passwordError: null,
+    };
     const resp = { status: false, resp: null };
     const usernameExists = await this.userRepository.find({
       where: {
@@ -20,7 +26,7 @@ export class UserService {
       },
     });
     if (usernameExists.length !== 0) {
-      errors.username = 'This user already exists';
+      errors.usernameError = 'This user already exists';
     }
     const emailExists = await this.userRepository.find({
       where: {
@@ -28,14 +34,13 @@ export class UserService {
       },
     });
     if (emailExists.length !== 0) {
-      errors.email = 'This email already exists';
+      errors.emailError = 'This email already exists';
     }
-    if (!checkPropertiesExists(errors)) {
-      resp.status = false;
+    if (!checkPropertiesExists(Object(errors))) {
       resp.resp = errors;
       return resp;
     }
-    const newUser = new User();
+    const newUser = new UserEntity();
     newUser.email = userCreateInput.email;
     newUser.password = userCreateInput.password;
     newUser.username = userCreateInput.username;
