@@ -11,9 +11,6 @@ type CarPicture {
 type Car {
   id: Int!
   carPictures: [CarPicture!]!
-  name: String!
-  year: Float!
-  model: String
 }
 
 """Details about the user object"""
@@ -28,27 +25,75 @@ type UserDto {
   email: String!
 }
 
-type LoginResult {
-  user: UserDto!
-  token: String!
-}
-
 type Query {
   car(id: Int!): Car!
   cars: [Car!]!
-  login(LoginUserInput: LoginUserInput!): LoginResult!
-  refreshToken: String!
+
+  """Query to login using a username and password"""
+  loginUser(LoginUserInput: LoginUserInput!): LoginResultUnion!
+
+  """Get the refresh token using the authorization request header"""
+  refreshToken: RefreshTokenResultUnion!
 }
 
+"""Result type returned as the result when someone tries to login"""
+union LoginResultUnion = LoginResult | LoginError
+
+"""The type returned on successful login"""
+type LoginResult {
+  """The user this login result is associated with"""
+  user: UserDto!
+
+  """The JWT token to be used for authentication"""
+  token: String!
+}
+
+"""The type returned for the errors when login is unsuccessful"""
+type LoginError implements APIError {
+  """The error message"""
+  message: String!
+}
+
+"""
+The standard interface that contains the error message when something goes wrong
+"""
+interface APIError {
+  """The error message"""
+  message: String!
+}
+
+"""The input type used while logging in"""
 input LoginUserInput {
+  """The username of the user logging in"""
   username: String!
+
+  """The password of the user logging in"""
   password: String!
+}
+
+"""
+Result type returned as the result when a client tries to create a refresh token
+"""
+union RefreshTokenResultUnion = RefreshTokenError | RefreshToken
+
+"""The error returned when trying to refresh the token"""
+type RefreshTokenError implements APIError {
+  """The error message when getting a refresh token"""
+  message: String!
+}
+
+"""The type that contains the return token"""
+type RefreshToken {
+  """The refresh token"""
+  token: String!
 }
 
 type Mutation {
   deleteAllCars: Boolean!
   createCar(carInput: CarInput!): Car!
   addCarPicture(carPictureInput: CarPictureInput!, id: Int!): Boolean!
+
+  """Mutation to create a new user"""
   createUser(userCreateInput: CreateUserInput!): CreateUserResultUnion!
 }
 
