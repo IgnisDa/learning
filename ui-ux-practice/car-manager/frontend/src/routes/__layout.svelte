@@ -11,10 +11,14 @@
 	});
 </script>
 
-<div class="flex flex-col min-h-screen debug-screens">
+<div class="bg-gradient-to-br bg-darkest flex flex-col min-h-screen debug-screens">
 	<!-- navbar -->
 	<main class="flex flex-col flex-1">
 		<slot />
 	</main>
 	<!-- footer -->
 </div>
+
+<style lang="scss">
+	@import url('/static/globals.scss');
+</style>
