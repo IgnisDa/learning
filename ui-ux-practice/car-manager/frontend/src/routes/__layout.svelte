@@ -11,7 +11,7 @@
 	});
 </script>
 
-<div class="bg-gradient-to-br bg-darkest flex flex-col min-h-screen debug-screens">
+<div class="bg-gradient-to-br flex flex-col min-h-screen bg-dark-900 debug-screens">
 	<!-- navbar -->
 	<main class="flex flex-col flex-1">
 		<slot />
