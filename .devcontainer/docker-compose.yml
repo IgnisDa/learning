@@ -10,9 +10,5 @@ services:
 
     volumes:
       - ..:/workspace/learning:cached
-      - postgres_data:/var/lib/postgresql/data
 
     command: sleep infinity
-
-volumes:
-  postgres_data:
