@@ -14,7 +14,6 @@ export default defineConfig({
 		fontFamily: {
 			...defaultTheme.fontFamily,
 			sans: ['Biotif', ...defaultTheme.fontFamily.sans],
-			banner: ['Secular One', 'sans-serif'],
 			heading: ['Bogart', 'sans-serif']
 		}
 	},
