@@ -113,13 +113,13 @@ union CreateUserResultUnion = CreateUserError | UserDto
 """Type returned for the errors when a new user is created"""
 type CreateUserError {
   """The error associated with username"""
-  usernameError: String
+  usernameErrors: [String!]
 
   """The error associated with email"""
-  emailError: String
+  emailErrors: [String!]
 
   """The error associated with password"""
-  passwordError: String
+  passwordErrors: [String!]
 }
 
 """Type to use while creating a new user"""

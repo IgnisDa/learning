@@ -6,13 +6,13 @@ import { UserDto } from './user.dto';
 })
 export class CreateUserError {
   /* The error associated with username */
-  usernameError?: string;
+  usernameErrors?: string[] | null = [];
 
   /* The error associated with email */
-  emailError?: string;
+  emailErrors?: string[] | null = [];
 
   /* The error associated with password */
-  passwordError?: string;
+  passwordErrors?: string[] | null = [];
 }
 
 export const CreateUserResultUnion = createUnionType({

@@ -1,11 +1,17 @@
 import { InputType } from '@nestjs/graphql';
-import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
-import { IsPasswordValid } from '../password.validator';
+import {
+  IsAlphanumeric,
+  IsEmail,
+  IsNotEmpty,
+  MinLength,
+} from 'class-validator';
+import { IsPasswordValid } from 'src/utils';
 
 @InputType({ description: 'Type to use while creating a new user' })
 export class CreateUserInput {
   /* The username of the new user */
   @IsNotEmpty()
+  @IsAlphanumeric()
   username: string;
 
   /* The email of the new user */
@@ -14,7 +20,6 @@ export class CreateUserInput {
   email: string;
 
   /* The password of the new user */
-  @IsNotEmpty()
   @IsPasswordValid()
   @MinLength(10)
   password: string;
