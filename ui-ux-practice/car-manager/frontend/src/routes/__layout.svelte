@@ -1,3 +1,7 @@
+<style lang="scss">
+	@import url('/static/globals.scss');
+</style>
+
 <script lang="ts">
 	import 'virtual:windi.css';
 	import { initClient } from '@urql/svelte';
@@ -18,7 +22,3 @@
 	</main>
 	<!-- footer -->
 </div>
-
-<style lang="scss">
-	@import url('/static/globals.scss');
-</style>

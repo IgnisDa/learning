@@ -10,11 +10,6 @@ export function checkPropertiesExists(obj: Record<string, unknown>) {
   }
   return true;
 }
-
-export function extendObject(...objects: any) {
-  return Object.assign({}, ...objects);
-}
-
 export async function validateObject(obj: any, transformToType: any) {
   const transformedObj = plainToClass(transformToType, obj);
   const validationErrors: ValidationError[] = await validate(transformedObj);
@@ -23,7 +18,7 @@ export async function validateObject(obj: any, transformToType: any) {
     error[`${v.property}Errors`] = Object.values(v.constraints);
     return error;
   });
-  return extendObject(...errors);
+  return errors;
 }
 
 export function IsPasswordValid(validationOptions?: ValidationOptions) {
@@ -35,21 +30,30 @@ export function IsPasswordValid(validationOptions?: ValidationOptions) {
       options: validationOptions,
       validator: {
         validate(value: any) {
-          if (!value) {
-            this.error = 'Empty password';
-            return false;
-          }
           const result = zxcvbn(value);
           if (result.score === 0) {
-            this.error = 'Password is too weak';
+            this.error = 'password is too weak';
             return false;
           }
           return true;
         },
         defaultMessage(): string {
-          return this.error || 'Something went wrong';
+          return this.error || 'something went wrong';
         },
       },
     });
   };
+}
+
+export function mergeObjects(...objects: Record<string, string[]>[]) {
+  const returnValue = {};
+  for (const obj of objects) {
+    Object.keys(obj).forEach((key) => (returnValue[key] = []));
+  }
+  for (const obj of objects) {
+    for (const [key, value] of Object.entries(obj)) {
+      returnValue[key] = [...returnValue[key], ...value];
+    }
+  }
+  return returnValue;
 }

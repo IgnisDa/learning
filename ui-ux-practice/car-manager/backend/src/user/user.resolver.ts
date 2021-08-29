@@ -1,7 +1,11 @@
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
-import { CreateUserResultUnion } from './dto/create-user.result';
+import {
+  CreateUserError,
+  CreateUserResultUnion,
+} from './dto/create-user.result';
 import { CreateUserInput } from './dto/create-user.input';
 import { UserService } from './user.service';
+import { UserDto } from './dto/user.dto';
 
 @Resolver()
 export class UserResolver {
@@ -14,12 +18,12 @@ export class UserResolver {
     const resp = await this.userService.createUser(userCreateInput);
     if (!resp.status) {
       return {
-        __typename: 'CreateUserError',
+        __typename: CreateUserError.name,
         ...resp.resp,
       };
     }
     return {
-      __typename: 'UserDto',
+      __typename: UserDto.name,
       ...resp.resp,
     };
   }

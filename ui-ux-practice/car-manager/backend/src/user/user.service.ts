@@ -3,8 +3,9 @@ import { UserEntity } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 import { CreateUserInput } from './dto/create-user.input';
-import { checkPropertiesExists } from 'src/utils';
+import { checkPropertiesExists, mergeObjects, validateObject } from 'src/utils';
 import { CreateUserError } from './dto/create-user.result';
+import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class UserService {
@@ -13,37 +14,39 @@ export class UserService {
     private userRepository: Repository<UserEntity>,
   ) {}
 
-  async createUser(userCreateInput: CreateUserInput) {
-    const errors: CreateUserError = {
-      usernameError: null,
-      emailError: null,
-      passwordError: null,
-    };
+  async createUser(createUserInput: CreateUserInput) {
+    let errors = new CreateUserError();
+    const validationErrors = plainToClass(
+      CreateUserError,
+      await validateObject(createUserInput, CreateUserInput),
+    );
     const resp = { status: false, resp: null };
     const usernameExists = await this.userRepository.find({
       where: {
-        username: Like(userCreateInput.username),
+        username: Like(createUserInput.username),
       },
     });
     if (usernameExists.length !== 0) {
-      errors.usernameError = 'This user already exists';
+      errors.usernameErrors.push('this user already exists');
     }
     const emailExists = await this.userRepository.find({
       where: {
-        email: Like(userCreateInput.email),
+        email: Like(createUserInput.email),
       },
     });
     if (emailExists.length !== 0) {
-      errors.emailError = 'This email already exists';
+      errors.emailErrors.push('this email already exists');
     }
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'usernameErrors' does not exist on type '{}'.
+    errors = mergeObjects(errors, ...validationErrors);
     if (!checkPropertiesExists(Object(errors))) {
       resp.resp = errors;
       return resp;
     }
     const newUser = new UserEntity();
-    newUser.email = userCreateInput.email;
-    newUser.password = userCreateInput.password;
-    newUser.username = userCreateInput.username;
+    newUser.email = createUserInput.email;
+    newUser.password = createUserInput.password;
+    newUser.username = createUserInput.username;
     resp.status = true;
     resp.resp = await this.userRepository.save(newUser);
     return resp;
