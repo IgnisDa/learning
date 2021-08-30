@@ -12,3 +12,32 @@ export const createUser = gql`
 		}
 	}
 `;
+
+export const refreshToken = gql`
+	query {
+		refreshToken {
+			... on RefreshTokenError {
+				message
+			}
+			... on RefreshToken {
+				token
+			}
+		}
+	}
+`;
+
+export const loginUser = gql`
+	query($username: String!, $password: String!) {
+		loginUser(LoginUserInput: { username: $username, password: $password }) {
+			... on LoginResult {
+				user {
+					id
+				}
+				token
+			}
+			... on LoginError {
+				message
+			}
+		}
+	}
+`;
