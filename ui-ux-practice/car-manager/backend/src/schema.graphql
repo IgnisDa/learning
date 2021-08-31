@@ -2,15 +2,46 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type CarPicture {
-  id: Int!
-  car: Car!
-  url: String!
+"""The place where a car has originated from"""
+type CarOriginDto {
+  """The name of the origin country"""
+  name: String!
 }
 
-type Car {
-  id: Int!
-  carPictures: [CarPicture!]!
+"""A car instance that is stored in the database"""
+type CarDto {
+  """The unique ID of the car"""
+  id: ID!
+
+  """The number of cylinders"""
+  cylinders: Int
+
+  """The displacement of the car"""
+  displacement: Float
+
+  """The horsepower delivered by the car"""
+  horsepower: Int
+
+  """The weight of the car in KGs"""
+  weight: Float
+
+  """The highest acceleration that can be achieved by the car"""
+  acceleration: Float
+
+  """The year the car was released in"""
+  year: Int!
+
+  """The place where this car originates from"""
+  originCountry: CarOriginDto
+
+  """The name of the car"""
+  name: String!
+
+  """Miles that can be driven per gallon of fuel"""
+  milesPerGallon: String
+
+  """The name of the car model"""
+  model: String
 }
 
 """Details about the user object"""
@@ -26,14 +57,34 @@ type UserDto {
 }
 
 type Query {
-  car(id: Int!): Car!
-  cars: [Car!]!
+  """Find a car with the given ID"""
+  car(id: Int!): CarResultUnion!
+
+  """Get a list of all cars"""
+  cars: [CarDto!]!
 
   """Query to login using a username and password"""
   loginUser(LoginUserInput: LoginUserInput!): LoginResultUnion!
 
   """Get the refresh token using the authorization request header"""
   refreshToken: RefreshTokenResultUnion!
+}
+
+"""Result type returned as the result when someone tries to find a car"""
+union CarResultUnion = CarNotFoundError | CarDto
+
+"""The type returned for the errors when getting a car is unsuccessful"""
+type CarNotFoundError implements APIError {
+  """The error message"""
+  message: String!
+}
+
+"""
+The standard interface that contains the error message when something goes wrong
+"""
+interface APIError {
+  """The error message"""
+  message: String!
 }
 
 """Result type returned as the result when someone tries to login"""
@@ -50,14 +101,6 @@ type LoginResult {
 
 """The type returned for the errors when login is unsuccessful"""
 type LoginError implements APIError {
-  """The error message"""
-  message: String!
-}
-
-"""
-The standard interface that contains the error message when something goes wrong
-"""
-interface APIError {
   """The error message"""
   message: String!
 }
@@ -89,23 +132,48 @@ type RefreshToken {
 }
 
 type Mutation {
-  deleteAllCars: Boolean!
-  createCar(carInput: CarInput!): Car!
-  addCarPicture(carPictureInput: CarPictureInput!, id: Int!): Boolean!
+  """Create a car with the given values and insert it into the database"""
+  createCar(carInput: CreateCarInput!): CarDto!
+
+  """Add a car picture for a given car"""
+  addCarPicture(id: ID!, file: Upload!): Boolean!
 
   """Mutation to create a new user"""
   createUser(userCreateInput: CreateUserInput!): CreateUserResultUnion!
 }
 
-input CarInput {
-  name: String!
+"""A car instance that is stored in the database"""
+input CreateCarInput {
+  """Miles that can be driven per gallon of fuel"""
+  milesPerGallon: Float
+
+  """The number of cylinders"""
+  cylinders: Int
+
+  """The displacement of the car"""
+  displacement: Float
+
+  """The horsepower delivered by the car"""
+  horsepower: Int
+
+  """The weight of the car in KGs"""
+  weight: Float
+
+  """The highest acceleration that can be achieved by the car"""
+  acceleration: Float!
+
+  """The year the car was released in"""
   year: Int!
-  model: String!
+
+  """The name of the car"""
+  name: String!
+
+  """The name of the car model"""
+  model: String
 }
 
-input CarPictureInput {
-  url: String!
-}
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
 
 """Result type returned as the result when new user is created"""
 union CreateUserResultUnion = CreateUserError | UserDto

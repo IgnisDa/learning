@@ -1,44 +1,38 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
-import {
-  Column,
-  Entity,
-  PrimaryGeneratedColumn,
-  OneToMany,
-  AfterLoad,
-} from 'typeorm';
-import { CarPicture } from './car-picture.entity';
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { CarOrigin } from './car-origin.entity';
 
-@ObjectType()
 @Entity()
 export class Car {
-  @AfterLoad()
-  async nullChecks() {
-    if (!this.carPictures) {
-      this.carPictures = [];
-    }
-  }
-
-  /* The primary key of the car */
-  @Field(() => Int)
   @PrimaryGeneratedColumn()
   id: number;
 
-  /* The name of the car */
-  @Column({ unique: true })
+  @Column()
   name: string;
 
-  /* The year the car was first launched */
-  @Column()
+  @Column('float8', { nullable: true })
+  milesPerGallon?: number;
+
+  @Column({ nullable: true })
+  cylinders?: number;
+
+  @Column('float8', { nullable: true })
+  displacement?: number;
+
+  @Column({ nullable: true })
+  horsepower?: number;
+
+  @Column('float8', { comment: 'The weight of the car in KGs', nullable: true })
+  weight?: number;
+
+  @Column('float8', { nullable: true })
+  acceleration: number;
+
+  @Column({ nullable: true })
   year: number;
 
-  /* The model/version of the car's make */
-  @Column()
+  @Column({ nullable: true })
   model?: string;
 
-  /* The photos of this car */
-  @Field(() => [CarPicture])
-  @OneToMany(() => CarPicture, (carPicture) => carPicture.car, {
-    eager: true,
-  })
-  carPictures: CarPicture[];
+  @ManyToOne(() => CarOrigin, { onDelete: 'SET NULL', nullable: true })
+  originCountry?: CarOrigin;
 }

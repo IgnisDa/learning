@@ -2,9 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Car } from './entities/car.entity';
-import { CarInput } from './dto/create-car.dto';
-import { CarPictureInput } from './dto/create-car-picture.dto';
 import { CarPicture } from './entities/car-picture.entity';
+import { CreateCarInput } from './dto/create-car.input';
+import { FileUpload } from 'graphql-upload';
+import { createWriteStream } from 'fs';
+import { v4 as uuid4 } from 'uuid';
 
 @Injectable()
 export class CarService {
@@ -19,11 +21,8 @@ export class CarService {
     return resp;
   }
 
-  async addOne(createCarDto: CarInput) {
-    const car = new Car();
-    car.model = createCarDto.model;
-    car.name = createCarDto.name;
-    car.year = createCarDto.year;
+  async addOne(createCarDto: CreateCarInput) {
+    const car = this.carRepository.create(createCarDto);
     return await this.carRepository.save(car);
   }
 
@@ -41,14 +40,19 @@ export class CarService {
     return true;
   }
 
-  async addCarPicture(carId: number, carPictureDto: CarPictureInput) {
+  async addCarPicture(carId: number, file: FileUpload) {
     const car = await this.carRepository.findOne({ id: carId });
     if (!car) return false;
-    const carPicture = new CarPicture();
-    carPicture.car = car;
-    carPicture.url = carPictureDto.url;
+    const slug = uuid4();
+    const name = file.filename;
+    const resp = file
+      .createReadStream()
+      .pipe(createWriteStream(`media/uploads/${slug}-${name}`))
+      .on('finish', () => true)
+      .on('error', () => false);
+    if (!resp) return false;
+    const carPicture = this.carPictureRepository.create({ car, name, slug });
     await this.carPictureRepository.save(carPicture);
-    car.carPictures.push(carPicture);
     return true;
   }
 }
