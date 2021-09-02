@@ -1,0 +1,10 @@
+<div class="flex-column d-flex align-items-center justify-content-center">
+    <h1>Welcome to Scheduled Tweets</h1>
+</div>
+
+<div>
+    <% if @user %>
+        <div>Logged in as <strong><%= @user.email %></strong></div>
+        <%= button_to 'Logout', logout_path, method: :delete %>
+    <% end %>
+</div>

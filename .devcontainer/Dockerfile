@@ -11,3 +11,6 @@ RUN set fish_greeting ; \
     sudo chown -R $USERNAME:$USERNAME $HOME/.config ; \
     git config --global user.name "$GIT_AUTHOR_NAME" ; \
     git config --global user.email "$GIT_AUTHOR_EMAIL" ;
+
+RUN sudo apt-get install -y ruby-full python-is-python3 ; \
+    sudo gem install solargraph rubocop bundler

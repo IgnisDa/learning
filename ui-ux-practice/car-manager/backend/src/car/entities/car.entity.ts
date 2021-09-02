@@ -7,7 +7,7 @@ export class Car {
   id: number;
 
   @Column()
-  name: string;
+  names: string;
 
   @Column('float8', { nullable: true })
   milesPerGallon?: number;
