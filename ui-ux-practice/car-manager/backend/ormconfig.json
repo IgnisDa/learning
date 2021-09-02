@@ -1,0 +1,23 @@
+{
+   "type": "postgres",
+   "host": "localhost",
+   "port": 5432,
+   "username": "developr",
+   "database": "car_db",
+   "synchronize": false,
+   "logging": true,
+   "entities": [
+      "dist/**/*.entity.js"
+   ],
+   "migrations": [
+      "dist/migration/**/*.ts"
+   ],
+   "subscribers": [
+      "dist/subscriber/**/*.ts"
+   ],
+   "cli": {
+      "entitiesDir": "src/entity",
+      "migrationsDir": "migration",
+      "subscribersDir": "src/subscriber"
+   }
+}
