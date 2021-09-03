@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { CarModule } from './car/car.module';
 import { join } from 'path';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
+import { PrismaService } from './prisma.service';
 
 @Module({
+  providers: [PrismaService],
   imports: [
     ConfigModule.forRoot({
       ignoreEnvFile: true,
@@ -20,13 +21,6 @@ import * as Joi from 'joi';
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: join(process.cwd(), 'src/schema.graphql'),
-    }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      url: `${process.env.DATABASE_URL}/car_db`,
-      autoLoadEntities: true,
-      logging: process.env.NODE_ENV === 'development',
-      synchronize: false,
     }),
     CarModule,
     UserModule,

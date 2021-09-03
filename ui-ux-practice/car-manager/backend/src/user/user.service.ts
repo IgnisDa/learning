@@ -1,18 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { UserEntity } from './entities/user.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
 import { CreateUserInput } from './dto/create-user.input';
 import { checkPropertiesExists, mergeObjects, validateObject } from 'src/utils';
 import { CreateUserError } from './dto/create-user.result';
 import { plainToClass } from 'class-transformer';
+import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class UserService {
-  constructor(
-    @InjectRepository(UserEntity)
-    private userRepository: Repository<UserEntity>,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async createUser(createUserInput: CreateUserInput) {
     let errors = new CreateUserError();
@@ -21,20 +17,20 @@ export class UserService {
       await validateObject(createUserInput, CreateUserInput),
     );
     const resp = { status: false, resp: null };
-    const usernameExists = await this.userRepository.find({
+    const usernameExists = await this.prisma.user.count({
       where: {
-        username: Like(createUserInput.username),
+        username: { equals: createUserInput.username },
       },
     });
-    if (usernameExists.length !== 0) {
+    if (usernameExists !== 0) {
       errors.usernameErrors.push('this user already exists');
     }
-    const emailExists = await this.userRepository.find({
+    const emailExists = await this.prisma.user.count({
       where: {
-        email: Like(createUserInput.email),
+        email: { equals: createUserInput.email },
       },
     });
-    if (emailExists.length !== 0) {
+    if (emailExists !== 0) {
       errors.emailErrors.push('this email already exists');
     }
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'usernameErrors' does not exist on type '{}'.
@@ -43,16 +39,14 @@ export class UserService {
       resp.resp = errors;
       return resp;
     }
-    const newUser = new UserEntity();
-    newUser.email = createUserInput.email;
-    newUser.password = createUserInput.password;
-    newUser.username = createUserInput.username;
+    const newUser = plainToClass(UserEntity, createUserInput);
     resp.status = true;
-    resp.resp = await this.userRepository.save(newUser);
+    resp.resp = await this.prisma.user.create({ data: newUser });
     return resp;
   }
 
   async getUserByUsername(username: string) {
-    return await this.userRepository.findOne({ username });
+    const user = await this.prisma.user.findUnique({ where: { username } });
+    return plainToClass(UserEntity, user);
   }
 }

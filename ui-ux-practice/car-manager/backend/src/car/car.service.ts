@@ -1,58 +1,56 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Car } from './entities/car.entity';
-import { CarPicture } from './entities/car-picture.entity';
 import { CreateCarInput } from './dto/create-car.input';
 import { FileUpload } from 'graphql-upload';
 import { createWriteStream } from 'fs';
 import { v4 as uuid4 } from 'uuid';
+import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class CarService {
-  constructor(
-    @InjectRepository(Car) private carRepository: Repository<Car>,
-    @InjectRepository(CarPicture)
-    private carPictureRepository: Repository<CarPicture>,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async findAll() {
-    const resp = await this.carRepository.find();
+    const resp = await this.prisma.car.findMany();
     return resp;
   }
 
   async addOne(createCarDto: CreateCarInput) {
-    const car = this.carRepository.create(createCarDto);
-    return await this.carRepository.save(car);
+    return await this.prisma.car.create({ data: createCarDto });
   }
 
   async findOne(id: number) {
-    return await this.carRepository.findOne(id);
+    return await this.prisma.car.findUnique({ where: { id } });
   }
 
   async remove(id: number) {
-    return await this.carRepository.delete(id);
-  }
-
-  async deleteAllCars() {
-    const entities = await this.carRepository.find();
-    await this.carRepository.remove(entities);
-    return true;
+    return await this.prisma.car.delete({ where: { id } });
   }
 
   async addCarPicture(carId: number, file: FileUpload) {
-    const car = await this.carRepository.findOne({ id: carId });
-    if (!car) return false;
-    const slug = uuid4();
-    const name = file.filename;
-    const resp = file
-      .createReadStream()
-      .pipe(createWriteStream(`media/uploads/${slug}-${name}`))
-      .on('finish', () => true)
-      .on('error', () => false);
-    if (!resp) return false;
-    const carPicture = this.carPictureRepository.create({ car, name, slug });
-    await this.carPictureRepository.save(carPicture);
-    return true;
+    try {
+      const slug = uuid4();
+      const name = file.filename;
+      const resp = file
+        .createReadStream()
+        .pipe(createWriteStream(`media/uploads/${slug}-${name}`))
+        .on('finish', () => true)
+        .on('error', () => false);
+      if (!resp) return false;
+      await this.prisma.car.update({
+        where: { id: carId },
+        data: {
+          car_picture: {
+            create: {
+              name,
+              slug,
+            },
+          },
+        },
+      });
+      return true;
+    } catch {
+      // normally exception occurs when the carID does not exist in the database
+      return false;
+    }
   }
 }

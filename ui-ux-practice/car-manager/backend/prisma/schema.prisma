@@ -1,0 +1,46 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Car {
+  id              Int          @id @default(autoincrement())
+  milesPerGallon  Float?
+  cylinders       Int?
+  displacement    Float?
+  horsepower      Int?
+  weight          Float?
+  acceleration    Float?
+  year            Int?
+  model           String?      @db.VarChar
+  originCountryId String?      @db.Uuid
+  name            String       @db.VarChar
+  car_origin      CarOrigin?   @relation(fields: [originCountryId], references: [id])
+  car_picture     CarPicture[]
+}
+
+model CarOrigin {
+  id   String @id @default(uuid()) @db.Uuid
+  name String @db.VarChar
+  car  Car[]
+}
+
+model CarPicture {
+  id    Int    @id @default(autoincrement())
+  slug  String @db.VarChar
+  name  String @db.VarChar
+  carId Int?
+  car   Car?   @relation(fields: [carId], references: [id])
+}
+
+model User {
+  id       String @id @default(uuid()) @db.Uuid
+  username String @unique @db.VarChar
+  email    String @unique @db.VarChar
+  password String @db.VarChar
+}

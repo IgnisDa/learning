@@ -136,7 +136,7 @@ type Mutation {
   createCar(carInput: CreateCarInput!): CarDto!
 
   """Add a car picture for a given car"""
-  addCarPicture(id: ID!, file: Upload!): Boolean!
+  addCarPicture(id: Int!, file: Upload!): Boolean!
 
   """Mutation to create a new user"""
   createUser(userCreateInput: CreateUserInput!): CreateUserResultUnion!

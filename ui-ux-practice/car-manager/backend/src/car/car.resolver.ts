@@ -1,4 +1,4 @@
-import { Args, ID, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CarService } from './car.service';
 import { CarDto } from './dto/car.dto';
 import { CarNotFoundError, CarResultUnion } from './dto/car.result';
@@ -43,7 +43,7 @@ export class CarResolver {
   async addCarPicture(
     @Args({ name: 'file', type: () => GraphQLUpload })
     file: FileUpload,
-    @Args('id', { type: () => ID }) carId: number,
+    @Args('id', { type: () => Int }) carId: number,
   ) {
     return await this.carService.addCarPicture(carId, file);
   }
