@@ -6,10 +6,9 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
-import { PrismaService } from './prisma.service';
 
 @Module({
-  providers: [PrismaService],
+  providers: [],
   imports: [
     ConfigModule.forRoot({
       ignoreEnvFile: true,
