@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserDto } from 'src/user/dto/user.dto';
-import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { LoginResult } from './dto/login-user.result';
 import { LoginUserInput } from './dto/login-user.input';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { checkPassword } from 'src/user/utils';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +17,7 @@ export class AuthService {
   async validateUserByPassword(loginAttempt: LoginUserInput) {
     // This will be used for the initial login
 
-    let userToAttempt: UserEntity;
+    let userToAttempt;
     if (loginAttempt.username) {
       userToAttempt = await this.userService.getUserByUsername(
         loginAttempt.username,
@@ -28,7 +28,10 @@ export class AuthService {
     // Check the supplied password against the hash stored for this email address
     let isMatch = false;
     try {
-      isMatch = await userToAttempt.checkPassword(loginAttempt.password);
+      isMatch = await checkPassword(
+        loginAttempt.password,
+        userToAttempt.password,
+      );
     } catch (error) {
       return undefined;
     }
