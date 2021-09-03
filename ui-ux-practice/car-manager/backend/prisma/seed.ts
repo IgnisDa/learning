@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { randomUUID } from 'crypto';
 import * as faker from 'faker';
 
 const prisma = new PrismaClient();
@@ -15,7 +16,9 @@ function getNullOrData(data: unknown) {
 async function seed() {
   const originCountries = [];
   for (let i = 0; i < 100; i++) {
-    originCountries.push({ name: `${i}-${faker.address.country()}` });
+    originCountries.push({
+      name: `${faker.address.country()}__${randomUUID()}`,
+    });
   }
   await prisma.carOrigin.createMany({
     data: originCountries,

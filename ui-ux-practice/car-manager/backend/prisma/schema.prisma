@@ -15,8 +15,8 @@ model Car {
   displacement    Float?
   horsepower      Int?
   weight          Float?
-  acceleration    Float?
-  year            Int?
+  acceleration    Float
+  year            Int
   model           String?
   originCountryId String?      @db.Uuid
   name            String
@@ -26,7 +26,7 @@ model Car {
 
 model CarOrigin {
   id   String @id @default(uuid()) @db.Uuid
-  name String
+  name String @unique
   car  Car[]
 }
 
