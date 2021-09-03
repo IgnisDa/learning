@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearch"]
+  previewFeatures = ["referentialActions", "fullTextSearch"]
 }
 
 datasource db {
@@ -17,30 +17,30 @@ model Car {
   weight          Float?
   acceleration    Float?
   year            Int?
-  model           String?      @db.VarChar
+  model           String?
   originCountryId String?      @db.Uuid
-  name            String       @db.VarChar
-  car_origin      CarOrigin?   @relation(fields: [originCountryId], references: [id])
-  car_picture     CarPicture[]
+  name            String
+  carOrigin       CarOrigin?   @relation(fields: [originCountryId], references: [id])
+  carPictures     CarPicture[]
 }
 
 model CarOrigin {
   id   String @id @default(uuid()) @db.Uuid
-  name String @db.VarChar
+  name String
   car  Car[]
 }
 
 model CarPicture {
   id    Int    @id @default(autoincrement())
-  slug  String @db.VarChar
-  name  String @db.VarChar
+  slug  String
+  name  String
   carId Int?
-  car   Car?   @relation(fields: [carId], references: [id])
+  car   Car?   @relation(fields: [carId], references: [id], onDelete: Cascade)
 }
 
 model User {
   id       String @id @default(uuid()) @db.Uuid
-  username String @unique @db.VarChar
-  email    String @unique @db.VarChar
-  password String @db.VarChar
+  username String @unique
+  email    String @unique
+  password String
 }

@@ -39,7 +39,7 @@ export class CarService {
       await this.prisma.car.update({
         where: { id: carId },
         data: {
-          car_picture: {
+          carPictures: {
             create: {
               name,
               slug,
