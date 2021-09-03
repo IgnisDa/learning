@@ -1,11 +1,12 @@
-import * as bcrypt from 'bcrypt';
+import * as argon2 from 'argon2';
 
 export async function getPasswordDigest(password: string) {
-  const salt = await bcrypt.genSalt(16);
-  const passwordDigest = await bcrypt.hash(password, salt);
+  const passwordDigest = await argon2.hash(password, {
+    memoryCost: 2 ** 20,
+  });
   return passwordDigest;
 }
 
 export async function checkPassword(password: string, passwordDigest: string) {
-  return await bcrypt.compare(password, passwordDigest);
+  return await argon2.verify(passwordDigest, password);
 }
