@@ -3,6 +3,9 @@ FROM ignisda/developr-workspace:rust
 RUN sudo apt-get -y install default-jre maven python3-venv dirmngr r-base r-base-dev \
     apt-transport-https ca-certificates software-properties-common gnupg2 \
     r-recommended r-base-dev ; \
+    curl -sL https://deb.nodesource.com/setup_17.x | sudo bash - ; \
+    sudo apt-get install -y nodejs ; \
+    node --version ; \
     sudo yarn global add @nestjs/cli ;
 
 RUN set fish_greeting ; \
