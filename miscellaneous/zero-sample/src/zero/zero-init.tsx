@@ -1,0 +1,232 @@
+import { dropAllDatabases } from "@rocicorp/zero";
+import { ZeroProvider } from "@rocicorp/zero/react";
+import { Link } from "@tanstack/react-router";
+import * as React from "react";
+import { mutators } from "./mutators";
+import { schema } from "./schema";
+
+const cacheURL =
+	import.meta.env.VITE_PUBLIC_ZERO_CACHE_URL ?? "http://localhost:4848";
+
+const logLevel = import.meta.env.VITE_PUBLIC_ZERO_LOG_LEVEL;
+
+type Session = {
+	email: string;
+	userID: string;
+};
+
+export function ZeroInit(props: { children: React.ReactNode }) {
+	const [session, setSession] = React.useState<Session | null>(null);
+	const [loading, setLoading] = React.useState(true);
+	const [authError, setAuthError] = React.useState<string | null>(null);
+
+	const refreshSession = React.useCallback(async () => {
+		setLoading(true);
+		setAuthError(null);
+
+		try {
+			const res = await fetch("/api/auth/me", {
+				credentials: "include",
+			});
+
+			if (res.status === 401) {
+				setSession(null);
+				return;
+			}
+
+			if (!res.ok) {
+				const text = await res.text().catch(() => "");
+				throw new Error(`Auth failed: ${res.status} ${text}`);
+			}
+
+			setSession((await res.json()) as Session);
+		} catch (e) {
+			setSession(null);
+			setAuthError(e instanceof Error ? e.message : "Auth failed");
+		} finally {
+			setLoading(false);
+		}
+	}, []);
+
+	React.useEffect(() => {
+		void refreshSession();
+	}, [refreshSession]);
+
+	const onLogout = React.useCallback(async () => {
+		await fetch("/api/auth/logout", {
+			method: "POST",
+			credentials: "include",
+		});
+
+		await dropAllDatabases();
+		setSession(null);
+	}, []);
+
+	if (loading) {
+		return (
+			<div className="p-6 text-sm text-gray-600 dark:text-gray-400">
+				Loading...
+			</div>
+		);
+	}
+
+	if (!session) {
+		return (
+			<div className="min-h-[60vh] p-6">
+				<div className="mx-auto max-w-lg space-y-6">
+					<Header email={null} onLogout={null} />
+					<div className="rounded-lg border bg-white p-5 shadow-sm dark:bg-gray-900">
+						<div className="text-lg font-semibold">Sign in</div>
+						<div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+							Email-only login (POC). This sets an HttpOnly cookie that
+							zero-cache forwards to the Zero query/mutate endpoints.
+						</div>
+						<LoginForm onSuccess={refreshSession} />
+						{authError ? (
+							<div className="mt-3 text-sm text-red-700 dark:text-red-300">
+								{authError}
+							</div>
+						) : null}
+					</div>
+				</div>
+			</div>
+		);
+	}
+
+	return (
+		<ZeroProvider
+			{...{
+				schema,
+				cacheURL,
+				logLevel,
+				mutators,
+				userID: session.userID,
+				context: { userID: session.userID },
+			}}
+		>
+			<Header email={session.email} onLogout={onLogout} />
+			{props.children}
+		</ZeroProvider>
+	);
+}
+
+function Header(props: {
+	email: string | null;
+	onLogout: (() => void) | null;
+}) {
+	return (
+		<div className="flex flex-col gap-3">
+			<div className="flex flex-wrap items-center justify-between gap-3">
+				<div className="flex items-baseline gap-3">
+					<Link
+						to="/"
+						activeProps={{
+							className: "font-bold",
+						}}
+						activeOptions={{ exact: true }}
+					>
+						Zero Sample
+					</Link>
+					<div className="text-sm text-gray-600 dark:text-gray-400">
+						TMDB shows + background enrichment
+					</div>
+				</div>
+				<div className="flex items-center gap-3">
+					{props.email ? (
+						<div className="max-w-[16rem] truncate text-sm text-gray-600 dark:text-gray-400">
+							{props.email}
+						</div>
+					) : null}
+					{props.onLogout ? (
+						<button
+							onClick={props.onLogout}
+							type="button"
+							className="rounded-md border bg-white px-2 py-1 text-sm hover:bg-gray-50 dark:bg-gray-900"
+						>
+							Logout
+						</button>
+					) : null}
+					<a
+						className="text-sm text-blue-700 hover:underline dark:text-blue-400"
+						href="https://zero.rocicorp.dev"
+						target="_blank"
+						rel="noreferrer"
+					>
+						Zero Docs
+					</a>
+				</div>
+			</div>
+			<hr />
+		</div>
+	);
+}
+
+function LoginForm(props: { onSuccess: () => Promise<void> }) {
+	const [email, setEmail] = React.useState("");
+	const [submitting, setSubmitting] = React.useState(false);
+	const [error, setError] = React.useState<string | null>(null);
+
+	const onSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		setSubmitting(true);
+		setError(null);
+
+		try {
+			const res = await fetch("/api/auth/login", {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ email }),
+			});
+
+			if (!res.ok) {
+				const data: unknown = await res.json().catch(() => null);
+				const errorValue =
+					data && typeof data === "object" && "error" in data
+						? (data as Record<string, unknown>).error
+						: null;
+				throw new Error(
+					errorValue
+						? String(errorValue)
+						: `Login failed: ${res.status}`,
+				);
+			}
+
+			await props.onSuccess();
+		} catch (e) {
+			setError(e instanceof Error ? e.message : "Login failed");
+		} finally {
+			setSubmitting(false);
+		}
+	};
+
+	return (
+		<form onSubmit={onSubmit} className="mt-4 space-y-3">
+			<label className="block">
+				<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
+					Email
+				</div>
+				<input
+					className="mt-1 w-full rounded-md border bg-white px-3 py-2 text-sm shadow-sm dark:bg-gray-950"
+					type="email"
+					placeholder="you@example.com"
+					value={email}
+					onChange={(e) => setEmail(e.target.value)}
+					required
+				/>
+			</label>
+			<button
+				disabled={submitting}
+				type="submit"
+				className="h-9 w-full rounded-md bg-blue-600 px-3 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-60"
+			>
+				{submitting ? "Signing in..." : "Sign in"}
+			</button>
+			{error ? (
+				<div className="text-sm text-red-700 dark:text-red-300">{error}</div>
+			) : null}
+		</form>
+	);
+}
