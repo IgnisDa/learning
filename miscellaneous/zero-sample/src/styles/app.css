@@ -1,1 +1,8 @@
 @import "reshaped/themes/reshaped/theme.css";
+
+/* Base body styles using Reshaped design tokens */
+body {
+  background-color: var(--rs-color-background-page);
+  color: var(--rs-color-foreground-neutral);
+  min-height: 100vh;
+}

@@ -2,7 +2,7 @@ import { dropAllDatabases } from "@rocicorp/zero";
 import { ZeroProvider } from "@rocicorp/zero/react";
 import { Link } from "@tanstack/react-router";
 import * as React from "react";
-import { View, Text, Button, Card, Alert, Divider, Loader, Link as ReshapedLink } from "reshaped";
+import { View, Text, Button, Card, Alert, Divider, Loader, Link as ReshapedLink, useTheme } from "reshaped";
 import { useAppForm } from "~/components/forms/app-form";
 import { getErrorMessage } from "~/utils/error-message";
 import { mutators } from "./mutators";
@@ -122,12 +122,38 @@ export function ZeroInit(props: { children: React.ReactNode }) {
 	);
 }
 
+function ColorModeToggle() {
+	const { colorMode, setColorMode } = useTheme();
+
+	const toggleColorMode = React.useCallback(() => {
+		const newMode = colorMode === "dark" ? "light" : "dark";
+		setColorMode(newMode);
+		// Persist to localStorage
+		try {
+			localStorage.setItem("rs-color-mode", newMode);
+		} catch (e) {
+			// Ignore storage errors
+		}
+	}, [colorMode, setColorMode]);
+
+	return (
+		<Button
+			variant="ghost"
+			size="small"
+			onClick={toggleColorMode}
+			attributes={{ "aria-label": `Switch to ${colorMode === "dark" ? "light" : "dark"} mode` }}
+		>
+			{colorMode === "dark" ? "Light" : "Dark"}
+		</Button>
+	);
+}
+
 function Header(props: {
 	email: string | null;
 	onLogout: (() => void) | null;
 }) {
 	return (
-		<View gap={3}>
+		<View gap={3} padding={4}>
 			<View direction="row" align="center" justify="space-between" gap={3} wrap>
 				<View direction="row" align="baseline" gap={3}>
 					<Link to="/">
@@ -139,7 +165,8 @@ function Header(props: {
 						TMDB shows + background enrichment
 					</Text>
 				</View>
-				<View direction="row" align="center" gap={3}>
+				<View direction="row" align="center" gap={2}>
+					<ColorModeToggle />
 					{props.email ? (
 						<Text variant="body-3" color="neutral-faded" maxLines={1}>
 							{props.email}
