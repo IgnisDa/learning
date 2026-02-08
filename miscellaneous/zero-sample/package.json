@@ -1,48 +1,46 @@
 {
-	"private": true,
-	"type": "module",
-	"sideEffects": false,
-	"name": "zero-sample",
-	"engines": {
-		"node": ">=22.12.0"
-	},
-	"scripts": {
-		"dev": "vite dev",
-		"build": "vite build",
-		"preview": "vite preview",
-		"typecheck": "tsc --noEmit",
-		"worker": "tsx scripts/worker.ts",
-		"start": "node .output/server/index.mjs",
-		"start:app": "PORT=3001 NITRO_PORT=3001 node .output/server/index.mjs",
-		"start:zero": "ZERO_PORT=4848 npx zero-cache",
-		"start:proxy": "CADDY_PORT=3000 caddy run --config /etc/caddy/Caddyfile",
-		"start:container": "concurrently --names app,zero,worker,proxy --kill-others \"npm run start:app\" \"npm run start:zero\" \"npm run worker\" \"npm run start:proxy\""
-	},
-	"dependencies": {
-		"@rocicorp/zero": "0.25.2",
-		"@tanstack/react-router": "^1.158.1",
-		"@tanstack/react-router-devtools": "^1.158.1",
-		"@tanstack/react-start": "^1.158.3",
-		"concurrently": "^9.2.1",
-		"dotenv": "^16.5.0",
-		"nanoid": "^5.1.5",
-		"postgres": "^3.4.8",
-		"react": "^19.0.0",
-		"react-dom": "^19.0.0",
-		"tailwind-merge": "^2.6.0",
-		"zod": "^3.24.2"
-	},
-	"devDependencies": {
-		"@tailwindcss/vite": "^4.1.18",
-		"@types/node": "^22.5.4",
-		"@types/react": "^19.0.8",
-		"@types/react-dom": "^19.0.3",
-		"@vitejs/plugin-react": "^4.6.0",
-		"nitro": "3.0.1-alpha.2",
-		"tailwindcss": "^4.1.18",
-		"tsx": "^4.19.4",
-		"typescript": "^5.7.2",
-		"vite": "^7.3.1",
-		"vite-tsconfig-paths": "^5.1.4"
-	}
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "name": "zero-sample",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "worker": "tsx scripts/worker.ts",
+    "start:zero": "ZERO_PORT=4848 npx zero-cache",
+    "start:app": "PORT=3001 NITRO_PORT=3001 node .output/server/index.mjs",
+    "start:proxy": "CADDY_PORT=3000 caddy run --config /etc/caddy/Caddyfile",
+    "start:container": "concurrently --names app,zero,worker,proxy --kill-others \"npm run start:app\" \"npm run start:zero\" \"npm run worker\" \"npm run start:proxy\""
+  },
+  "dependencies": {
+    "@rocicorp/zero": "0.25.2",
+    "@tanstack/react-router": "^1.158.1",
+    "@tanstack/react-router-devtools": "^1.158.1",
+    "@tanstack/react-start": "^1.158.3",
+    "concurrently": "^9.2.1",
+    "dotenv": "^16.5.0",
+    "nanoid": "^5.1.5",
+    "postgres": "^3.4.8",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^2.6.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.18",
+    "@types/node": "^22.5.4",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@vitejs/plugin-react": "^4.6.0",
+    "nitro": "3.0.1-alpha.2",
+    "tailwindcss": "^4.1.18",
+    "tsx": "^4.19.4",
+    "typescript": "^5.7.2",
+    "vite": "^7.3.1",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
 }
