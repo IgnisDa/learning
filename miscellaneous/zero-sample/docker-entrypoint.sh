@@ -39,12 +39,4 @@ if [ "${NODE_ENV:-production}" = "production" ] && [ -z "${ZERO_ADMIN_PASSWORD:-
 	exit 1
 fi
 
-printf '%s\n' "Waiting for Postgres to accept connections..."
-until psql "$DATABASE_URL" -c "SELECT 1" >/dev/null 2>&1; do
-	sleep 1
-done
-
-printf '%s\n' "Running db/init.sql..."
-psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f db/init.sql
-
 exec npm run start:container

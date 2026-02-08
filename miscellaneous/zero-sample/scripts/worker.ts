@@ -1,5 +1,6 @@
 import "dotenv/config";
 
+import { readFile } from "node:fs/promises";
 import postgres from "postgres";
 
 type OutboxJobRow = {
@@ -70,6 +71,8 @@ process.on("SIGINT", () => {
   void sql.end({ timeout: 5 });
   process.exit(0);
 });
+
+await ensureSchemaInitialized();
 
 console.info(`TMDB worker started (node ${process.version})`);
 
@@ -422,6 +425,29 @@ async function tmdb<T>(path: string): Promise<T> {
   }
 
   return (await res.json()) as T;
+}
+
+async function ensureSchemaInitialized() {
+  const initSql = await readFile(new URL("../db/init.sql", import.meta.url), "utf8");
+
+  const attempts = 30;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      await sql.unsafe(initSql);
+      console.info("DB init script applied");
+      return;
+    } catch (error) {
+      if (attempt === attempts) {
+        throw new Error("Failed to initialize database schema", {
+          cause: error instanceof Error ? error : undefined,
+        });
+      }
+      console.warn(
+        `DB init attempt ${attempt}/${attempts} failed, retrying in 1s: ${formatErrorMessage(error)}`,
+      );
+      await sleep(1000);
+    }
+  }
 }
 
 function sleep(ms: number) {

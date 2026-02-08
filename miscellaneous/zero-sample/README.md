@@ -23,7 +23,7 @@ This container runs all required processes together:
 - TMDB worker (`npm run worker`)
 - Caddy reverse proxy (single public port)
 
-At startup it waits for Postgres, then runs `db/init.sql`.
+At startup, the worker runs `db/init.sql` (with retries) before processing jobs.
 
 Use this `docker-compose.yml` (from this folder):
 
@@ -94,15 +94,10 @@ Note: this app expects cookie auth forwarding to be enabled in `zero-cache`:
 - `ZERO_QUERY_FORWARD_COOKIES=true`
 - `ZERO_MUTATE_FORWARD_COOKIES=true`
 
-2) Create tables
+2) Create tables (optional)
 
-Run `db/init.sql` against your Postgres DB.
-
-Example:
-
-```sh
-psql "$DATABASE_URL" -f db/init.sql
-```
+`npm run worker` automatically applies `db/init.sql` on startup.
+You can still run it manually if you prefer.
 
 3) Install deps
 
