@@ -134,7 +134,10 @@ function ShowDetails() {
 			"watchStatus",
 			(item?.watchStatus as WatchStatus | undefined) ?? "plan_to_watch",
 		);
-		editForm.setFieldValue("startedDate", toDateInputValue(item?.startedAt ?? null));
+		editForm.setFieldValue(
+			"startedDate",
+			toDateInputValue(item?.startedAt ?? null),
+		);
 		editForm.setFieldValue(
 			"currentSeason",
 			item?.currentSeason ? String(item.currentSeason) : "",
@@ -360,10 +363,8 @@ function ShowDetails() {
 									<editForm.AppField name="rating">
 										{(field) => (
 											<field.TextInputField
-												label="Rating (1-10)"
 												type="number"
-												min={1}
-												max={10}
+												label="Rating (1-10)"
 												className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
 											/>
 										)}
@@ -371,9 +372,7 @@ function ShowDetails() {
 								</div>
 
 								<editForm.AppField name="isFavorite">
-									{(field) => (
-										<field.CheckboxField label="Favorite show" />
-									)}
+									{(field) => <field.CheckboxField label="Favorite show" />}
 								</editForm.AppField>
 
 								<editForm.AppField name="notes">
@@ -536,7 +535,8 @@ function ShowDetails() {
 														))
 													) : (
 														<div className="text-sm text-gray-600 dark:text-gray-400">
-															No episodes found for this season. Try clicking "Re-enrich" to fetch episode data.
+															No episodes found for this season. Try clicking
+															"Re-enrich" to fetch episode data.
 														</div>
 													)}
 												</div>
@@ -625,7 +625,8 @@ function ShowDetails() {
 												{c.person?.name ?? "Unknown"}
 											</div>
 											<div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-												{[c.department, c.job].filter(Boolean).join(" | ") || "-"}
+												{[c.department, c.job].filter(Boolean).join(" | ") ||
+													"-"}
 											</div>
 										</div>
 									</div>
