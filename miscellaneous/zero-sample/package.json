@@ -11,7 +11,7 @@
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "worker": "tsx scripts/worker.ts",
-    "start:zero": "ZERO_PORT=4848 npx zero-cache",
+    "start:zero": "ZERO_PORT=4848 zero-cache",
     "start:app": "PORT=3001 NITRO_PORT=3001 node .output/server/index.mjs",
     "start:proxy": "CADDY_PORT=3000 caddy run --config /etc/caddy/Caddyfile",
     "start:container": "concurrently --names app,zero,worker,proxy --kill-others \"npm run start:app\" \"npm run start:zero\" \"npm run worker\" \"npm run start:proxy\""
@@ -29,6 +29,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^2.6.0",
+    "zero-cache": "^1.0.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
