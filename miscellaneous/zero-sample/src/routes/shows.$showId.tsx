@@ -201,23 +201,23 @@ function ShowDetails() {
 			</Link>
 
 			<div className="flex flex-col gap-4 sm:flex-row">
-				<div className="h-44 w-32 shrink-0 overflow-hidden rounded bg-gray-200 dark:bg-gray-800">
+				<div className="w-32 overflow-hidden bg-gray-200 rounded h-44 shrink-0 dark:bg-gray-800">
 					{show.posterPath ? (
 						<img
 							alt=""
-							className="h-full w-full object-cover"
+							className="object-cover w-full h-full"
 							src={`${TMDB_POSTER}${show.posterPath}`}
 							loading="lazy"
 						/>
 					) : null}
 				</div>
 
-				<div className="min-w-0 flex-1 space-y-2">
+				<div className="flex-1 min-w-0 space-y-2">
 					<div className="flex flex-wrap items-start justify-between gap-3">
 						<div className="min-w-0">
-							<h1 className="truncate text-2xl font-semibold">{show.name}</h1>
-							<div className="mt-1 flex flex-wrap items-center gap-2">
-								<span className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-700 dark:bg-gray-800 dark:text-gray-200">
+							<h1 className="text-2xl font-semibold truncate">{show.name}</h1>
+							<div className="flex flex-wrap items-center gap-2 mt-1">
+								<span className="px-2 py-1 text-xs text-gray-700 bg-gray-100 rounded dark:bg-gray-800 dark:text-gray-200">
 									{show.enrichState}
 								</span>
 								<span className="text-xs text-gray-500">
@@ -227,7 +227,7 @@ function ShowDetails() {
 						</div>
 
 						<button
-							className="h-9 rounded-md bg-blue-600 px-3 text-sm font-medium text-white hover:bg-blue-500"
+							className="px-3 text-sm font-medium text-white bg-blue-600 rounded-md h-9 hover:bg-blue-500"
 							onClick={onEnrich}
 							type="button"
 						>
@@ -236,7 +236,7 @@ function ShowDetails() {
 					</div>
 
 					{show.enrichError ? (
-						<div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200">
+						<div className="p-3 text-sm text-red-800 border border-red-200 rounded-md bg-red-50 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200">
 							{show.enrichError}
 						</div>
 					) : null}
@@ -308,7 +308,7 @@ function ShowDetails() {
 						{isEditingSetup ? (
 							<form
 								onSubmit={onSaveSetup}
-								className="rounded-lg border bg-white p-4 shadow-sm dark:bg-gray-900 space-y-3"
+								className="p-4 space-y-3 bg-white border rounded-lg shadow-sm dark:bg-gray-900"
 							>
 								<div className="grid gap-3 sm:grid-cols-2">
 									<label className="block">
@@ -316,7 +316,7 @@ function ShowDetails() {
 											Watch status
 										</div>
 										<select
-											className="mt-1 w-full rounded-md border bg-white px-3 py-2 text-sm dark:bg-gray-950"
+											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
 											value={editWatchStatus}
 											onChange={(e) =>
 												setEditWatchStatus(e.target.value as WatchStatus)
@@ -335,7 +335,7 @@ function ShowDetails() {
 										</div>
 										<input
 											type="date"
-											className="mt-1 w-full rounded-md border bg-white px-3 py-2 text-sm dark:bg-gray-950"
+											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
 											value={editStartedDate}
 											onChange={(e) => setEditStartedDate(e.target.value)}
 										/>
@@ -347,7 +347,7 @@ function ShowDetails() {
 										<input
 											type="number"
 											min={1}
-											className="mt-1 w-full rounded-md border bg-white px-3 py-2 text-sm dark:bg-gray-950"
+											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
 											value={editCurrentSeason}
 											onChange={(e) => setEditCurrentSeason(e.target.value)}
 										/>
@@ -359,7 +359,7 @@ function ShowDetails() {
 										<input
 											type="number"
 											min={1}
-											className="mt-1 w-full rounded-md border bg-white px-3 py-2 text-sm dark:bg-gray-950"
+											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
 											value={editCurrentEpisode}
 											onChange={(e) => setEditCurrentEpisode(e.target.value)}
 										/>
@@ -370,7 +370,7 @@ function ShowDetails() {
 										</div>
 										<input
 											type="date"
-											className="mt-1 w-full rounded-md border bg-white px-3 py-2 text-sm dark:bg-gray-950"
+											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
 											value={editTargetFinishDate}
 											onChange={(e) => setEditTargetFinishDate(e.target.value)}
 										/>
@@ -383,7 +383,7 @@ function ShowDetails() {
 											type="number"
 											min={1}
 											max={10}
-											className="mt-1 w-full rounded-md border bg-white px-3 py-2 text-sm dark:bg-gray-950"
+											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
 											value={editRating}
 											onChange={(e) => setEditRating(e.target.value)}
 										/>
@@ -404,7 +404,7 @@ function ShowDetails() {
 										Notes
 									</div>
 									<textarea
-										className="mt-1 w-full rounded-md border bg-white px-3 py-2 text-sm dark:bg-gray-950"
+										className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
 										rows={4}
 										value={editNotes}
 										onChange={(e) => setEditNotes(e.target.value)}
@@ -414,7 +414,7 @@ function ShowDetails() {
 								<button
 									type="submit"
 									disabled={editSubmitting}
-									className="h-9 rounded-md bg-blue-600 px-3 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-60"
+									className="px-3 text-sm font-medium text-white bg-blue-600 rounded-md h-9 hover:bg-blue-500 disabled:opacity-60"
 								>
 									{editSubmitting ? "Saving..." : "Save changes"}
 								</button>
@@ -427,7 +427,7 @@ function ShowDetails() {
 							</form>
 						) : null}
 
-						<div className="rounded-lg border bg-white p-4 shadow-sm dark:bg-gray-900">
+						<div className="p-4 bg-white border rounded-lg shadow-sm dark:bg-gray-900">
 							<div className="grid gap-3 sm:grid-cols-2">
 								<DetailRow
 									label="Watch status"
@@ -460,11 +460,11 @@ function ShowDetails() {
 									value={formatMsDate(item?.setupCompletedAt ?? null)}
 								/>
 							</div>
-							<div className="mt-4 border-t pt-3">
-								<div className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+							<div className="pt-3 mt-4 border-t">
+								<div className="text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
 									Notes
 								</div>
-								<div className="mt-1 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+								<div className="mt-1 text-sm text-gray-700 whitespace-pre-wrap dark:text-gray-300">
 									{item?.notes?.trim() ? item.notes : "-"}
 								</div>
 							</div>
@@ -483,28 +483,28 @@ function ShowDetails() {
 									return (
 										<div
 											key={s.id}
-											className="rounded-lg border bg-white shadow-sm dark:bg-gray-900"
+											className="bg-white border rounded-lg shadow-sm dark:bg-gray-900"
 										>
 											<button
 												type="button"
 												onClick={() => {
 													toggleSeason(s.id);
 												}}
-												className="flex w-full gap-3 p-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
+												className="flex w-full gap-3 p-3 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-800"
 											>
-												<div className="h-20 w-14 shrink-0 overflow-hidden rounded bg-gray-200 dark:bg-gray-800">
+												<div className="h-20 overflow-hidden bg-gray-200 rounded w-14 shrink-0 dark:bg-gray-800">
 													{s.posterPath ? (
 														<img
 															alt=""
-															className="h-full w-full object-cover"
+															className="object-cover w-full h-full"
 															src={`${TMDB_POSTER}${s.posterPath}`}
 															loading="lazy"
 														/>
 													) : null}
 												</div>
-												<div className="min-w-0 flex-1">
+												<div className="flex-1 min-w-0">
 													<div className="flex items-center gap-2">
-														<div className="truncate font-medium">
+														<div className="font-medium truncate">
 															S{s.seasonNumber}: {s.name}
 														</div>
 														<span className="text-gray-400">
@@ -516,7 +516,7 @@ function ShowDetails() {
 														{s.airDate ? ` | ${s.airDate}` : ""}
 													</div>
 													{s.overview ? (
-														<div className="mt-2 line-clamp-3 text-xs text-gray-700 dark:text-gray-300">
+														<div className="mt-2 text-xs text-gray-700 line-clamp-3 dark:text-gray-300">
 															{s.overview}
 														</div>
 													) : null}
@@ -524,24 +524,24 @@ function ShowDetails() {
 											</button>
 
 											{isExpanded && (
-												<div className="border-t p-3 space-y-2">
+												<div className="p-3 space-y-2 border-t">
 													{episodes.length > 0 ? (
 														episodes.map((ep) => (
 															<div
 																key={ep.id}
-																className="flex gap-3 rounded-lg border bg-gray-50 p-3 text-sm dark:bg-gray-800"
+																className="flex gap-3 p-3 text-sm border rounded-lg bg-gray-50 dark:bg-gray-800"
 															>
-																<div className="h-16 w-28 shrink-0 overflow-hidden rounded bg-gray-200 dark:bg-gray-700">
+																<div className="h-16 overflow-hidden bg-gray-200 rounded w-28 shrink-0 dark:bg-gray-700">
 																	{ep.stillPath ? (
 																		<img
 																			alt=""
-																			className="h-full w-full object-cover"
+																			className="object-cover w-full h-full"
 																			src={`${TMDB_STILL}${ep.stillPath}`}
 																			loading="lazy"
 																		/>
 																	) : null}
 																</div>
-																<div className="min-w-0 flex-1">
+																<div className="flex-1 min-w-0">
 																	<div className="font-medium">
 																		{ep.episodeNumber}. {ep.name}
 																	</div>
@@ -586,24 +586,24 @@ function ShowDetails() {
 								{cast.slice(0, 18).map((c) => (
 									<div
 										key={c.id}
-										className="flex gap-3 rounded-lg border bg-white p-3 text-sm shadow-sm dark:bg-gray-900"
+										className="flex gap-3 p-3 text-sm bg-white border rounded-lg shadow-sm dark:bg-gray-900"
 									>
-										<div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
+										<div className="w-10 h-10 overflow-hidden bg-gray-200 rounded-full shrink-0 dark:bg-gray-800">
 											{c.person?.profilePath ? (
 												<img
 													alt=""
-													className="h-full w-full object-cover"
+													className="object-cover w-full h-full"
 													src={`${TMDB_PROFILE}${c.person.profilePath}`}
 													loading="lazy"
 												/>
 											) : (
-												<div className="flex h-full w-full items-center justify-center text-xs font-semibold text-gray-700 dark:text-gray-200">
+												<div className="flex items-center justify-center w-full h-full text-xs font-semibold text-gray-700 dark:text-gray-200">
 													{getInitials(c.person?.name ?? "Unknown")}
 												</div>
 											)}
 										</div>
-										<div className="min-w-0 flex-1">
-											<div className="truncate font-medium">
+										<div className="flex-1 min-w-0">
+											<div className="font-medium truncate">
 												{c.person?.name ?? "Unknown"}
 											</div>
 											<div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
@@ -629,24 +629,24 @@ function ShowDetails() {
 								{crew.slice(0, 18).map((c) => (
 									<div
 										key={c.id}
-										className="flex gap-3 rounded-lg border bg-white p-3 text-sm shadow-sm dark:bg-gray-900"
+										className="flex gap-3 p-3 text-sm bg-white border rounded-lg shadow-sm dark:bg-gray-900"
 									>
-										<div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
+										<div className="w-10 h-10 overflow-hidden bg-gray-200 rounded-full shrink-0 dark:bg-gray-800">
 											{c.person?.profilePath ? (
 												<img
 													alt=""
-													className="h-full w-full object-cover"
+													className="object-cover w-full h-full"
 													src={`${TMDB_PROFILE}${c.person.profilePath}`}
 													loading="lazy"
 												/>
 											) : (
-												<div className="flex h-full w-full items-center justify-center text-xs font-semibold text-gray-700 dark:text-gray-200">
+												<div className="flex items-center justify-center w-full h-full text-xs font-semibold text-gray-700 dark:text-gray-200">
 													{getInitials(c.person?.name ?? "Unknown")}
 												</div>
 											)}
 										</div>
-										<div className="min-w-0 flex-1">
-											<div className="truncate font-medium">
+										<div className="flex-1 min-w-0">
+											<div className="font-medium truncate">
 												{c.person?.name ?? "Unknown"}
 											</div>
 											<div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
@@ -691,7 +691,7 @@ function TabButton(props: {
 function DetailRow(props: { label: string; value: string | number }) {
 	return (
 		<div>
-			<div className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+			<div className="text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
 				{props.label}
 			</div>
 			<div className="mt-1 text-sm text-gray-800 dark:text-gray-200">
