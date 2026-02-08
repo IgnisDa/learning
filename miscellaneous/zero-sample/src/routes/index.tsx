@@ -1,4 +1,5 @@
 import { useQuery, useZero } from "@rocicorp/zero/react";
+import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { nanoid } from "nanoid";
 import * as React from "react";
@@ -79,16 +80,129 @@ function Home() {
 		showName: string;
 	} | null>(null);
 
-	const [watchStatus, setWatchStatus] = React.useState<WatchStatus>(
-		"plan_to_watch",
-	);
-	const [startedDate, setStartedDate] = React.useState("");
-	const [currentSeason, setCurrentSeason] = React.useState("");
-	const [currentEpisode, setCurrentEpisode] = React.useState("");
-	const [targetFinishDate, setTargetFinishDate] = React.useState("");
-	const [rating, setRating] = React.useState("");
-	const [isFavorite, setIsFavorite] = React.useState(false);
-	const [notes, setNotes] = React.useState("");
+	const step1Form = useForm({
+		defaultValues: {
+			watchStatus: "plan_to_watch" as WatchStatus,
+			startedDate: "",
+		},
+		onSubmit: async ({ value }) => {
+			if (!wizardResult) {
+				return;
+			}
+
+			setWizardSubmitting(true);
+			setWizardError(null);
+
+			const id = `show_${wizardResult.tmdbId}`;
+			const jobId = `job_${wizardResult.tmdbId}_${nanoid(6)}`;
+
+			try {
+				const write = zero.mutate(
+					mutators.shows.addFromTmdb({
+						id,
+						jobId,
+						tmdbId: wizardResult.tmdbId,
+						name: wizardResult.name,
+						overview: wizardResult.overview,
+						posterPath: wizardResult.posterPath,
+						watchStatus: value.watchStatus,
+						startedAt: dateInputToMs(value.startedDate),
+					}),
+				);
+
+				const result = await write.server;
+				if (result.type === "error") {
+					throw result.error;
+				}
+
+				setWizardStep(2);
+			} catch (e2) {
+				setWizardError(e2 instanceof Error ? e2.message : "Step 1 failed");
+			} finally {
+				setWizardSubmitting(false);
+			}
+		},
+	});
+
+	const step2Form = useForm({
+		defaultValues: {
+			currentSeason: "",
+			currentEpisode: "",
+			targetFinishDate: "",
+		},
+		onSubmit: async ({ value }) => {
+			if (!wizardResult) {
+				return;
+			}
+
+			setWizardSubmitting(true);
+			setWizardError(null);
+
+			try {
+				const write = zero.mutate(
+					mutators.shows.updateProgressStep({
+						showId: `show_${wizardResult.tmdbId}`,
+						currentSeason: toNullablePositiveInt(value.currentSeason),
+						currentEpisode: toNullablePositiveInt(value.currentEpisode),
+						targetFinishAt: dateInputToMs(value.targetFinishDate),
+					}),
+				);
+
+				const result = await write.server;
+				if (result.type === "error") {
+					throw result.error;
+				}
+
+				setWizardStep(3);
+			} catch (e2) {
+				setWizardError(e2 instanceof Error ? e2.message : "Step 2 failed");
+			} finally {
+				setWizardSubmitting(false);
+			}
+		},
+	});
+
+	const step3Form = useForm({
+		defaultValues: {
+			rating: "",
+			isFavorite: false,
+			notes: "",
+		},
+		onSubmit: async ({ value }) => {
+			if (!wizardResult) {
+				return;
+			}
+
+			setWizardSubmitting(true);
+			setWizardError(null);
+
+			try {
+				const write = zero.mutate(
+					mutators.shows.completeSetupStep({
+						showId: `show_${wizardResult.tmdbId}`,
+						rating: toNullableRating(value.rating),
+						isFavorite: value.isFavorite,
+						notes: value.notes.trim() ? value.notes.trim() : null,
+					}),
+				);
+
+				const result = await write.server;
+				if (result.type === "error") {
+					throw result.error;
+				}
+
+				setWizardSuccess({
+					showId: `show_${wizardResult.tmdbId}`,
+					showName: wizardResult.name,
+				});
+				setWizardResult(null);
+			} catch (e2) {
+				setWizardError(e2 instanceof Error ? e2.message : "Step 3 failed");
+			} finally {
+				setWizardSubmitting(false);
+			}
+		},
+	});
 
 	React.useEffect(() => {
 		let cancelled = false;
@@ -144,121 +258,9 @@ function Home() {
 		setWizardStep(1);
 		setWizardError(null);
 		setWizardSuccess(null);
-		setWatchStatus("plan_to_watch");
-		setStartedDate("");
-		setCurrentSeason("");
-		setCurrentEpisode("");
-		setTargetFinishDate("");
-		setRating("");
-		setIsFavorite(false);
-		setNotes("");
-	};
-
-	const onStep1Submit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		if (!wizardResult) {
-			return;
-		}
-
-		setWizardSubmitting(true);
-		setWizardError(null);
-
-		const id = `show_${wizardResult.tmdbId}`;
-		const jobId = `job_${wizardResult.tmdbId}_${nanoid(6)}`;
-
-		try {
-			const write = zero.mutate(
-				mutators.shows.addFromTmdb({
-					id,
-					jobId,
-					tmdbId: wizardResult.tmdbId,
-					name: wizardResult.name,
-					overview: wizardResult.overview,
-					posterPath: wizardResult.posterPath,
-					watchStatus,
-					startedAt: dateInputToMs(startedDate),
-				}),
-			);
-
-			const result = await write.server;
-			if (result.type === "error") {
-				throw result.error;
-			}
-
-			setWizardStep(2);
-		} catch (e2) {
-			setWizardError(e2 instanceof Error ? e2.message : "Step 1 failed");
-		} finally {
-			setWizardSubmitting(false);
-		}
-	};
-
-	const onStep2Submit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		if (!wizardResult) {
-			return;
-		}
-
-		setWizardSubmitting(true);
-		setWizardError(null);
-
-		try {
-			const write = zero.mutate(
-				mutators.shows.updateProgressStep({
-					showId: `show_${wizardResult.tmdbId}`,
-					currentSeason: toNullablePositiveInt(currentSeason),
-					currentEpisode: toNullablePositiveInt(currentEpisode),
-					targetFinishAt: dateInputToMs(targetFinishDate),
-				}),
-			);
-
-			const result = await write.server;
-			if (result.type === "error") {
-				throw result.error;
-			}
-
-			setWizardStep(3);
-		} catch (e2) {
-			setWizardError(e2 instanceof Error ? e2.message : "Step 2 failed");
-		} finally {
-			setWizardSubmitting(false);
-		}
-	};
-
-	const onStep3Submit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		if (!wizardResult) {
-			return;
-		}
-
-		setWizardSubmitting(true);
-		setWizardError(null);
-
-		try {
-			const write = zero.mutate(
-				mutators.shows.completeSetupStep({
-					showId: `show_${wizardResult.tmdbId}`,
-					rating: toNullableRating(rating),
-					isFavorite,
-					notes: notes.trim() ? notes.trim() : null,
-				}),
-			);
-
-			const result = await write.server;
-			if (result.type === "error") {
-				throw result.error;
-			}
-
-			setWizardSuccess({
-				showId: `show_${wizardResult.tmdbId}`,
-				showName: wizardResult.name,
-			});
-			setWizardResult(null);
-		} catch (e2) {
-			setWizardError(e2 instanceof Error ? e2.message : "Step 3 failed");
-		} finally {
-			setWizardSubmitting(false);
-		}
+		step1Form.reset();
+		step2Form.reset();
+		step3Form.reset();
 	};
 
 	const onCancelWizard = () => {
@@ -287,34 +289,53 @@ function Home() {
 					</div>
 
 					{wizardStep === 1 ? (
-						<form className="space-y-3" onSubmit={onStep1Submit}>
-							<label className="block">
-								<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-									Watch status
-								</div>
-								<select
-									className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-									value={watchStatus}
-									onChange={(e) => setWatchStatus(e.target.value as WatchStatus)}
-								>
-									{WATCH_STATUS_OPTIONS.map((option) => (
-										<option key={option.value} value={option.value}>
-											{option.label}
-										</option>
-									))}
-								</select>
-							</label>
-							<label className="block">
-								<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-									Started date (optional)
-								</div>
-								<input
-									type="date"
-									className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-									value={startedDate}
-									onChange={(e) => setStartedDate(e.target.value)}
-								/>
-							</label>
+						<form
+							className="space-y-3"
+							onSubmit={(e) => {
+								e.preventDefault();
+								e.stopPropagation();
+								void step1Form.handleSubmit();
+							}}
+						>
+							<step1Form.Field name="watchStatus">
+								{(field) => (
+									<label className="block">
+										<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
+											Watch status
+										</div>
+										<select
+											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) =>
+												field.handleChange(e.target.value as WatchStatus)
+											}
+										>
+											{WATCH_STATUS_OPTIONS.map((option) => (
+												<option key={option.value} value={option.value}>
+													{option.label}
+												</option>
+											))}
+										</select>
+									</label>
+								)}
+							</step1Form.Field>
+							<step1Form.Field name="startedDate">
+								{(field) => (
+									<label className="block">
+										<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
+											Started date (optional)
+										</div>
+										<input
+											type="date"
+											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+										/>
+									</label>
+								)}
+							</step1Form.Field>
 							<button
 								disabled={wizardSubmitting}
 								type="submit"
@@ -326,44 +347,66 @@ function Home() {
 					) : null}
 
 					{wizardStep === 2 ? (
-						<form className="space-y-3" onSubmit={onStep2Submit}>
+						<form
+							className="space-y-3"
+							onSubmit={(e) => {
+								e.preventDefault();
+								e.stopPropagation();
+								void step2Form.handleSubmit();
+							}}
+						>
 							<div className="grid gap-3 sm:grid-cols-2">
-								<label className="block">
-									<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-										Current season (optional)
-									</div>
-									<input
-										type="number"
-										min={1}
-										className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-										value={currentSeason}
-										onChange={(e) => setCurrentSeason(e.target.value)}
-									/>
-								</label>
-								<label className="block">
-									<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-										Current episode (optional)
-									</div>
-									<input
-										type="number"
-										min={1}
-										className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-										value={currentEpisode}
-										onChange={(e) => setCurrentEpisode(e.target.value)}
-									/>
-								</label>
+								<step2Form.Field name="currentSeason">
+									{(field) => (
+										<label className="block">
+											<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
+												Current season (optional)
+											</div>
+											<input
+												type="number"
+												min={1}
+												className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => field.handleChange(e.target.value)}
+											/>
+										</label>
+									)}
+								</step2Form.Field>
+								<step2Form.Field name="currentEpisode">
+									{(field) => (
+										<label className="block">
+											<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
+												Current episode (optional)
+											</div>
+											<input
+												type="number"
+												min={1}
+												className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => field.handleChange(e.target.value)}
+											/>
+										</label>
+									)}
+								</step2Form.Field>
 							</div>
-							<label className="block">
-								<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-									Target finish date (optional)
-								</div>
-								<input
-									type="date"
-									className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-									value={targetFinishDate}
-									onChange={(e) => setTargetFinishDate(e.target.value)}
-								/>
-							</label>
+							<step2Form.Field name="targetFinishDate">
+								{(field) => (
+									<label className="block">
+										<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
+											Target finish date (optional)
+										</div>
+										<input
+											type="date"
+											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+										/>
+									</label>
+								)}
+							</step2Form.Field>
 							<button
 								disabled={wizardSubmitting}
 								type="submit"
@@ -375,39 +418,61 @@ function Home() {
 					) : null}
 
 					{wizardStep === 3 ? (
-						<form className="space-y-3" onSubmit={onStep3Submit}>
-							<label className="block">
-								<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-									Rating (1-10, optional)
-								</div>
-								<input
-									type="number"
-									min={1}
-									max={10}
-									className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-									value={rating}
-									onChange={(e) => setRating(e.target.value)}
-								/>
-							</label>
-							<label className="flex items-center gap-2 text-sm">
-								<input
-									type="checkbox"
-									checked={isFavorite}
-									onChange={(e) => setIsFavorite(e.target.checked)}
-								/>
-								Favorite show
-							</label>
-							<label className="block">
-								<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-									Notes (optional)
-								</div>
-								<textarea
-									className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-									rows={4}
-									value={notes}
-									onChange={(e) => setNotes(e.target.value)}
-								/>
-							</label>
+						<form
+							className="space-y-3"
+							onSubmit={(e) => {
+								e.preventDefault();
+								e.stopPropagation();
+								void step3Form.handleSubmit();
+							}}
+						>
+							<step3Form.Field name="rating">
+								{(field) => (
+									<label className="block">
+										<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
+											Rating (1-10, optional)
+										</div>
+										<input
+											type="number"
+											min={1}
+											max={10}
+											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+										/>
+									</label>
+								)}
+							</step3Form.Field>
+							<step3Form.Field name="isFavorite">
+								{(field) => (
+									<label className="flex items-center gap-2 text-sm">
+										<input
+											type="checkbox"
+											checked={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.checked)}
+										/>
+										Favorite show
+									</label>
+								)}
+							</step3Form.Field>
+							<step3Form.Field name="notes">
+								{(field) => (
+									<label className="block">
+										<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
+											Notes (optional)
+										</div>
+										<textarea
+											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+											rows={4}
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+										/>
+									</label>
+								)}
+							</step3Form.Field>
 							<button
 								disabled={wizardSubmitting}
 								type="submit"

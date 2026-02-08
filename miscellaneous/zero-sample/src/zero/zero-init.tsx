@@ -1,5 +1,6 @@
 import { dropAllDatabases } from "@rocicorp/zero";
 import { ZeroProvider } from "@rocicorp/zero/react";
+import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
 import * as React from "react";
 import { mutators } from "./mutators";
@@ -77,9 +78,9 @@ export function ZeroInit(props: { children: React.ReactNode }) {
 	if (!session) {
 		return (
 			<div className="min-h-[60vh] p-6">
-				<div className="mx-auto max-w-lg space-y-6">
+				<div className="max-w-lg mx-auto space-y-6">
 					<Header email={null} onLogout={null} />
-					<div className="rounded-lg border bg-white p-5 shadow-sm dark:bg-gray-900">
+					<div className="p-5 bg-white border rounded-lg shadow-sm dark:bg-gray-900">
 						<div className="text-lg font-semibold">Sign in</div>
 						<div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
 							Email-only login (POC). This sets an HttpOnly cookie that
@@ -145,7 +146,7 @@ function Header(props: {
 						<button
 							onClick={props.onLogout}
 							type="button"
-							className="rounded-md border bg-white px-2 py-1 text-sm hover:bg-gray-50 dark:bg-gray-900"
+							className="px-2 py-1 text-sm bg-white border rounded-md hover:bg-gray-50 dark:bg-gray-900"
 						>
 							Logout
 						</button>
@@ -166,67 +167,77 @@ function Header(props: {
 }
 
 function LoginForm(props: { onSuccess: () => Promise<void> }) {
-	const [email, setEmail] = React.useState("");
-	const [submitting, setSubmitting] = React.useState(false);
 	const [error, setError] = React.useState<string | null>(null);
+	const form = useForm({
+		defaultValues: {
+			email: "",
+		},
+		onSubmit: async ({ value }) => {
+			setError(null);
 
-	const onSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		setSubmitting(true);
-		setError(null);
+			try {
+				const res = await fetch("/api/auth/login", {
+					method: "POST",
+					credentials: "include",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ email: value.email }),
+				});
 
-		try {
-			const res = await fetch("/api/auth/login", {
-				method: "POST",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ email }),
-			});
+				if (!res.ok) {
+					const data: unknown = await res.json().catch(() => null);
+					const errorValue =
+						data && typeof data === "object" && "error" in data
+							? (data as Record<string, unknown>).error
+							: null;
+					throw new Error(
+						errorValue
+							? String(errorValue)
+							: `Login failed: ${res.status}`,
+					);
+				}
 
-			if (!res.ok) {
-				const data: unknown = await res.json().catch(() => null);
-				const errorValue =
-					data && typeof data === "object" && "error" in data
-						? (data as Record<string, unknown>).error
-						: null;
-				throw new Error(
-					errorValue
-						? String(errorValue)
-						: `Login failed: ${res.status}`,
-				);
+				await props.onSuccess();
+			} catch (e) {
+				setError(e instanceof Error ? e.message : "Login failed");
 			}
-
-			await props.onSuccess();
-		} catch (e) {
-			setError(e instanceof Error ? e.message : "Login failed");
-		} finally {
-			setSubmitting(false);
-		}
-	};
+		},
+	});
 
 	return (
-		<form onSubmit={onSubmit} className="mt-4 space-y-3">
-			<label className="block">
-				<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-					Email
-				</div>
-				<input
-					className="mt-1 w-full rounded-md border bg-white px-3 py-2 text-sm shadow-sm dark:bg-gray-950"
-					type="email"
-					placeholder="you@example.com"
-					value={email}
-					onChange={(e) => setEmail(e.target.value)}
-					required
-				/>
-			</label>
+		<form
+			onSubmit={(e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				void form.handleSubmit();
+			}}
+			className="mt-4 space-y-3"
+		>
+			<form.Field name="email">
+				{(field) => (
+					<label className="block">
+						<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
+							Email
+						</div>
+						<input
+							className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md shadow-sm dark:bg-gray-950"
+							type="email"
+							placeholder="you@example.com"
+							value={field.state.value}
+							onBlur={field.handleBlur}
+							onChange={(e) => field.handleChange(e.target.value)}
+							required
+						/>
+					</label>
+				)}
+			</form.Field>
 			<button
-				disabled={submitting}
+				disabled={form.state.isSubmitting}
 				type="submit"
-				className="h-9 w-full rounded-md bg-blue-600 px-3 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-60"
+				className="w-full px-3 text-sm font-medium text-white bg-blue-600 rounded-md h-9 hover:bg-blue-500 disabled:opacity-60"
 			>
-				{submitting ? "Signing in..." : "Sign in"}
+				{form.state.isSubmitting ? "Signing in..." : "Sign in"}
 			</button>
 			{error ? (
 				<div className="text-sm text-red-700 dark:text-red-300">{error}</div>

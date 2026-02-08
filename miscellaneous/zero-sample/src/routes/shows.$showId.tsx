@@ -1,4 +1,5 @@
 import { useQuery, useZero } from "@rocicorp/zero/react";
+import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { nanoid } from "nanoid";
 import * as React from "react";
@@ -68,18 +69,47 @@ function ShowDetails() {
 		"tracking" | "seasons" | "cast" | "crew"
 	>("tracking");
 	const [isEditingSetup, setIsEditingSetup] = React.useState(false);
-	const [editSubmitting, setEditSubmitting] = React.useState(false);
 	const [editError, setEditError] = React.useState<string | null>(null);
-	const [editWatchStatus, setEditWatchStatus] = React.useState<WatchStatus>(
-		"plan_to_watch",
-	);
-	const [editStartedDate, setEditStartedDate] = React.useState("");
-	const [editCurrentSeason, setEditCurrentSeason] = React.useState("");
-	const [editCurrentEpisode, setEditCurrentEpisode] = React.useState("");
-	const [editTargetFinishDate, setEditTargetFinishDate] = React.useState("");
-	const [editRating, setEditRating] = React.useState("");
-	const [editIsFavorite, setEditIsFavorite] = React.useState(false);
-	const [editNotes, setEditNotes] = React.useState("");
+	const editForm = useForm({
+		defaultValues: {
+			watchStatus: "plan_to_watch" as WatchStatus,
+			startedDate: "",
+			currentSeason: "",
+			currentEpisode: "",
+			targetFinishDate: "",
+			rating: "",
+			isFavorite: false,
+			notes: "",
+		},
+		onSubmit: async ({ value }) => {
+			setEditError(null);
+
+			try {
+				const write = zero.mutate(
+					mutators.shows.updateTrackingDetails({
+						showId,
+						watchStatus: value.watchStatus,
+						startedAt: dateInputToMs(value.startedDate),
+						currentSeason: toNullablePositiveInt(value.currentSeason),
+						currentEpisode: toNullablePositiveInt(value.currentEpisode),
+						targetFinishAt: dateInputToMs(value.targetFinishDate),
+						rating: toNullableRating(value.rating),
+						isFavorite: value.isFavorite,
+						notes: value.notes.trim() ? value.notes.trim() : null,
+					}),
+				);
+
+				const result = await write.server;
+				if (result.type === "error") {
+					throw result.error;
+				}
+
+				setIsEditingSetup(false);
+			} catch (e2) {
+				setEditError(e2 instanceof Error ? e2.message : "Failed to save setup");
+			}
+		},
+	});
 
 	const onEnrich = React.useCallback(() => {
 		if (!show) {
@@ -100,64 +130,29 @@ function ShowDetails() {
 	}, [show, zero]);
 
 	const beginEditSetup = React.useCallback(() => {
-		setEditWatchStatus((item?.watchStatus as WatchStatus | undefined) ?? "plan_to_watch");
-		setEditStartedDate(toDateInputValue(item?.startedAt ?? null));
-		setEditCurrentSeason(item?.currentSeason ? String(item.currentSeason) : "");
-		setEditCurrentEpisode(item?.currentEpisode ? String(item.currentEpisode) : "");
-		setEditTargetFinishDate(toDateInputValue(item?.targetFinishAt ?? null));
-		setEditRating(item?.rating ? String(item.rating) : "");
-		setEditIsFavorite(Boolean(item?.isFavorite));
-		setEditNotes(item?.notes ?? "");
+		editForm.setFieldValue(
+			"watchStatus",
+			(item?.watchStatus as WatchStatus | undefined) ?? "plan_to_watch",
+		);
+		editForm.setFieldValue("startedDate", toDateInputValue(item?.startedAt ?? null));
+		editForm.setFieldValue(
+			"currentSeason",
+			item?.currentSeason ? String(item.currentSeason) : "",
+		);
+		editForm.setFieldValue(
+			"currentEpisode",
+			item?.currentEpisode ? String(item.currentEpisode) : "",
+		);
+		editForm.setFieldValue(
+			"targetFinishDate",
+			toDateInputValue(item?.targetFinishAt ?? null),
+		);
+		editForm.setFieldValue("rating", item?.rating ? String(item.rating) : "");
+		editForm.setFieldValue("isFavorite", Boolean(item?.isFavorite));
+		editForm.setFieldValue("notes", item?.notes ?? "");
 		setEditError(null);
 		setIsEditingSetup(true);
-	}, [item]);
-
-	const onSaveSetup = React.useCallback(
-		async (e: React.FormEvent) => {
-			e.preventDefault();
-			setEditSubmitting(true);
-			setEditError(null);
-
-			try {
-				const write = zero.mutate(
-					mutators.shows.updateTrackingDetails({
-						showId,
-						watchStatus: editWatchStatus,
-						startedAt: dateInputToMs(editStartedDate),
-						currentSeason: toNullablePositiveInt(editCurrentSeason),
-						currentEpisode: toNullablePositiveInt(editCurrentEpisode),
-						targetFinishAt: dateInputToMs(editTargetFinishDate),
-						rating: toNullableRating(editRating),
-						isFavorite: editIsFavorite,
-						notes: editNotes.trim() ? editNotes.trim() : null,
-					}),
-				);
-
-				const result = await write.server;
-				if (result.type === "error") {
-					throw result.error;
-				}
-
-				setIsEditingSetup(false);
-			} catch (e2) {
-				setEditError(e2 instanceof Error ? e2.message : "Failed to save setup");
-			} finally {
-				setEditSubmitting(false);
-			}
-		},
-		[
-			zero,
-			showId,
-			editWatchStatus,
-			editStartedDate,
-			editCurrentSeason,
-			editCurrentEpisode,
-			editTargetFinishDate,
-			editRating,
-			editIsFavorite,
-			editNotes,
-		],
-	);
+	}, [editForm, item]);
 
 	if (!show && detailsResult.type === "complete") {
 		return (
@@ -307,116 +302,160 @@ function ShowDetails() {
 
 						{isEditingSetup ? (
 							<form
-								onSubmit={onSaveSetup}
+								onSubmit={(e) => {
+									e.preventDefault();
+									e.stopPropagation();
+									void editForm.handleSubmit();
+								}}
 								className="p-4 space-y-3 bg-white border rounded-lg shadow-sm dark:bg-gray-900"
 							>
 								<div className="grid gap-3 sm:grid-cols-2">
-									<label className="block">
-										<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-											Watch status
-										</div>
-										<select
-											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-											value={editWatchStatus}
-											onChange={(e) =>
-												setEditWatchStatus(e.target.value as WatchStatus)
-											}
-										>
-											{WATCH_STATUS_OPTIONS.map((option) => (
-												<option key={option.value} value={option.value}>
-													{option.label}
-												</option>
-											))}
-										</select>
-									</label>
-									<label className="block">
-										<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-											Started date
-										</div>
-										<input
-											type="date"
-											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-											value={editStartedDate}
-											onChange={(e) => setEditStartedDate(e.target.value)}
-										/>
-									</label>
-									<label className="block">
-										<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-											Current season
-										</div>
-										<input
-											type="number"
-											min={1}
-											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-											value={editCurrentSeason}
-											onChange={(e) => setEditCurrentSeason(e.target.value)}
-										/>
-									</label>
-									<label className="block">
-										<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-											Current episode
-										</div>
-										<input
-											type="number"
-											min={1}
-											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-											value={editCurrentEpisode}
-											onChange={(e) => setEditCurrentEpisode(e.target.value)}
-										/>
-									</label>
-									<label className="block">
-										<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-											Target finish date
-										</div>
-										<input
-											type="date"
-											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-											value={editTargetFinishDate}
-											onChange={(e) => setEditTargetFinishDate(e.target.value)}
-										/>
-									</label>
-									<label className="block">
-										<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-											Rating (1-10)
-										</div>
-										<input
-											type="number"
-											min={1}
-											max={10}
-											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-											value={editRating}
-											onChange={(e) => setEditRating(e.target.value)}
-										/>
-									</label>
+									<editForm.Field name="watchStatus">
+										{(field) => (
+											<label className="block">
+												<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
+													Watch status
+												</div>
+												<select
+													className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+													value={field.state.value}
+													onBlur={field.handleBlur}
+													onChange={(e) =>
+														field.handleChange(e.target.value as WatchStatus)
+													}
+												>
+													{WATCH_STATUS_OPTIONS.map((option) => (
+														<option key={option.value} value={option.value}>
+															{option.label}
+														</option>
+													))}
+												</select>
+											</label>
+										)}
+									</editForm.Field>
+									<editForm.Field name="startedDate">
+										{(field) => (
+											<label className="block">
+												<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
+													Started date
+												</div>
+												<input
+													type="date"
+													className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+													value={field.state.value}
+													onBlur={field.handleBlur}
+													onChange={(e) => field.handleChange(e.target.value)}
+												/>
+											</label>
+										)}
+									</editForm.Field>
+									<editForm.Field name="currentSeason">
+										{(field) => (
+											<label className="block">
+												<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
+													Current season
+												</div>
+												<input
+													type="number"
+													min={1}
+													className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+													value={field.state.value}
+													onBlur={field.handleBlur}
+													onChange={(e) => field.handleChange(e.target.value)}
+												/>
+											</label>
+										)}
+									</editForm.Field>
+									<editForm.Field name="currentEpisode">
+										{(field) => (
+											<label className="block">
+												<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
+													Current episode
+												</div>
+												<input
+													type="number"
+													min={1}
+													className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+													value={field.state.value}
+													onBlur={field.handleBlur}
+													onChange={(e) => field.handleChange(e.target.value)}
+												/>
+											</label>
+										)}
+									</editForm.Field>
+									<editForm.Field name="targetFinishDate">
+										{(field) => (
+											<label className="block">
+												<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
+													Target finish date
+												</div>
+												<input
+													type="date"
+													className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+													value={field.state.value}
+													onBlur={field.handleBlur}
+													onChange={(e) => field.handleChange(e.target.value)}
+												/>
+											</label>
+										)}
+									</editForm.Field>
+									<editForm.Field name="rating">
+										{(field) => (
+											<label className="block">
+												<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
+													Rating (1-10)
+												</div>
+												<input
+													type="number"
+													min={1}
+													max={10}
+													className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+													value={field.state.value}
+													onBlur={field.handleBlur}
+													onChange={(e) => field.handleChange(e.target.value)}
+												/>
+											</label>
+										)}
+									</editForm.Field>
 								</div>
 
-								<label className="flex items-center gap-2 text-sm">
-									<input
-										type="checkbox"
-										checked={editIsFavorite}
-										onChange={(e) => setEditIsFavorite(e.target.checked)}
-									/>
-									Favorite show
-								</label>
+								<editForm.Field name="isFavorite">
+									{(field) => (
+										<label className="flex items-center gap-2 text-sm">
+											<input
+												type="checkbox"
+												checked={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => field.handleChange(e.target.checked)}
+											/>
+											Favorite show
+										</label>
+									)}
+								</editForm.Field>
 
-								<label className="block">
-									<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-										Notes
-									</div>
-									<textarea
-										className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-										rows={4}
-										value={editNotes}
-										onChange={(e) => setEditNotes(e.target.value)}
-									/>
-								</label>
+								<editForm.Field name="notes">
+									{(field) => (
+										<label className="block">
+											<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
+												Notes
+											</div>
+											<textarea
+												className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+												rows={4}
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => field.handleChange(e.target.value)}
+											/>
+										</label>
+									)}
+								</editForm.Field>
 
 								<button
 									type="submit"
-									disabled={editSubmitting}
+									disabled={editForm.state.isSubmitting}
 									className="px-3 text-sm font-medium text-white bg-blue-600 rounded-md h-9 hover:bg-blue-500 disabled:opacity-60"
 								>
-									{editSubmitting ? "Saving..." : "Save changes"}
+									{editForm.state.isSubmitting ? "Saving..." : "Save changes"}
 								</button>
 
 								{editError ? (
