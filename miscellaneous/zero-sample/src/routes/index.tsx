@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { nanoid } from "nanoid";
 import * as React from "react";
 import { useAppForm } from "~/components/forms/app-form";
+import { getErrorMessage } from "~/utils/error-message";
 import { mutators } from "~/zero/mutators";
 import { queries } from "~/zero/queries";
 
@@ -117,7 +118,7 @@ function Home() {
 
 				setWizardStep(2);
 			} catch (e2) {
-				setWizardError(e2 instanceof Error ? e2.message : "Step 1 failed");
+				setWizardError(getErrorMessage(e2, "Step 1 failed"));
 			} finally {
 				setWizardSubmitting(false);
 			}
@@ -142,8 +143,8 @@ function Home() {
 				const write = zero.mutate(
 					mutators.shows.updateProgressStep({
 						showId: `show_${wizardResult.tmdbId}`,
-						currentSeason: toNullablePositiveInt(value.currentSeason),
-						currentEpisode: toNullablePositiveInt(value.currentEpisode),
+						currentSeason: toNullableNumber(value.currentSeason),
+						currentEpisode: toNullableNumber(value.currentEpisode),
 						targetFinishAt: dateInputToMs(value.targetFinishDate),
 					}),
 				);
@@ -155,7 +156,7 @@ function Home() {
 
 				setWizardStep(3);
 			} catch (e2) {
-				setWizardError(e2 instanceof Error ? e2.message : "Step 2 failed");
+				setWizardError(getErrorMessage(e2, "Step 2 failed"));
 			} finally {
 				setWizardSubmitting(false);
 			}
@@ -180,7 +181,7 @@ function Home() {
 				const write = zero.mutate(
 					mutators.shows.completeSetupStep({
 						showId: `show_${wizardResult.tmdbId}`,
-						rating: toNullableRating(value.rating),
+						rating: toNullableNumber(value.rating),
 						isFavorite: value.isFavorite,
 						notes: value.notes.trim() ? value.notes.trim() : null,
 					}),
@@ -197,7 +198,7 @@ function Home() {
 				});
 				setWizardResult(null);
 			} catch (e2) {
-				setWizardError(e2 instanceof Error ? e2.message : "Step 3 failed");
+				setWizardError(getErrorMessage(e2, "Step 3 failed"));
 			} finally {
 				setWizardSubmitting(false);
 			}
@@ -338,22 +339,20 @@ function Home() {
 							<div className="grid gap-3 sm:grid-cols-2">
 								<step2Form.AppField name="currentSeason">
 									{(field) => (
-										<field.TextInputField
-											label="Current season (optional)"
-											type="number"
-											min={1}
-											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-										/>
+						<field.TextInputField
+							label="Current season (optional)"
+							type="number"
+							className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+						/>
 									)}
 								</step2Form.AppField>
 								<step2Form.AppField name="currentEpisode">
 									{(field) => (
-										<field.TextInputField
-											label="Current episode (optional)"
-											type="number"
-											min={1}
-											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-										/>
+						<field.TextInputField
+							label="Current episode (optional)"
+							type="number"
+							className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+						/>
 									)}
 								</step2Form.AppField>
 							</div>
@@ -391,8 +390,6 @@ function Home() {
 									<field.TextInputField
 										label="Rating (1-10, optional)"
 										type="number"
-										min={1}
-										max={10}
 										className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
 									/>
 								)}
@@ -581,32 +578,13 @@ function Home() {
 	);
 }
 
-function toNullablePositiveInt(value: string) {
+function toNullableNumber(value: string) {
 	const trimmed = value.trim();
 	if (!trimmed) {
 		return null;
 	}
 
-	const numberValue = Number(trimmed);
-	if (!Number.isInteger(numberValue) || numberValue < 1) {
-		return null;
-	}
-
-	return numberValue;
-}
-
-function toNullableRating(value: string) {
-	const trimmed = value.trim();
-	if (!trimmed) {
-		return null;
-	}
-
-	const numberValue = Number(trimmed);
-	if (!Number.isInteger(numberValue) || numberValue < 1 || numberValue > 10) {
-		return null;
-	}
-
-	return numberValue;
+	return Number(trimmed);
 }
 
 function dateInputToMs(value: string) {

@@ -3,6 +3,7 @@ import { ZeroProvider } from "@rocicorp/zero/react";
 import { Link } from "@tanstack/react-router";
 import * as React from "react";
 import { useAppForm } from "~/components/forms/app-form";
+import { getErrorMessage } from "~/utils/error-message";
 import { mutators } from "./mutators";
 import { schema } from "./schema";
 
@@ -200,7 +201,7 @@ function LoginForm(props: { onSuccess: () => Promise<void> }) {
 
 				await props.onSuccess();
 			} catch (e) {
-				setError(e instanceof Error ? e.message : "Login failed");
+				setError(getErrorMessage(e, "Login failed"));
 			}
 		},
 	});
@@ -220,7 +221,6 @@ function LoginForm(props: { onSuccess: () => Promise<void> }) {
 						label="Email"
 						type="email"
 						placeholder="you@example.com"
-						required
 						className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md shadow-sm dark:bg-gray-950"
 					/>
 				)}

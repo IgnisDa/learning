@@ -13,9 +13,6 @@ function TextInputField(props: {
 	label: string;
 	type?: React.HTMLInputTypeAttribute;
 	placeholder?: string;
-	min?: number;
-	max?: number;
-	required?: boolean;
 	className: string;
 }) {
 	const field = useFieldContext<string | number | null | undefined>();
@@ -28,9 +25,6 @@ function TextInputField(props: {
 			<input
 				type={props.type}
 				placeholder={props.placeholder}
-				min={props.min}
-				max={props.max}
-				required={props.required}
 				className={props.className}
 				value={field.state.value ?? ""}
 				onBlur={field.handleBlur}

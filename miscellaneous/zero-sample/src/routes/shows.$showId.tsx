@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { nanoid } from "nanoid";
 import * as React from "react";
 import { useAppForm } from "~/components/forms/app-form";
+import { getErrorMessage } from "~/utils/error-message";
 import { mutators } from "~/zero/mutators";
 import { queries } from "~/zero/queries";
 
@@ -90,10 +91,10 @@ function ShowDetails() {
 						showId,
 						watchStatus: value.watchStatus,
 						startedAt: dateInputToMs(value.startedDate),
-						currentSeason: toNullablePositiveInt(value.currentSeason),
-						currentEpisode: toNullablePositiveInt(value.currentEpisode),
+						currentSeason: toNullableNumber(value.currentSeason),
+						currentEpisode: toNullableNumber(value.currentEpisode),
 						targetFinishAt: dateInputToMs(value.targetFinishDate),
-						rating: toNullableRating(value.rating),
+						rating: toNullableNumber(value.rating),
 						isFavorite: value.isFavorite,
 						notes: value.notes.trim() ? value.notes.trim() : null,
 					}),
@@ -106,7 +107,7 @@ function ShowDetails() {
 
 				setIsEditingSetup(false);
 			} catch (e2) {
-				setEditError(e2 instanceof Error ? e2.message : "Failed to save setup");
+				setEditError(getErrorMessage(e2, "Failed to save setup"));
 			}
 		},
 	});
@@ -336,7 +337,6 @@ function ShowDetails() {
 											<field.TextInputField
 												label="Current season"
 												type="number"
-												min={1}
 												className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
 											/>
 										)}
@@ -346,7 +346,6 @@ function ShowDetails() {
 											<field.TextInputField
 												label="Current episode"
 												type="number"
-												min={1}
 												className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
 											/>
 										)}
@@ -677,32 +676,13 @@ function DetailRow(props: { label: string; value: string | number }) {
 	);
 }
 
-function toNullablePositiveInt(value: string) {
+function toNullableNumber(value: string) {
 	const trimmed = value.trim();
 	if (!trimmed) {
 		return null;
 	}
 
-	const numberValue = Number(trimmed);
-	if (!Number.isInteger(numberValue) || numberValue < 1) {
-		return null;
-	}
-
-	return numberValue;
-}
-
-function toNullableRating(value: string) {
-	const trimmed = value.trim();
-	if (!trimmed) {
-		return null;
-	}
-
-	const numberValue = Number(trimmed);
-	if (!Number.isInteger(numberValue) || numberValue < 1 || numberValue > 10) {
-		return null;
-	}
-
-	return numberValue;
+	return Number(trimmed);
 }
 
 function dateInputToMs(value: string) {
