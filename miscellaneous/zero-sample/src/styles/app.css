@@ -5,4 +5,528 @@ body {
   background-color: var(--rs-color-background-page);
   color: var(--rs-color-foreground-neutral);
   min-height: 100vh;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Better link styles */
+a {
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+/* ============================================
+   HEADER STYLES
+   ============================================ */
+.app-header {
+  background: var(--rs-color-background-elevation-base);
+  border-bottom: 1px solid var(--rs-color-border-neutral-faded);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+[data-rs-color-mode="dark"] .app-header {
+  background: rgba(
+    var(--rs-color-background-elevation-base-rgb, 24, 24, 27),
+    0.85
+  );
+}
+
+[data-rs-color-mode="light"] .app-header {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.app-logo {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--rs-color-foreground-neutral);
+  letter-spacing: -0.02em;
+  transition: color 0.15s ease;
+}
+
+.app-logo:hover {
+  color: var(--rs-color-foreground-primary);
+}
+
+/* ============================================
+   CONTAINER / LAYOUT
+   ============================================ */
+.page-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.page-section {
+  padding: 2rem 0;
+}
+
+/* ============================================
+   CARD ENHANCEMENTS
+   ============================================ */
+.card-interactive {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+  cursor: pointer;
+}
+
+.card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 25px -5px rgba(0, 0, 0, 0.15),
+    0 4px 10px -5px rgba(0, 0, 0, 0.1);
+}
+
+[data-rs-color-mode="dark"] .card-interactive:hover {
+  box-shadow:
+    0 8px 25px -5px rgba(0, 0, 0, 0.4),
+    0 4px 10px -5px rgba(0, 0, 0, 0.3);
+  border-color: var(--rs-color-border-neutral);
+}
+
+/* Search result card specific */
+.search-result-card {
+  background: var(--rs-color-background-elevation-base);
+  border: 1px solid var(--rs-color-border-neutral-faded);
+  border-radius: var(--rs-radius-medium);
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.search-result-card:hover {
+  border-color: var(--rs-color-border-primary-faded);
+  background: var(--rs-color-background-elevation-raised);
+}
+
+/* Library card */
+.library-card {
+  background: var(--rs-color-background-elevation-base);
+  border: 1px solid var(--rs-color-border-neutral-faded);
+  border-radius: var(--rs-radius-medium);
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.library-card:hover {
+  border-color: var(--rs-color-border-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px -10px
+    rgba(var(--rs-color-primary-rgb, 99, 102, 241), 0.3);
+}
+
+/* ============================================
+   POSTER / IMAGE STYLES
+   ============================================ */
+.poster-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--rs-radius-small);
+  background: linear-gradient(
+    135deg,
+    var(--rs-color-background-neutral-faded) 0%,
+    var(--rs-color-background-disabled) 100%
+  );
+}
+
+.poster-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.card-interactive:hover .poster-container img {
+  transform: scale(1.05);
+}
+
+/* Large poster for detail page */
+.poster-large {
+  width: 200px;
+  height: 300px;
+  border-radius: var(--rs-radius-medium);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+
+[data-rs-color-mode="dark"] .poster-large {
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================
+   HERO SECTION (Show Detail Page)
+   ============================================ */
+.show-hero {
+  position: relative;
+  padding: 3rem 0;
+  margin-bottom: 1rem;
+}
+
+.show-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    var(--rs-color-background-primary-faded) 0%,
+    transparent 50%,
+    var(--rs-color-background-neutral-faded) 100%
+  );
+  opacity: 0.5;
+  z-index: -1;
+}
+
+[data-rs-color-mode="dark"] .show-hero::before {
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.1) 0%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.2) 100%
+  );
+  opacity: 1;
+}
+
+/* ============================================
+   SEARCH SECTION
+   ============================================ */
+.search-section {
+  background: linear-gradient(
+    180deg,
+    var(--rs-color-background-elevation-raised) 0%,
+    var(--rs-color-background-page) 100%
+  );
+  border-radius: var(--rs-radius-large);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+[data-rs-color-mode="dark"] .search-section {
+  background: linear-gradient(
+    180deg,
+    var(--rs-color-background-elevation-base) 0%,
+    var(--rs-color-background-page) 100%
+  );
+  border: 1px solid var(--rs-color-border-neutral-faded);
+}
+
+.search-input-wrapper {
+  position: relative;
+}
+
+.search-input-wrapper input {
+  padding-left: 2.75rem !important;
+  font-size: 1rem !important;
+  height: 3rem !important;
+}
+
+/* ============================================
+   SECTION HEADINGS
+   ============================================ */
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--rs-color-foreground-neutral);
+  margin-bottom: 0.5rem;
+}
+
+.section-subtitle {
+  color: var(--rs-color-foreground-neutral-faded);
+  font-size: 0.875rem;
+}
+
+/* ============================================
+   WIZARD / SETUP CARD
+   ============================================ */
+.wizard-card {
+  background: linear-gradient(
+    135deg,
+    var(--rs-color-background-primary-faded) 0%,
+    var(--rs-color-background-elevation-base) 100%
+  );
+  border: 1px solid var(--rs-color-border-primary-faded);
+  border-radius: var(--rs-radius-large);
+  box-shadow: 0 10px 40px -10px
+    rgba(var(--rs-color-primary-rgb, 99, 102, 241), 0.2);
+}
+
+[data-rs-color-mode="dark"] .wizard-card {
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.1) 0%,
+    var(--rs-color-background-elevation-base) 100%
+  );
+}
+
+/* ============================================
+   BADGE ENHANCEMENTS
+   ============================================ */
+.status-badge-ready {
+  background: var(--rs-color-background-positive-faded) !important;
+  color: var(--rs-color-foreground-positive) !important;
+}
+
+.status-badge-pending {
+  background: var(--rs-color-background-warning-faded) !important;
+  color: var(--rs-color-foreground-warning) !important;
+}
+
+.status-badge-error {
+  background: var(--rs-color-background-critical-faded) !important;
+  color: var(--rs-color-foreground-critical) !important;
+}
+
+/* ============================================
+   TABS ENHANCEMENTS
+   ============================================ */
+[data-rs-tabs-list] {
+  border-bottom: 1px solid var(--rs-color-border-neutral-faded);
+  gap: 0;
+}
+
+[data-rs-tabs-item] {
+  padding: 0.75rem 1.25rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+[data-rs-tabs-item]:hover {
+  background: var(--rs-color-background-neutral-faded);
+}
+
+[data-rs-tabs-item][data-active="true"] {
+  color: var(--rs-color-foreground-primary);
+}
+
+/* ============================================
+   FORM IMPROVEMENTS
+   ============================================ */
+.form-card {
+  background: var(--rs-color-background-elevation-base);
+  border: 1px solid var(--rs-color-border-neutral-faded);
+  border-radius: var(--rs-radius-large);
+  padding: 1.5rem;
+}
+
+/* Better input focus states */
+[data-rs-textfield-input]:focus,
+[data-rs-textarea]:focus,
+[data-rs-select-trigger]:focus {
+  border-color: var(--rs-color-border-primary) !important;
+  box-shadow: 0 0 0 3px var(--rs-color-background-primary-faded) !important;
+}
+
+/* ============================================
+   CAST/CREW CARDS
+   ============================================ */
+.person-card {
+  background: var(--rs-color-background-elevation-base);
+  border: 1px solid var(--rs-color-border-neutral-faded);
+  border-radius: var(--rs-radius-medium);
+  padding: 1rem;
+  transition: all 0.2s ease;
+}
+
+.person-card:hover {
+  border-color: var(--rs-color-border-neutral);
+  background: var(--rs-color-background-elevation-raised);
+}
+
+/* ============================================
+   SEASON/EPISODE CARDS
+   ============================================ */
+.season-card {
+  background: var(--rs-color-background-elevation-base);
+  border: 1px solid var(--rs-color-border-neutral-faded);
+  border-radius: var(--rs-radius-medium);
+  overflow: hidden;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.season-card:hover {
+  border-color: var(--rs-color-border-neutral);
+}
+
+.season-card-header {
+  padding: 1rem;
+}
+
+.season-card-expanded {
+  border-top: 1px solid var(--rs-color-border-neutral-faded);
+  background: var(--rs-color-background-neutral-faded);
+  padding: 1rem;
+}
+
+.episode-card {
+  background: var(--rs-color-background-elevation-base);
+  border: 1px solid var(--rs-color-border-neutral-faded);
+  border-radius: var(--rs-radius-small);
+  padding: 0.75rem;
+  transition: all 0.15s ease;
+}
+
+.episode-card:hover {
+  background: var(--rs-color-background-elevation-raised);
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--rs-color-background-neutral-faded);
+  border-radius: var(--rs-radius-large);
+  border: 2px dashed var(--rs-color-border-neutral-faded);
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+/* ============================================
+   SUCCESS ALERT ENHANCEMENT
+   ============================================ */
+.success-alert {
+  background: linear-gradient(
+    135deg,
+    var(--rs-color-background-positive-faded) 0%,
+    var(--rs-color-background-elevation-base) 100%
+  );
+  border: 1px solid var(--rs-color-border-positive);
+  border-radius: var(--rs-radius-medium);
+}
+
+/* ============================================
+   ANIMATION UTILITIES
+   ============================================ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+/* Staggered animation for grid items */
+.grid-item-animated {
+  animation: fadeIn 0.3s ease forwards;
+  opacity: 0;
+}
+
+.grid-item-animated:nth-child(1) {
+  animation-delay: 0ms;
+}
+.grid-item-animated:nth-child(2) {
+  animation-delay: 50ms;
+}
+.grid-item-animated:nth-child(3) {
+  animation-delay: 100ms;
+}
+.grid-item-animated:nth-child(4) {
+  animation-delay: 150ms;
+}
+.grid-item-animated:nth-child(5) {
+  animation-delay: 200ms;
+}
+.grid-item-animated:nth-child(6) {
+  animation-delay: 250ms;
+}
+
+/* ============================================
+   BUTTON ENHANCEMENTS
+   ============================================ */
+[data-rs-button][data-variant="solid"][data-color="primary"] {
+  box-shadow: 0 4px 14px -3px
+    rgba(var(--rs-color-primary-rgb, 99, 102, 241), 0.4);
+  transition: all 0.2s ease;
+}
+
+[data-rs-button][data-variant="solid"][data-color="primary"]:hover {
+  box-shadow: 0 6px 20px -3px
+    rgba(var(--rs-color-primary-rgb, 99, 102, 241), 0.5);
+  transform: translateY(-1px);
+}
+
+[data-rs-button][data-variant="solid"][data-color="primary"]:active {
+  transform: translateY(0);
+}
+
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--rs-color-background-neutral-faded);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--rs-color-border-neutral);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--rs-color-border-neutral-faded);
+}
+
+/* ============================================
+   DETAIL ROW STYLING
+   ============================================ */
+.detail-row {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--rs-color-border-neutral-faded);
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+@media (max-width: 768px) {
+  .page-container {
+    padding: 0 1rem;
+  }
+
+  .search-section {
+    padding: 1.5rem;
+  }
+
+  .poster-large {
+    width: 140px;
+    height: 210px;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+  }
+
+  .hide-on-mobile {
+    display: none !important;
+  }
 }

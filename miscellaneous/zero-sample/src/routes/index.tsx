@@ -16,6 +16,7 @@ import {
 	Alert,
 	Image,
 	Loader,
+	Icon,
 } from "reshaped";
 
 export const Route = createFileRoute("/")({
@@ -46,6 +47,33 @@ const WATCH_STATUS_OPTIONS: Array<{ label: string; value: WatchStatus }> = [
 ];
 
 const TMDB_IMG = "https://image.tmdb.org/t/p/w185";
+
+// SVG Icons
+const SearchIcon = () => (
+	<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+		<circle cx="11" cy="11" r="8" />
+		<path d="m21 21-4.3-4.3" />
+	</svg>
+);
+
+const TvIcon = () => (
+	<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.4">
+		<rect width="20" height="15" x="2" y="7" rx="2" ry="2" />
+		<polyline points="17 2 12 7 7 2" />
+	</svg>
+);
+
+const PlusIcon = () => (
+	<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+		<path d="M12 5v14M5 12h14" />
+	</svg>
+);
+
+const CheckIcon = () => (
+	<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+		<polyline points="20 6 9 17 4 12" />
+	</svg>
+);
 
 function Home() {
 	const zero = useZero();
@@ -281,24 +309,43 @@ function Home() {
 	};
 
 	return (
-		<View padding={4} gap={8}>
+		<View className="page-container" paddingBlock={6} gap={8}>
+			{/* Setup Wizard */}
 			{wizardResult ? (
-				<Card>
-					<View gap={3}>
-						<View direction="row" align="start" justify="space-between" gap={2} wrap>
-							<View>
-								<Text variant="title-6">{`Add show setup`}</Text>
-								<Text variant="body-3" color="neutral-faded">
-									{wizardResult.name} - Step {wizardStep} of 3
+				<View className="wizard-card animate-fade-in" padding={6}>
+					<View gap={5}>
+						<View direction="row" align="start" justify="space-between" gap={4}>
+							<View gap={1}>
+								<View direction="row" align="center" gap={2}>
+									<Text variant="featured-3" weight="bold">Add to Library</Text>
+									<Badge color="primary" size="small">Step {wizardStep}/3</Badge>
+								</View>
+								<Text variant="body-2" color="neutral-faded">
+									{wizardResult.name}
 								</Text>
 							</View>
 							<Button
-								variant="outline"
-								size="small"
+								variant="ghost"
+								color="neutral"
 								onClick={onCancelWizard}
 							>
 								Cancel
 							</Button>
+						</View>
+
+						{/* Step indicators */}
+						<View direction="row" gap={2}>
+							{[1, 2, 3].map((step) => (
+								<View
+									key={step}
+									height="4px"
+									grow
+									borderRadius="large"
+									backgroundColor={
+										step <= wizardStep ? "primary" : "neutral-faded"
+									}
+								/>
+							))}
 						</View>
 
 						{wizardStep === 1 ? (
@@ -309,7 +356,8 @@ function Home() {
 									void step1Form.handleSubmit();
 								}}
 							>
-								<View gap={3}>
+								<View gap={4}>
+									<Text variant="body-2" weight="medium">Basic Information</Text>
 									<step1Form.AppField name="watchStatus">
 										{(field) => (
 											<field.SelectField
@@ -329,7 +377,7 @@ function Home() {
 									<step1Form.AppForm>
 										<step1Form.SubmitButton
 											disabled={wizardSubmitting}
-											idleLabel="Save and continue"
+											idleLabel="Continue"
 											submittingLabel="Saving..."
 										/>
 									</step1Form.AppForm>
@@ -345,14 +393,16 @@ function Home() {
 									void step2Form.handleSubmit();
 								}}
 							>
-								<View gap={3}>
-									<View direction={{ s: "column", m: "row" }} gap={3}>
+								<View gap={4}>
+									<Text variant="body-2" weight="medium">Progress Tracking</Text>
+									<View direction={{ s: "column", m: "row" }} gap={4}>
 										<View.Item columns={{ s: 12, m: 6 }}>
 											<step2Form.AppField name="currentSeason">
 												{(field) => (
 													<field.TextInputField
-														label="Current season (optional)"
+														label="Current season"
 														type="number"
+														placeholder="e.g., 2"
 													/>
 												)}
 											</step2Form.AppField>
@@ -361,8 +411,9 @@ function Home() {
 											<step2Form.AppField name="currentEpisode">
 												{(field) => (
 													<field.TextInputField
-														label="Current episode (optional)"
+														label="Current episode"
 														type="number"
+														placeholder="e.g., 5"
 													/>
 												)}
 											</step2Form.AppField>
@@ -379,7 +430,7 @@ function Home() {
 									<step2Form.AppForm>
 										<step2Form.SubmitButton
 											disabled={wizardSubmitting}
-											idleLabel="Save and continue"
+											idleLabel="Continue"
 											submittingLabel="Saving..."
 										/>
 									</step2Form.AppForm>
@@ -395,32 +446,34 @@ function Home() {
 									void step3Form.handleSubmit();
 								}}
 							>
-								<View gap={3}>
+								<View gap={4}>
+									<Text variant="body-2" weight="medium">Personal Notes</Text>
 									<step3Form.AppField name="rating">
 										{(field) => (
 											<field.TextInputField
-												label="Rating (1-10, optional)"
+												label="Your rating (1-10)"
 												type="number"
+												placeholder="e.g., 8"
 											/>
 										)}
 									</step3Form.AppField>
 									<step3Form.AppField name="isFavorite">
 										{(field) => (
-											<field.CheckboxField label="Favorite show" />
+											<field.CheckboxField label="Mark as favorite" />
 										)}
 									</step3Form.AppField>
 									<step3Form.AppField name="notes">
 										{(field) => (
 											<field.TextareaField
-												label="Notes (optional)"
-												rows={4}
+												label="Notes"
+												rows={3}
 											/>
 										)}
 									</step3Form.AppField>
 									<step3Form.AppForm>
 										<step3Form.SubmitButton
 											disabled={wizardSubmitting}
-											idleLabel="Finish setup"
+											idleLabel="Add to Library"
 											submittingLabel="Saving..."
 										/>
 									</step3Form.AppForm>
@@ -434,37 +487,69 @@ function Home() {
 							</Alert>
 						) : null}
 					</View>
-				</Card>
+				</View>
 			) : null}
 
+			{/* Success Message */}
 			{wizardSuccess ? (
-				<Alert color="positive" title="Success">
-					<Text>
-						Saved setup for {wizardSuccess.showName}.{" "}
+				<View className="success-alert animate-fade-in" padding={4}>
+					<View direction="row" align="center" gap={3}>
+						<View
+							width="40px"
+							height="40px"
+							borderRadius="large"
+							backgroundColor="positive"
+							align="center"
+							justify="center"
+						>
+							<CheckIcon />
+						</View>
+						<View grow>
+							<Text variant="body-2" weight="medium">Added to your library!</Text>
+							<Text variant="body-3" color="neutral-faded">
+								{wizardSuccess.showName} is now being enriched with metadata.
+							</Text>
+						</View>
 						<Link
 							to="/shows/$showId"
 							params={{ showId: wizardSuccess.showId }}
-							style={{ textDecoration: "underline" }}
 						>
-							Open details
+							<Button color="primary" size="small">View Details</Button>
 						</Link>
-					</Text>
-				</Alert>
+					</View>
+				</View>
 			) : null}
 
-			<View gap={3}>
-				<Text variant="title-5">TMDB search</Text>
-				<Text variant="body-3" color="neutral-faded">
-					Type 2+ characters. Start setup to save step 1, then continue through the
-					multi-step form.
-				</Text>
+			{/* Search Section */}
+			<View className="search-section" gap={5}>
+				<View gap={2}>
+					<Text variant="featured-2" weight="bold">
+						Discover Shows
+					</Text>
+					<Text variant="body-2" color="neutral-faded">
+						Search TMDB for TV shows and add them to your personal library
+					</Text>
+				</View>
 
-				<View maxWidth="600px">
+				<View position="relative" maxWidth="600px">
+					<View
+						position="absolute"
+						insetStart={4}
+						insetTop={0}
+						insetBottom={0}
+						align="center"
+						justify="center"
+						zIndex={1}
+						attributes={{ style: { pointerEvents: "none", color: "var(--rs-color-foreground-neutral-faded)" } }}
+					>
+						<SearchIcon />
+					</View>
 					<TextField
 						name="search"
-						placeholder="Search TV shows..."
+						placeholder="Search for a TV show..."
 						value={q}
 						onChange={({ value }) => setQ(value)}
+						inputAttributes={{ style: { paddingLeft: "2.75rem" } }}
 					/>
 				</View>
 
@@ -475,132 +560,216 @@ function Home() {
 				) : null}
 
 				{searching ? (
-					<View direction="row" gap={2} align="center">
+					<View direction="row" gap={3} align="center" paddingBlock={2}>
 						<Loader size="small" ariaLabel="Searching" />
-						<Text variant="body-3" color="neutral-faded">Searching...</Text>
+						<Text variant="body-3" color="neutral-faded">Finding shows...</Text>
 					</View>
 				) : null}
 
-				{results.length ? (
-					<View direction="row" gap={3} wrap>
-						{results.slice(0, 12).map((r) => {
-							const alreadyAdded = tmdbIDsInLibrary.has(r.tmdbId);
-							const inWizard = wizardResult?.tmdbId === r.tmdbId;
-							return (
-								<View.Item key={r.tmdbId} columns={{ s: 12, m: 6, l: 4 }}>
-									<Card>
-										<View direction="row" gap={3}>
-											<View
-												width="56px"
-												height="80px"
-												borderRadius="small"
-												overflow="hidden"
-												backgroundColor="neutral-faded"
-											>
-												{r.posterPath ? (
-													<Image
-														src={`${TMDB_IMG}${r.posterPath}`}
-														alt=""
-														width="56px"
-														height="80px"
-													/>
-												) : null}
-											</View>
-											<View grow gap={1}>
-												<Text variant="body-2" weight="medium" maxLines={1}>
-													{r.name}
-												</Text>
-												<Text variant="caption-1" color="neutral-faded" maxLines={2}>
-													{r.overview || "No overview"}
-												</Text>
-												<View direction="row" align="center" justify="space-between" gap={2}>
-													<Button
-														size="small"
-														disabled={alreadyAdded || inWizard}
-														color={alreadyAdded || inWizard ? "neutral" : "primary"}
-														onClick={() => onAdd(r)}
-													>
-														{alreadyAdded ? "Added" : inWizard ? "In setup" : "Start setup"}
-													</Button>
-													<Text variant="caption-2" color="neutral-faded">
-														TMDB #{r.tmdbId}
+				{results.length > 0 ? (
+					<View gap={4}>
+						<Text variant="body-3" color="neutral-faded">
+							{results.length} result{results.length !== 1 ? "s" : ""} found
+						</Text>
+						<View direction="row" gap={4} wrap>
+							{results.slice(0, 12).map((r, index) => {
+								const alreadyAdded = tmdbIDsInLibrary.has(r.tmdbId);
+								const inWizard = wizardResult?.tmdbId === r.tmdbId;
+								return (
+									<View.Item
+										key={r.tmdbId}
+										columns={{ s: 6, m: 4, l: 3 }}
+										className="grid-item-animated"
+									>
+										<View
+											className={`search-result-card card-interactive ${alreadyAdded || inWizard ? "" : ""}`}
+											height="100%"
+										>
+											<View gap={0} height="100%">
+												{/* Poster */}
+												<View
+													className="poster-container"
+													height="200px"
+													width="100%"
+												>
+													{r.posterPath ? (
+														<Image
+															src={`${TMDB_IMG}${r.posterPath}`}
+															alt={r.name}
+														/>
+													) : (
+														<View
+															height="100%"
+															align="center"
+															justify="center"
+															backgroundColor="neutral-faded"
+														>
+															<TvIcon />
+														</View>
+													)}
+												</View>
+												{/* Content */}
+												<View padding={3} gap={2} grow>
+													<Text variant="body-2" weight="bold" maxLines={1}>
+														{r.name}
 													</Text>
+													<Text variant="caption-1" color="neutral-faded" maxLines={2}>
+														{r.overview || "No description available"}
+													</Text>
+													<View grow />
+													<View direction="row" align="center" justify="space-between" gap={2}>
+														{alreadyAdded ? (
+															<Badge color="positive" size="small">
+																In Library
+															</Badge>
+														) : inWizard ? (
+															<Badge color="primary" size="small">
+																Adding...
+															</Badge>
+														) : (
+															<Button
+																size="small"
+																color="primary"
+																onClick={() => onAdd(r)}
+															>
+																<View direction="row" align="center" gap={1}>
+																	<PlusIcon />
+																	<span>Add</span>
+																</View>
+															</Button>
+														)}
+														<Text variant="caption-2" color="neutral-faded">
+															#{r.tmdbId}
+														</Text>
+													</View>
 												</View>
 											</View>
 										</View>
-									</Card>
-								</View.Item>
-							);
-						})}
+									</View.Item>
+								);
+							})}
+						</View>
+					</View>
+				) : q.trim().length >= 2 && !searching ? (
+					<View paddingBlock={4}>
+						<Text variant="body-3" color="neutral-faded">
+							No shows found for "{q}"
+						</Text>
 					</View>
 				) : null}
 			</View>
 
-			<View gap={3}>
-				<Text variant="title-5">Your library</Text>
-				{libraryRows.length ? (
-					<View direction="row" gap={3} wrap>
-						{libraryRows.map((row) => (
-							<View.Item key={row.show.id} columns={{ s: 12, m: 6, l: 4 }}>
+			{/* Library Section */}
+			<View gap={5}>
+				<View direction="row" align="center" justify="space-between" gap={3}>
+					<View gap={1}>
+						<Text variant="featured-2" weight="bold">
+							Your Library
+						</Text>
+						<Text variant="body-3" color="neutral-faded">
+							{libraryRows.length} show{libraryRows.length !== 1 ? "s" : ""} in your collection
+						</Text>
+					</View>
+				</View>
+
+				{libraryRows.length > 0 ? (
+					<View direction="row" gap={4} wrap>
+						{libraryRows.map((row, index) => (
+							<View.Item
+								key={row.show.id}
+								columns={{ s: 6, m: 4, l: 3 }}
+								className="grid-item-animated"
+							>
 								<Link
 									to="/shows/$showId"
 									params={{ showId: row.show.id }}
-									style={{ textDecoration: "none" }}
+									style={{ textDecoration: "none", display: "block", height: "100%" }}
 								>
-									<Card>
-										<View direction="row" gap={3}>
+									<View className="library-card card-interactive" height="100%">
+										<View gap={0} height="100%">
+											{/* Poster */}
 											<View
-												width="56px"
-												height="80px"
-												borderRadius="small"
-												overflow="hidden"
-												backgroundColor="neutral-faded"
+												className="poster-container"
+												height="200px"
+												width="100%"
 											>
 												{row.show.posterPath ? (
 													<Image
 														src={`${TMDB_IMG}${row.show.posterPath}`}
-														alt=""
-														width="56px"
-														height="80px"
+														alt={row.show.name}
 													/>
-												) : null}
+												) : (
+													<View
+														height="100%"
+														align="center"
+														justify="center"
+														backgroundColor="neutral-faded"
+													>
+														<TvIcon />
+													</View>
+												)}
 											</View>
-											<View grow gap={1}>
-												<Text variant="body-2" weight="medium" maxLines={1}>
+											{/* Content */}
+											<View padding={3} gap={2} grow>
+												<Text variant="body-2" weight="bold" maxLines={1}>
 													{row.show.name}
 												</Text>
 												<View direction="row" gap={1} align="center" wrap>
-													<Badge size="small">{row.show.enrichState}</Badge>
-													<Badge size="small">{row.watchStatus ?? "plan_to_watch"}</Badge>
-													<Text variant="caption-2" color="neutral-faded">
-														TMDB #{row.show.tmdbId}
-													</Text>
+													<Badge
+														size="small"
+														color={row.show.enrichState === "ready" ? "positive" : row.show.enrichState === "error" ? "critical" : "neutral"}
+													>
+														{row.show.enrichState}
+													</Badge>
+													<Badge size="small" color="neutral">
+														{formatWatchStatus(row.watchStatus)}
+													</Badge>
 												</View>
+												<View grow />
 												{row.setupCompletedAt ? (
-													<Text variant="caption-1" color="positive">
-														Setup completed
-													</Text>
+													<View direction="row" align="center" gap={1}>
+														<View
+															width="6px"
+															height="6px"
+															borderRadius="large"
+															backgroundColor="positive"
+														/>
+														<Text variant="caption-2" color="positive">
+															Setup complete
+														</Text>
+													</View>
 												) : (
-													<Text variant="caption-1" color="warning">
-														Setup draft in progress
-													</Text>
+													<View direction="row" align="center" gap={1}>
+														<View
+															width="6px"
+															height="6px"
+															borderRadius="large"
+															backgroundColor="warning"
+														/>
+														<Text variant="caption-2" color="warning">
+															In progress
+														</Text>
+													</View>
 												)}
-												{row.show.enrichError ? (
-													<Text variant="caption-1" color="critical" maxLines={2}>
-														{row.show.enrichError}
-													</Text>
-												) : null}
 											</View>
 										</View>
-									</Card>
+									</View>
 								</Link>
 							</View.Item>
 						))}
 					</View>
 				) : (
-					<Text variant="body-3" color="neutral-faded">
-						No shows yet. Search above and click "Start setup".
-					</Text>
+					<View className="empty-state">
+						<View align="center" gap={3}>
+							<TvIcon />
+							<View gap={1}>
+								<Text variant="body-2" weight="medium">Your library is empty</Text>
+								<Text variant="body-3" color="neutral-faded">
+									Search for shows above to start building your collection
+								</Text>
+							</View>
+						</View>
+					</View>
 				)}
 			</View>
 		</View>
@@ -624,4 +793,9 @@ function dateInputToMs(value: string) {
 
 	const ms = Date.parse(`${trimmed}T00:00:00`);
 	return Number.isNaN(ms) ? null : ms;
+}
+
+function formatWatchStatus(status: string | null | undefined): string {
+	if (!status) return "Plan to watch";
+	return status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
