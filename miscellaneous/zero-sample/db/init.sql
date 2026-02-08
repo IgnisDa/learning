@@ -3,8 +3,6 @@
 -- Notes
 -- - zero-cache requires logical replication; ensure `wal_level=logical`.
 -- - This is a POC schema (no down migrations / no fancy constraints).
--- - On Fly MPG, `FOR TABLES IN SCHEMA` publications require superuser.
---   This script rebuilds `zero_data` as a table-list publication instead.
 
 CREATE TABLE IF NOT EXISTS app_user (
   id text PRIMARY KEY,
@@ -139,24 +137,3 @@ ALTER TABLE IF EXISTS user_show
 
 ALTER TABLE IF EXISTS user_show
   ADD COLUMN IF NOT EXISTS setup_completed_at bigint;
-
--- Rebuild publication with all current public tables.
--- Re-run this script after adding new tables that should replicate through Zero.
-DROP PUBLICATION IF EXISTS zero_data;
-
-DO $$
-DECLARE
-  table_list text;
-BEGIN
-  SELECT string_agg(format('%I.%I', schemaname, tablename), ', ')
-    INTO table_list
-  FROM pg_tables
-  WHERE schemaname = 'public';
-
-  IF table_list IS NULL THEN
-    RAISE NOTICE 'Skipping publication creation: no tables in public schema';
-    RETURN;
-  END IF;
-
-  EXECUTE 'CREATE PUBLICATION zero_data FOR TABLE ' || table_list;
-END $$;
