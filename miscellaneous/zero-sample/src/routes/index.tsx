@@ -6,6 +6,17 @@ import { useAppForm } from "~/components/forms/app-form";
 import { getErrorMessage } from "~/utils/error-message";
 import { mutators } from "~/zero/mutators";
 import { queries } from "~/zero/queries";
+import {
+	View,
+	Text,
+	Card,
+	Button,
+	TextField,
+	Badge,
+	Alert,
+	Image,
+	Loader,
+} from "reshaped";
 
 export const Route = createFileRoute("/")({
 	component: Home,
@@ -270,311 +281,329 @@ function Home() {
 	};
 
 	return (
-		<div className="p-4 space-y-8">
+		<View padding={4} gap={8}>
 			{wizardResult ? (
-				<div className="p-4 space-y-3 bg-white border rounded-lg shadow-sm dark:bg-gray-900">
-					<div className="flex flex-wrap items-start justify-between gap-2">
-						<div>
-							<h2 className="text-lg font-semibold">Add show setup</h2>
-							<div className="text-sm text-gray-600 dark:text-gray-400">
-								{wizardResult.name} - Step {wizardStep} of 3
-							</div>
-						</div>
-						<button
-							type="button"
-							onClick={onCancelWizard}
-							className="px-2 py-1 text-sm bg-white border rounded-md hover:bg-gray-50 dark:bg-gray-950"
-						>
-							Cancel
-						</button>
-					</div>
+				<Card>
+					<View gap={3}>
+						<View direction="row" align="start" justify="space-between" gap={2} wrap>
+							<View>
+								<Text variant="title-6">{`Add show setup`}</Text>
+								<Text variant="body-3" color="neutral-faded">
+									{wizardResult.name} - Step {wizardStep} of 3
+								</Text>
+							</View>
+							<Button
+								variant="outline"
+								size="small"
+								onClick={onCancelWizard}
+							>
+								Cancel
+							</Button>
+						</View>
 
-					{wizardStep === 1 ? (
-						<form
-							className="space-y-3"
-							onSubmit={(e) => {
-								e.preventDefault();
-								e.stopPropagation();
-								void step1Form.handleSubmit();
-							}}
-						>
-							<step1Form.AppField name="watchStatus">
-								{(field) => (
-									<field.SelectField
-										label="Watch status"
-										options={WATCH_STATUS_OPTIONS}
-										className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-									/>
-								)}
-							</step1Form.AppField>
-							<step1Form.AppField name="startedDate">
-								{(field) => (
-									<field.TextInputField
-										label="Started date (optional)"
-										type="date"
-										className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-									/>
-								)}
-							</step1Form.AppField>
-							<step1Form.AppForm>
-								<step1Form.SubmitButton
-									disabled={wizardSubmitting}
-									idleLabel="Save and continue"
-									submittingLabel="Saving..."
-									className="px-3 text-sm font-medium text-white bg-blue-600 rounded-md h-9 hover:bg-blue-500 disabled:opacity-60"
-								/>
-							</step1Form.AppForm>
-						</form>
-					) : null}
+						{wizardStep === 1 ? (
+							<form
+								onSubmit={(e) => {
+									e.preventDefault();
+									e.stopPropagation();
+									void step1Form.handleSubmit();
+								}}
+							>
+								<View gap={3}>
+									<step1Form.AppField name="watchStatus">
+										{(field) => (
+											<field.SelectField
+												label="Watch status"
+												options={WATCH_STATUS_OPTIONS}
+											/>
+										)}
+									</step1Form.AppField>
+									<step1Form.AppField name="startedDate">
+										{(field) => (
+											<field.TextInputField
+												label="Started date (optional)"
+												type="date"
+											/>
+										)}
+									</step1Form.AppField>
+									<step1Form.AppForm>
+										<step1Form.SubmitButton
+											disabled={wizardSubmitting}
+											idleLabel="Save and continue"
+											submittingLabel="Saving..."
+										/>
+									</step1Form.AppForm>
+								</View>
+							</form>
+						) : null}
 
-					{wizardStep === 2 ? (
-						<form
-							className="space-y-3"
-							onSubmit={(e) => {
-								e.preventDefault();
-								e.stopPropagation();
-								void step2Form.handleSubmit();
-							}}
-						>
-							<div className="grid gap-3 sm:grid-cols-2">
-								<step2Form.AppField name="currentSeason">
-									{(field) => (
-						<field.TextInputField
-							label="Current season (optional)"
-							type="number"
-							className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-						/>
-									)}
-								</step2Form.AppField>
-								<step2Form.AppField name="currentEpisode">
-									{(field) => (
-						<field.TextInputField
-							label="Current episode (optional)"
-							type="number"
-							className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-						/>
-									)}
-								</step2Form.AppField>
-							</div>
-							<step2Form.AppField name="targetFinishDate">
-								{(field) => (
-									<field.TextInputField
-										label="Target finish date (optional)"
-										type="date"
-										className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-									/>
-								)}
-							</step2Form.AppField>
-							<step2Form.AppForm>
-								<step2Form.SubmitButton
-									disabled={wizardSubmitting}
-									idleLabel="Save and continue"
-									submittingLabel="Saving..."
-									className="px-3 text-sm font-medium text-white bg-blue-600 rounded-md h-9 hover:bg-blue-500 disabled:opacity-60"
-								/>
-							</step2Form.AppForm>
-						</form>
-					) : null}
+						{wizardStep === 2 ? (
+							<form
+								onSubmit={(e) => {
+									e.preventDefault();
+									e.stopPropagation();
+									void step2Form.handleSubmit();
+								}}
+							>
+								<View gap={3}>
+									<View direction={{ s: "column", m: "row" }} gap={3}>
+										<View.Item columns={{ s: 12, m: 6 }}>
+											<step2Form.AppField name="currentSeason">
+												{(field) => (
+													<field.TextInputField
+														label="Current season (optional)"
+														type="number"
+													/>
+												)}
+											</step2Form.AppField>
+										</View.Item>
+										<View.Item columns={{ s: 12, m: 6 }}>
+											<step2Form.AppField name="currentEpisode">
+												{(field) => (
+													<field.TextInputField
+														label="Current episode (optional)"
+														type="number"
+													/>
+												)}
+											</step2Form.AppField>
+										</View.Item>
+									</View>
+									<step2Form.AppField name="targetFinishDate">
+										{(field) => (
+											<field.TextInputField
+												label="Target finish date (optional)"
+												type="date"
+											/>
+										)}
+									</step2Form.AppField>
+									<step2Form.AppForm>
+										<step2Form.SubmitButton
+											disabled={wizardSubmitting}
+											idleLabel="Save and continue"
+											submittingLabel="Saving..."
+										/>
+									</step2Form.AppForm>
+								</View>
+							</form>
+						) : null}
 
-					{wizardStep === 3 ? (
-						<form
-							className="space-y-3"
-							onSubmit={(e) => {
-								e.preventDefault();
-								e.stopPropagation();
-								void step3Form.handleSubmit();
-							}}
-						>
-							<step3Form.AppField name="rating">
-								{(field) => (
-									<field.TextInputField
-										label="Rating (1-10, optional)"
-										type="number"
-										className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-									/>
-								)}
-							</step3Form.AppField>
-							<step3Form.AppField name="isFavorite">
-								{(field) => (
-									<field.CheckboxField label="Favorite show" />
-								)}
-							</step3Form.AppField>
-							<step3Form.AppField name="notes">
-								{(field) => (
-									<field.TextareaField
-										label="Notes (optional)"
-										rows={4}
-										className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-									/>
-								)}
-							</step3Form.AppField>
-							<step3Form.AppForm>
-								<step3Form.SubmitButton
-									disabled={wizardSubmitting}
-									idleLabel="Finish setup"
-									submittingLabel="Saving..."
-									className="px-3 text-sm font-medium text-white bg-blue-600 rounded-md h-9 hover:bg-blue-500 disabled:opacity-60"
-								/>
-							</step3Form.AppForm>
-						</form>
-					) : null}
+						{wizardStep === 3 ? (
+							<form
+								onSubmit={(e) => {
+									e.preventDefault();
+									e.stopPropagation();
+									void step3Form.handleSubmit();
+								}}
+							>
+								<View gap={3}>
+									<step3Form.AppField name="rating">
+										{(field) => (
+											<field.TextInputField
+												label="Rating (1-10, optional)"
+												type="number"
+											/>
+										)}
+									</step3Form.AppField>
+									<step3Form.AppField name="isFavorite">
+										{(field) => (
+											<field.CheckboxField label="Favorite show" />
+										)}
+									</step3Form.AppField>
+									<step3Form.AppField name="notes">
+										{(field) => (
+											<field.TextareaField
+												label="Notes (optional)"
+												rows={4}
+											/>
+										)}
+									</step3Form.AppField>
+									<step3Form.AppForm>
+										<step3Form.SubmitButton
+											disabled={wizardSubmitting}
+											idleLabel="Finish setup"
+											submittingLabel="Saving..."
+										/>
+									</step3Form.AppForm>
+								</View>
+							</form>
+						) : null}
 
-					{wizardError ? (
-						<div className="text-sm text-red-700 dark:text-red-300">{wizardError}</div>
-					) : null}
-				</div>
+						{wizardError ? (
+							<Alert color="critical" title="Error">
+								{wizardError}
+							</Alert>
+						) : null}
+					</View>
+				</Card>
 			) : null}
 
 			{wizardSuccess ? (
-				<div className="p-3 text-sm text-green-800 border border-green-200 rounded-lg bg-green-50 dark:border-green-900/50 dark:bg-green-950/40 dark:text-green-200">
-					Saved setup for {wizardSuccess.showName}.{" "}
-					<Link
-						to="/shows/$showId"
-						params={{ showId: wizardSuccess.showId }}
-						className="underline"
-					>
-						Open details
-					</Link>
-				</div>
+				<Alert color="positive" title="Success">
+					<Text>
+						Saved setup for {wizardSuccess.showName}.{" "}
+						<Link
+							to="/shows/$showId"
+							params={{ showId: wizardSuccess.showId }}
+							style={{ textDecoration: "underline" }}
+						>
+							Open details
+						</Link>
+					</Text>
+				</Alert>
 			) : null}
 
-			<div className="space-y-2">
-				<h1 className="text-xl font-semibold">TMDB search</h1>
-				<div className="text-sm text-gray-600 dark:text-gray-400">
+			<View gap={3}>
+				<Text variant="title-5">TMDB search</Text>
+				<Text variant="body-3" color="neutral-faded">
 					Type 2+ characters. Start setup to save step 1, then continue through the
 					multi-step form.
-				</div>
+				</Text>
 
-				<input
-					className="w-full max-w-xl px-3 py-2 text-sm bg-white border rounded-md shadow-sm dark:bg-gray-900"
-					placeholder="Search TV shows…"
-					value={q}
-					onChange={(e) => setQ(e.target.value)}
-				/>
+				<View maxWidth="600px">
+					<TextField
+						name="search"
+						placeholder="Search TV shows..."
+						value={q}
+						onChange={({ value }) => setQ(value)}
+					/>
+				</View>
 
 				{searchError ? (
-					<div className="text-sm text-red-700 dark:text-red-300">
+					<Alert color="critical" title="Search Error">
 						{searchError}
-					</div>
+					</Alert>
 				) : null}
 
 				{searching ? (
-					<div className="text-sm text-gray-600 dark:text-gray-400">
-						Searching…
-					</div>
+					<View direction="row" gap={2} align="center">
+						<Loader size="small" ariaLabel="Searching" />
+						<Text variant="body-3" color="neutral-faded">Searching...</Text>
+					</View>
 				) : null}
 
 				{results.length ? (
-					<div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+					<View direction="row" gap={3} wrap>
 						{results.slice(0, 12).map((r) => {
 							const alreadyAdded = tmdbIDsInLibrary.has(r.tmdbId);
 							const inWizard = wizardResult?.tmdbId === r.tmdbId;
 							return (
-								<div
-									key={r.tmdbId}
-									className="flex gap-3 p-3 bg-white border rounded-lg shadow-sm dark:bg-gray-900"
-								>
-									<div className="h-20 overflow-hidden bg-gray-200 rounded w-14 shrink-0 dark:bg-gray-800">
-										{r.posterPath ? (
-											<img
-												alt=""
-												className="object-cover w-full h-full"
-												src={`${TMDB_IMG}${r.posterPath}`}
-												loading="lazy"
-											/>
-										) : null}
-									</div>
-									<div className="flex-1 min-w-0">
-										<div className="text-sm font-medium truncate">{r.name}</div>
-										<div className="text-xs text-gray-600 line-clamp-2 dark:text-gray-400">
-											{r.overview || "No overview"}
-										</div>
-										<div className="flex items-center justify-between gap-2 mt-2">
-											<button
-												disabled={alreadyAdded || inWizard}
-												className={
-													alreadyAdded || inWizard
-														? "rounded-md bg-gray-200 px-2 py-1 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-200"
-														: "rounded-md bg-blue-600 px-2 py-1 text-xs font-medium text-white hover:bg-blue-500"
-												}
-												onClick={() => onAdd(r)}
-												type="button"
+								<View.Item key={r.tmdbId} columns={{ s: 12, m: 6, l: 4 }}>
+									<Card>
+										<View direction="row" gap={3}>
+											<View
+												width="56px"
+												height="80px"
+												borderRadius="small"
+												overflow="hidden"
+												backgroundColor="neutral-faded"
 											>
-												{alreadyAdded ? "Added" : inWizard ? "In setup" : "Start setup"}
-											</button>
-											<div className="text-xs text-gray-500">
-												TMDB #{r.tmdbId}
-											</div>
-										</div>
-									</div>
-								</div>
+												{r.posterPath ? (
+													<Image
+														src={`${TMDB_IMG}${r.posterPath}`}
+														alt=""
+														width="56px"
+														height="80px"
+													/>
+												) : null}
+											</View>
+											<View grow gap={1}>
+												<Text variant="body-2" weight="medium" maxLines={1}>
+													{r.name}
+												</Text>
+												<Text variant="caption-1" color="neutral-faded" maxLines={2}>
+													{r.overview || "No overview"}
+												</Text>
+												<View direction="row" align="center" justify="space-between" gap={2}>
+													<Button
+														size="small"
+														disabled={alreadyAdded || inWizard}
+														color={alreadyAdded || inWizard ? "neutral" : "primary"}
+														onClick={() => onAdd(r)}
+													>
+														{alreadyAdded ? "Added" : inWizard ? "In setup" : "Start setup"}
+													</Button>
+													<Text variant="caption-2" color="neutral-faded">
+														TMDB #{r.tmdbId}
+													</Text>
+												</View>
+											</View>
+										</View>
+									</Card>
+								</View.Item>
 							);
 						})}
-					</div>
+					</View>
 				) : null}
-			</div>
+			</View>
 
-			<div className="space-y-2">
-				<h2 className="text-xl font-semibold">Your library</h2>
+			<View gap={3}>
+				<Text variant="title-5">Your library</Text>
 				{libraryRows.length ? (
-					<div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+					<View direction="row" gap={3} wrap>
 						{libraryRows.map((row) => (
-							<Link
-								key={row.show.id}
-								to="/shows/$showId"
-								params={{
-									showId: row.show.id,
-								}}
-								className="flex gap-3 p-3 bg-white border rounded-lg shadow-sm hover:border-gray-400 dark:bg-gray-900"
-							>
-								<div className="h-20 overflow-hidden bg-gray-200 rounded w-14 shrink-0 dark:bg-gray-800">
-									{row.show.posterPath ? (
-										<img
-											alt=""
-											className="object-cover w-full h-full"
-											src={`${TMDB_IMG}${row.show.posterPath}`}
-											loading="lazy"
-										/>
-									) : null}
-								</div>
-								<div className="flex-1 min-w-0">
-									<div className="text-sm font-medium truncate">{row.show.name}</div>
-									<div className="flex items-center gap-2 mt-1">
-										<span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700 dark:bg-gray-800 dark:text-gray-200">
-											{row.show.enrichState}
-										</span>
-										<span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700 dark:bg-gray-800 dark:text-gray-200">
-											{row.watchStatus ?? "plan_to_watch"}
-										</span>
-										<span className="text-xs text-gray-500">
-											TMDB #{row.show.tmdbId}
-										</span>
-									</div>
-									{row.setupCompletedAt ? (
-										<div className="mt-1 text-xs text-green-700 dark:text-green-300">
-											Setup completed
-										</div>
-									) : (
-										<div className="mt-1 text-xs text-amber-700 dark:text-amber-300">
-											Setup draft in progress
-										</div>
-									)}
-									{row.show.enrichError ? (
-										<div className="mt-1 text-xs text-red-700 line-clamp-2 dark:text-red-300">
-											{row.show.enrichError}
-										</div>
-									) : null}
-								</div>
-							</Link>
+							<View.Item key={row.show.id} columns={{ s: 12, m: 6, l: 4 }}>
+								<Link
+									to="/shows/$showId"
+									params={{ showId: row.show.id }}
+									style={{ textDecoration: "none" }}
+								>
+									<Card>
+										<View direction="row" gap={3}>
+											<View
+												width="56px"
+												height="80px"
+												borderRadius="small"
+												overflow="hidden"
+												backgroundColor="neutral-faded"
+											>
+												{row.show.posterPath ? (
+													<Image
+														src={`${TMDB_IMG}${row.show.posterPath}`}
+														alt=""
+														width="56px"
+														height="80px"
+													/>
+												) : null}
+											</View>
+											<View grow gap={1}>
+												<Text variant="body-2" weight="medium" maxLines={1}>
+													{row.show.name}
+												</Text>
+												<View direction="row" gap={1} align="center" wrap>
+													<Badge size="small">{row.show.enrichState}</Badge>
+													<Badge size="small">{row.watchStatus ?? "plan_to_watch"}</Badge>
+													<Text variant="caption-2" color="neutral-faded">
+														TMDB #{row.show.tmdbId}
+													</Text>
+												</View>
+												{row.setupCompletedAt ? (
+													<Text variant="caption-1" color="positive">
+														Setup completed
+													</Text>
+												) : (
+													<Text variant="caption-1" color="warning">
+														Setup draft in progress
+													</Text>
+												)}
+												{row.show.enrichError ? (
+													<Text variant="caption-1" color="critical" maxLines={2}>
+														{row.show.enrichError}
+													</Text>
+												) : null}
+											</View>
+										</View>
+									</Card>
+								</Link>
+							</View.Item>
 						))}
-					</div>
+					</View>
 				) : (
-					<div className="text-sm text-gray-600 dark:text-gray-400">
+					<Text variant="body-3" color="neutral-faded">
 						No shows yet. Search above and click "Start setup".
-					</div>
+					</Text>
 				)}
-			</div>
-		</div>
+			</View>
+		</View>
 	);
 }
 

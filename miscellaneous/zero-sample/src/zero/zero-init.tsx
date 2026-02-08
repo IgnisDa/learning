@@ -2,6 +2,7 @@ import { dropAllDatabases } from "@rocicorp/zero";
 import { ZeroProvider } from "@rocicorp/zero/react";
 import { Link } from "@tanstack/react-router";
 import * as React from "react";
+import { View, Text, Button, Card, Alert, Divider, Loader, Link as ReshapedLink } from "reshaped";
 import { useAppForm } from "~/components/forms/app-form";
 import { getErrorMessage } from "~/utils/error-message";
 import { mutators } from "./mutators";
@@ -70,32 +71,37 @@ export function ZeroInit(props: { children: React.ReactNode }) {
 
 	if (loading) {
 		return (
-			<div className="p-6 text-sm text-gray-600 dark:text-gray-400">
-				Loading...
-			</div>
+			<View padding={6} direction="row" gap={2} align="center">
+				<Loader size="small" ariaLabel="Loading" />
+				<Text variant="body-3" color="neutral-faded">
+					Loading...
+				</Text>
+			</View>
 		);
 	}
 
 	if (!session) {
 		return (
-			<div className="min-h-[60vh] p-6">
-				<div className="max-w-lg mx-auto space-y-6">
+			<View minHeight="60vh" padding={6}>
+				<View maxWidth="512px" gap={6}>
 					<Header email={null} onLogout={null} />
-					<div className="p-5 bg-white border rounded-lg shadow-sm dark:bg-gray-900">
-						<div className="text-lg font-semibold">Sign in</div>
-						<div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-							Email-only login (POC). This sets an HttpOnly cookie that
-							zero-cache forwards to the Zero query/mutate endpoints.
-						</div>
-						<LoginForm onSuccess={refreshSession} />
-						{authError ? (
-							<div className="mt-3 text-sm text-red-700 dark:text-red-300">
-								{authError}
-							</div>
-						) : null}
-					</div>
-				</div>
-			</div>
+					<Card>
+						<View gap={3}>
+							<Text variant="title-6">Sign in</Text>
+							<Text variant="body-3" color="neutral-faded">
+								Email-only login (POC). This sets an HttpOnly cookie that
+								zero-cache forwards to the Zero query/mutate endpoints.
+							</Text>
+							<LoginForm onSuccess={refreshSession} />
+							{authError ? (
+								<Alert color="critical" title="Auth Error">
+									{authError}
+								</Alert>
+							) : null}
+						</View>
+					</Card>
+				</View>
+			</View>
 		);
 	}
 
@@ -121,49 +127,44 @@ function Header(props: {
 	onLogout: (() => void) | null;
 }) {
 	return (
-		<div className="flex flex-col gap-3">
-			<div className="flex flex-wrap items-center justify-between gap-3">
-				<div className="flex items-baseline gap-3">
-					<Link
-						to="/"
-						activeProps={{
-							className: "font-bold",
-						}}
-						activeOptions={{ exact: true }}
-					>
-						Zero Sample
+		<View gap={3}>
+			<View direction="row" align="center" justify="space-between" gap={3} wrap>
+				<View direction="row" align="baseline" gap={3}>
+					<Link to="/">
+						<Text variant="body-2" weight="bold">
+							Zero Sample
+						</Text>
 					</Link>
-					<div className="text-sm text-gray-600 dark:text-gray-400">
+					<Text variant="body-3" color="neutral-faded">
 						TMDB shows + background enrichment
-					</div>
-				</div>
-				<div className="flex items-center gap-3">
+					</Text>
+				</View>
+				<View direction="row" align="center" gap={3}>
 					{props.email ? (
-						<div className="max-w-[16rem] truncate text-sm text-gray-600 dark:text-gray-400">
+						<Text variant="body-3" color="neutral-faded" maxLines={1}>
 							{props.email}
-						</div>
+						</Text>
 					) : null}
 					{props.onLogout ? (
-						<button
+						<Button
+							variant="outline"
+							size="small"
 							onClick={props.onLogout}
-							type="button"
-							className="px-2 py-1 text-sm bg-white border rounded-md hover:bg-gray-50 dark:bg-gray-900"
 						>
 							Logout
-						</button>
+						</Button>
 					) : null}
-					<a
-						className="text-sm text-blue-700 hover:underline dark:text-blue-400"
+					<ReshapedLink
 						href="https://zero.rocicorp.dev"
-						target="_blank"
-						rel="noreferrer"
+						color="primary"
+						attributes={{ target: "_blank", rel: "noreferrer" }}
 					>
 						Zero Docs
-					</a>
-				</div>
-			</div>
-			<hr />
-		</div>
+					</ReshapedLink>
+				</View>
+			</View>
+			<Divider />
+		</View>
 	);
 }
 
@@ -213,28 +214,31 @@ function LoginForm(props: { onSuccess: () => Promise<void> }) {
 				e.stopPropagation();
 				void form.handleSubmit();
 			}}
-			className="mt-4 space-y-3"
 		>
-			<form.AppField name="email">
-				{(field) => (
-					<field.TextInputField
-						label="Email"
-						type="email"
-						placeholder="you@example.com"
-						className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md shadow-sm dark:bg-gray-950"
-					/>
-				)}
-			</form.AppField>
-			<form.AppForm>
-				<form.SubmitButton
-					idleLabel="Sign in"
-					submittingLabel="Signing in..."
-					className="w-full px-3 text-sm font-medium text-white bg-blue-600 rounded-md h-9 hover:bg-blue-500 disabled:opacity-60"
-				/>
-			</form.AppForm>
-			{error ? (
-				<div className="text-sm text-red-700 dark:text-red-300">{error}</div>
-			) : null}
+			<View gap={3}>
+				<form.AppField name="email">
+					{(field) => (
+						<field.TextInputField
+							label="Email"
+							type="email"
+							placeholder="you@example.com"
+						/>
+					)}
+				</form.AppField>
+				<form.AppForm>
+					<View>
+						<form.SubmitButton
+							idleLabel="Sign in"
+							submittingLabel="Signing in..."
+						/>
+					</View>
+				</form.AppForm>
+				{error ? (
+					<Alert color="critical" title="Error">
+						{error}
+					</Alert>
+				) : null}
+			</View>
 		</form>
 	);
 }

@@ -3,6 +3,7 @@ import {
 	createFormHookContexts,
 } from "@tanstack/react-form";
 import * as React from "react";
+import { TextField, TextArea, Select, Checkbox, Button, FormControl } from "reshaped";
 
 type SelectOption = {
 	label: string;
@@ -13,94 +14,82 @@ function TextInputField(props: {
 	label: string;
 	type?: React.HTMLInputTypeAttribute;
 	placeholder?: string;
-	className: string;
 }) {
 	const field = useFieldContext<string | number | null | undefined>();
 
 	return (
-		<label className="block">
-			<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-				{props.label}
-			</div>
-			<input
-				type={props.type}
+		<FormControl>
+			<FormControl.Label>{props.label}</FormControl.Label>
+			<TextField
+				name={field.name}
+				inputAttributes={{ type: props.type }}
 				placeholder={props.placeholder}
-				className={props.className}
-				value={field.state.value ?? ""}
+				value={String(field.state.value ?? "")}
 				onBlur={field.handleBlur}
-				onChange={(e) => field.handleChange(e.target.value)}
+				onChange={({ value }) => field.handleChange(value)}
 			/>
-		</label>
+		</FormControl>
 	);
 }
 
 function SelectField(props: {
 	label: string;
 	options: Array<SelectOption>;
-	className: string;
 }) {
 	const field = useFieldContext<string>();
 
 	return (
-		<label className="block">
-			<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-				{props.label}
-			</div>
-			<select
-				className={props.className}
+		<FormControl>
+			<FormControl.Label>{props.label}</FormControl.Label>
+			<Select
+				name={field.name}
 				value={field.state.value}
-				onBlur={field.handleBlur}
-				onChange={(e) => field.handleChange(e.target.value)}
+				onChange={({ value }) => field.handleChange(value)}
 			>
 				{props.options.map((option) => (
 					<option key={option.value} value={option.value}>
 						{option.label}
 					</option>
 				))}
-			</select>
-		</label>
+			</Select>
+		</FormControl>
 	);
 }
 
-function TextareaField(props: { label: string; rows?: number; className: string }) {
+function TextareaField(props: { label: string; rows?: number }) {
 	const field = useFieldContext<string>();
 
 	return (
-		<label className="block">
-			<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-				{props.label}
-			</div>
-			<textarea
-				rows={props.rows}
-				className={props.className}
+		<FormControl>
+			<FormControl.Label>{props.label}</FormControl.Label>
+			<TextArea
+				name={field.name}
+				inputAttributes={{ rows: props.rows }}
 				value={field.state.value}
 				onBlur={field.handleBlur}
-				onChange={(e) => field.handleChange(e.target.value)}
+				onChange={({ value }) => field.handleChange(value)}
 			/>
-		</label>
+		</FormControl>
 	);
 }
 
-function CheckboxField(props: { label: string; className?: string }) {
+function CheckboxField(props: { label: string }) {
 	const field = useFieldContext<boolean>();
 
 	return (
-		<label className={props.className ?? "flex items-center gap-2 text-sm"}>
-			<input
-				type="checkbox"
-				checked={Boolean(field.state.value)}
-				onBlur={field.handleBlur}
-				onChange={(e) => field.handleChange(e.target.checked)}
-			/>
+		<Checkbox
+			name={field.name}
+			checked={Boolean(field.state.value)}
+			onChange={({ checked }) => field.handleChange(checked)}
+		>
 			{props.label}
-		</label>
+		</Checkbox>
 	);
 }
 
 function SubmitButton(props: {
 	idleLabel: string;
 	submittingLabel: string;
-	className: string;
 	disabled?: boolean;
 }) {
 	const form = useFormContext();
@@ -108,13 +97,13 @@ function SubmitButton(props: {
 	return (
 		<form.Subscribe selector={(state) => state.isSubmitting}>
 			{(isSubmitting) => (
-				<button
+				<Button
 					type="submit"
 					disabled={props.disabled || isSubmitting}
-					className={props.className}
+					color="primary"
 				>
 					{isSubmitting ? props.submittingLabel : props.idleLabel}
-				</button>
+				</Button>
 			)}
 		</form.Subscribe>
 	);

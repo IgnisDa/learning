@@ -6,6 +6,7 @@ import {
   useRouter,
 } from '@tanstack/react-router'
 import type { ErrorComponentProps } from '@tanstack/react-router'
+import { View, Button } from 'reshaped'
 
 export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
   const router = useRouter()
@@ -17,37 +18,32 @@ export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
   console.error('DefaultCatchBoundary Error:', error)
 
   return (
-    <div className="min-w-0 flex-1 p-4 flex flex-col items-center justify-center gap-6">
+    <View padding={4} grow align="center" justify="center" gap={6}>
       <ErrorComponent error={error} />
-      <div className="flex gap-2 items-center flex-wrap">
-        <button
+      <View direction="row" gap={2} align="center" wrap>
+        <Button
           onClick={() => {
             router.invalidate()
           }}
-          className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded-sm text-white uppercase font-extrabold`}
         >
           Try Again
-        </button>
+        </Button>
         {isRoot ? (
-          <Link
-            to="/"
-            className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded-sm text-white uppercase font-extrabold`}
-          >
-            Home
+          <Link to="/">
+            <Button variant="outline">Home</Button>
           </Link>
         ) : (
-          <Link
-            to="/"
-            className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded-sm text-white uppercase font-extrabold`}
+          <Button
+            variant="outline"
             onClick={(e) => {
               e.preventDefault()
               window.history.back()
             }}
           >
             Go Back
-          </Link>
+          </Button>
         )}
-      </div>
-    </div>
+      </View>
+    </View>
   )
 }

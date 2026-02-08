@@ -6,6 +6,20 @@ import { useAppForm } from "~/components/forms/app-form";
 import { getErrorMessage } from "~/utils/error-message";
 import { mutators } from "~/zero/mutators";
 import { queries } from "~/zero/queries";
+import {
+	View,
+	Text,
+	Card,
+	Button,
+	Badge,
+	Alert,
+	Image,
+	Tabs,
+	Avatar,
+	Divider,
+	Accordion,
+	Loader,
+} from "reshaped";
 
 const TMDB_POSTER = "https://image.tmdb.org/t/p/w185";
 const TMDB_PROFILE = "https://image.tmdb.org/t/p/w92";
@@ -160,519 +174,510 @@ function ShowDetails() {
 
 	if (!show && detailsResult.type === "complete") {
 		return (
-			<div className="p-4">
-				<Link
-					to="/"
-					className="text-sm text-blue-700 hover:underline dark:text-blue-400"
-				>
-					&larr; Back
+			<View padding={4}>
+				<Link to="/">
+					<Text variant="body-3" color="primary">
+						&larr; Back
+					</Text>
 				</Link>
-				<div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
-					Show not found (or not in your library).
-				</div>
-			</div>
+				<View paddingTop={4}>
+					<Text variant="body-3" color="neutral-faded">
+						Show not found (or not in your library).
+					</Text>
+				</View>
+			</View>
 		);
 	}
 
 	if (!show) {
 		return (
-			<div className="p-4">
-				<Link
-					to="/"
-					className="text-sm text-blue-700 hover:underline dark:text-blue-400"
-				>
-					&larr; Back
+			<View padding={4}>
+				<Link to="/">
+					<Text variant="body-3" color="primary">
+						&larr; Back
+					</Text>
 				</Link>
-				<div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
-					Loading...
-				</div>
-			</div>
+				<View paddingTop={4} direction="row" gap={2} align="center">
+					<Loader size="small" ariaLabel="Loading show" />
+					<Text variant="body-3" color="neutral-faded">
+						Loading...
+					</Text>
+				</View>
+			</View>
 		);
 	}
 
 	return (
-		<div className="p-4 space-y-8">
-			<Link
-				to="/"
-				className="text-sm text-blue-700 hover:underline dark:text-blue-400"
-			>
-				&larr; Back
+		<View padding={4} gap={8}>
+			<Link to="/">
+				<Text variant="body-3" color="primary">
+					&larr; Back
+				</Text>
 			</Link>
 
-			<div className="flex flex-col gap-4 sm:flex-row">
-				<div className="w-32 overflow-hidden bg-gray-200 rounded h-44 shrink-0 dark:bg-gray-800">
+			<View direction={{ s: "column", m: "row" }} gap={4}>
+				<View
+					width="128px"
+					height="176px"
+					borderRadius="medium"
+					overflow="hidden"
+					backgroundColor="neutral-faded"
+				>
 					{show.posterPath ? (
-						<img
-							alt=""
-							className="object-cover w-full h-full"
+						<Image
 							src={`${TMDB_POSTER}${show.posterPath}`}
-							loading="lazy"
+							alt=""
+							width="128px"
+							height="176px"
 						/>
 					) : null}
-				</div>
+				</View>
 
-				<div className="flex-1 min-w-0 space-y-2">
-					<div className="flex flex-wrap items-start justify-between gap-3">
-						<div className="min-w-0">
-							<h1 className="text-2xl font-semibold truncate">{show.name}</h1>
-							<div className="flex flex-wrap items-center gap-2 mt-1">
-								<span className="px-2 py-1 text-xs text-gray-700 bg-gray-100 rounded dark:bg-gray-800 dark:text-gray-200">
-									{show.enrichState}
-								</span>
-								<span className="text-xs text-gray-500">
+				<View grow gap={2}>
+					<View direction="row" align="start" justify="space-between" gap={3} wrap>
+						<View gap={1}>
+							<Text variant="title-4" maxLines={1}>
+								{show.name}
+							</Text>
+							<View direction="row" gap={2} align="center" wrap>
+								<Badge>{show.enrichState}</Badge>
+								<Text variant="caption-1" color="neutral-faded">
 									TMDB #{show.tmdbId}
-								</span>
-							</div>
-						</div>
+								</Text>
+							</View>
+						</View>
 
-						<button
-							className="px-3 text-sm font-medium text-white bg-blue-600 rounded-md h-9 hover:bg-blue-500"
-							onClick={onEnrich}
-							type="button"
-						>
+						<Button color="primary" onClick={onEnrich}>
 							Re-enrich
-						</button>
-					</div>
+						</Button>
+					</View>
 
 					{show.enrichError ? (
-						<div className="p-3 text-sm text-red-800 border border-red-200 rounded-md bg-red-50 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200">
+						<Alert color="critical" title="Enrichment Error">
 							{show.enrichError}
-						</div>
+						</Alert>
 					) : null}
 
-					<div className="text-sm text-gray-700 dark:text-gray-300">
+					<Text variant="body-3" color="neutral-faded">
 						{show.overview ?? "No overview."}
-					</div>
+					</Text>
 
 					{show.enrichState !== "ready" ? (
-						<div className="text-sm text-gray-600 dark:text-gray-400">
+						<Text variant="body-3" color="neutral-faded">
 							Waiting for worker to fetch seasons + cast/crew...
-						</div>
+						</Text>
 					) : null}
-				</div>
-			</div>
+				</View>
+			</View>
 
-			<div className="space-y-2">
-				<div className="border-b">
-					<div className="flex flex-wrap gap-2 pb-2">
-						<TabButton
-							active={activeTab === "tracking"}
-							onClick={() => setActiveTab("tracking")}
-							label="Your setup"
-						/>
-						<TabButton
-							active={activeTab === "seasons"}
-							onClick={() => setActiveTab("seasons")}
-							label="Seasons"
-						/>
-						<TabButton
-							active={activeTab === "cast"}
-							onClick={() => setActiveTab("cast")}
-							label="Cast"
-						/>
-						<TabButton
-							active={activeTab === "crew"}
-							onClick={() => setActiveTab("crew")}
-							label="Crew"
-						/>
-					</div>
-				</div>
+			<View gap={3}>
+				<Tabs
+					value={activeTab}
+					onChange={({ value }) => setActiveTab(value as typeof activeTab)}
+				>
+					<Tabs.List>
+						<Tabs.Item value="tracking">Your setup</Tabs.Item>
+						<Tabs.Item value="seasons">Seasons</Tabs.Item>
+						<Tabs.Item value="cast">Cast</Tabs.Item>
+						<Tabs.Item value="crew">Crew</Tabs.Item>
+					</Tabs.List>
+				</Tabs>
 
 				{activeTab === "tracking" ? (
-					<div className="space-y-3">
-						<div className="flex flex-wrap items-center justify-between gap-2">
-							<h2 className="text-lg font-semibold">Your setup details</h2>
+					<View gap={3}>
+						<View direction="row" align="center" justify="space-between" gap={2} wrap>
+							<Text variant="title-6">Your setup details</Text>
 							{isEditingSetup ? (
-								<button
-									type="button"
+								<Button
+									variant="outline"
+									size="small"
 									onClick={() => {
 										setIsEditingSetup(false);
 										setEditError(null);
 									}}
-									className="rounded-md border bg-white px-3 py-1.5 text-sm hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800"
 								>
 									Cancel
-								</button>
+								</Button>
 							) : (
-								<button
-									type="button"
+								<Button
+									color="primary"
+									size="small"
 									onClick={beginEditSetup}
-									className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-500"
 								>
 									Edit setup
-								</button>
+								</Button>
 							)}
-						</div>
+						</View>
 
 						{isEditingSetup ? (
-							<form
-								onSubmit={(e) => {
-									e.preventDefault();
-									e.stopPropagation();
-									void editForm.handleSubmit();
-								}}
-								className="p-4 space-y-3 bg-white border rounded-lg shadow-sm dark:bg-gray-900"
-							>
-								<div className="grid gap-3 sm:grid-cols-2">
-									<editForm.AppField name="watchStatus">
-										{(field) => (
-											<field.SelectField
-												label="Watch status"
-												options={WATCH_STATUS_OPTIONS}
-												className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-											/>
-										)}
-									</editForm.AppField>
-									<editForm.AppField name="startedDate">
-										{(field) => (
-											<field.TextInputField
-												label="Started date"
-												type="date"
-												className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-											/>
-										)}
-									</editForm.AppField>
-									<editForm.AppField name="currentSeason">
-										{(field) => (
-											<field.TextInputField
-												label="Current season"
-												type="number"
-												className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-											/>
-										)}
-									</editForm.AppField>
-									<editForm.AppField name="currentEpisode">
-										{(field) => (
-											<field.TextInputField
-												label="Current episode"
-												type="number"
-												className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-											/>
-										)}
-									</editForm.AppField>
-									<editForm.AppField name="targetFinishDate">
-										{(field) => (
-											<field.TextInputField
-												label="Target finish date"
-												type="date"
-												className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-											/>
-										)}
-									</editForm.AppField>
-									<editForm.AppField name="rating">
-										{(field) => (
-											<field.TextInputField
-												type="number"
-												label="Rating (1-10)"
-												className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-											/>
-										)}
-									</editForm.AppField>
-								</div>
+							<Card>
+								<form
+									onSubmit={(e) => {
+										e.preventDefault();
+										e.stopPropagation();
+										void editForm.handleSubmit();
+									}}
+								>
+									<View gap={3}>
+										<View direction={{ s: "column", m: "row" }} gap={3}>
+											<View.Item columns={{ s: 12, m: 6 }}>
+												<editForm.AppField name="watchStatus">
+													{(field) => (
+														<field.SelectField
+															label="Watch status"
+															options={WATCH_STATUS_OPTIONS}
+														/>
+													)}
+												</editForm.AppField>
+											</View.Item>
+											<View.Item columns={{ s: 12, m: 6 }}>
+												<editForm.AppField name="startedDate">
+													{(field) => (
+														<field.TextInputField
+															label="Started date"
+															type="date"
+														/>
+													)}
+												</editForm.AppField>
+											</View.Item>
+											<View.Item columns={{ s: 12, m: 6 }}>
+												<editForm.AppField name="currentSeason">
+													{(field) => (
+														<field.TextInputField
+															label="Current season"
+															type="number"
+														/>
+													)}
+												</editForm.AppField>
+											</View.Item>
+											<View.Item columns={{ s: 12, m: 6 }}>
+												<editForm.AppField name="currentEpisode">
+													{(field) => (
+														<field.TextInputField
+															label="Current episode"
+															type="number"
+														/>
+													)}
+												</editForm.AppField>
+											</View.Item>
+											<View.Item columns={{ s: 12, m: 6 }}>
+												<editForm.AppField name="targetFinishDate">
+													{(field) => (
+														<field.TextInputField
+															label="Target finish date"
+															type="date"
+														/>
+													)}
+												</editForm.AppField>
+											</View.Item>
+											<View.Item columns={{ s: 12, m: 6 }}>
+												<editForm.AppField name="rating">
+													{(field) => (
+														<field.TextInputField
+															type="number"
+															label="Rating (1-10)"
+														/>
+													)}
+												</editForm.AppField>
+											</View.Item>
+										</View>
 
-								<editForm.AppField name="isFavorite">
-									{(field) => <field.CheckboxField label="Favorite show" />}
-								</editForm.AppField>
+										<editForm.AppField name="isFavorite">
+											{(field) => <field.CheckboxField label="Favorite show" />}
+										</editForm.AppField>
 
-								<editForm.AppField name="notes">
-									{(field) => (
-										<field.TextareaField
-											label="Notes"
-											rows={4}
-											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-										/>
-									)}
-								</editForm.AppField>
+										<editForm.AppField name="notes">
+											{(field) => (
+												<field.TextareaField
+													label="Notes"
+													rows={4}
+												/>
+											)}
+										</editForm.AppField>
 
-								<editForm.AppForm>
-									<editForm.SubmitButton
-										idleLabel="Save changes"
-										submittingLabel="Saving..."
-										className="px-3 text-sm font-medium text-white bg-blue-600 rounded-md h-9 hover:bg-blue-500 disabled:opacity-60"
-									/>
-								</editForm.AppForm>
+										<editForm.AppForm>
+											<editForm.SubmitButton
+												idleLabel="Save changes"
+												submittingLabel="Saving..."
+											/>
+										</editForm.AppForm>
 
-								{editError ? (
-									<div className="text-sm text-red-700 dark:text-red-300">
-										{editError}
-									</div>
-								) : null}
-							</form>
+										{editError ? (
+											<Alert color="critical" title="Error">
+												{editError}
+											</Alert>
+										) : null}
+									</View>
+								</form>
+							</Card>
 						) : null}
 
-						<div className="p-4 bg-white border rounded-lg shadow-sm dark:bg-gray-900">
-							<div className="grid gap-3 sm:grid-cols-2">
-								<DetailRow
-									label="Watch status"
-									value={item?.watchStatus ?? "plan_to_watch"}
-								/>
-								<DetailRow
-									label="Started date"
-									value={formatMsDate(item?.startedAt ?? null)}
-								/>
-								<DetailRow
-									label="Current season"
-									value={item?.currentSeason ?? "-"}
-								/>
-								<DetailRow
-									label="Current episode"
-									value={item?.currentEpisode ?? "-"}
-								/>
-								<DetailRow
-									label="Target finish date"
-									value={formatMsDate(item?.targetFinishAt ?? null)}
-								/>
-								<DetailRow label="Rating" value={item?.rating ?? "-"} />
-								<DetailRow
-									label="Favorite"
-									value={item?.isFavorite ? "Yes" : "No"}
-								/>
-								<DetailRow label="Setup step" value={item?.setupStep ?? "-"} />
-								<DetailRow
-									label="Setup completed"
-									value={formatMsDate(item?.setupCompletedAt ?? null)}
-								/>
-							</div>
-							<div className="pt-3 mt-4 border-t">
-								<div className="text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
-									Notes
-								</div>
-								<div className="mt-1 text-sm text-gray-700 whitespace-pre-wrap dark:text-gray-300">
-									{item?.notes?.trim() ? item.notes : "-"}
-								</div>
-							</div>
-						</div>
-					</div>
+						<Card>
+							<View gap={3}>
+								<View direction={{ s: "column", m: "row" }} gap={3}>
+									<View.Item columns={{ s: 12, m: 6 }}>
+										<DetailRow
+											label="Watch status"
+											value={item?.watchStatus ?? "plan_to_watch"}
+										/>
+									</View.Item>
+									<View.Item columns={{ s: 12, m: 6 }}>
+										<DetailRow
+											label="Started date"
+											value={formatMsDate(item?.startedAt ?? null)}
+										/>
+									</View.Item>
+									<View.Item columns={{ s: 12, m: 6 }}>
+										<DetailRow
+											label="Current season"
+											value={item?.currentSeason ?? "-"}
+										/>
+									</View.Item>
+									<View.Item columns={{ s: 12, m: 6 }}>
+										<DetailRow
+											label="Current episode"
+											value={item?.currentEpisode ?? "-"}
+										/>
+									</View.Item>
+									<View.Item columns={{ s: 12, m: 6 }}>
+										<DetailRow
+											label="Target finish date"
+											value={formatMsDate(item?.targetFinishAt ?? null)}
+										/>
+									</View.Item>
+									<View.Item columns={{ s: 12, m: 6 }}>
+										<DetailRow label="Rating" value={item?.rating ?? "-"} />
+									</View.Item>
+									<View.Item columns={{ s: 12, m: 6 }}>
+										<DetailRow
+											label="Favorite"
+											value={item?.isFavorite ? "Yes" : "No"}
+										/>
+									</View.Item>
+									<View.Item columns={{ s: 12, m: 6 }}>
+										<DetailRow label="Setup step" value={item?.setupStep ?? "-"} />
+									</View.Item>
+									<View.Item columns={{ s: 12, m: 6 }}>
+										<DetailRow
+											label="Setup completed"
+											value={formatMsDate(item?.setupCompletedAt ?? null)}
+										/>
+									</View.Item>
+								</View>
+								<Divider />
+								<View>
+									<Text variant="caption-1" weight="bold" color="neutral-faded">
+										NOTES
+									</Text>
+									<View>
+										<pre style={{ fontFamily: "inherit", whiteSpace: "pre-wrap", margin: 0 }}>
+											<Text variant="body-3" as="span">
+												{item?.notes?.trim() ? item.notes : "-"}
+											</Text>
+										</pre>
+									</View>
+								</View>
+							</View>
+						</Card>
+					</View>
 				) : null}
 
 				{activeTab === "seasons" ? (
-					<div className="space-y-2">
-						<h2 className="text-lg font-semibold">Seasons</h2>
+					<View gap={3}>
+						<Text variant="title-6">Seasons</Text>
 						{seasons.length ? (
-							<div className="space-y-2">
+							<View gap={2}>
 								{seasons.map((s) => {
 									const isExpanded = expandedSeasons.has(s.id);
 									const episodes = s.episodes ?? [];
 									return (
-										<div
-											key={s.id}
-											className="bg-white border rounded-lg shadow-sm dark:bg-gray-900"
-										>
-											<button
-												type="button"
-												onClick={() => {
-													toggleSeason(s.id);
-												}}
-												className="flex w-full gap-3 p-3 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-800"
-											>
-												<div className="h-20 overflow-hidden bg-gray-200 rounded w-14 shrink-0 dark:bg-gray-800">
+								<Card key={s.id} padding={0} onClick={() => toggleSeason(s.id)}>
+							<View
+								direction="row"
+								gap={3}
+								padding={3}
+							>
+												<View
+													width="56px"
+													height="80px"
+													borderRadius="small"
+													overflow="hidden"
+													backgroundColor="neutral-faded"
+												>
 													{s.posterPath ? (
-														<img
-															alt=""
-															className="object-cover w-full h-full"
+														<Image
 															src={`${TMDB_POSTER}${s.posterPath}`}
-															loading="lazy"
+															alt=""
+															width="56px"
+															height="80px"
 														/>
 													) : null}
-												</div>
-												<div className="flex-1 min-w-0">
-													<div className="flex items-center gap-2">
-														<div className="font-medium truncate">
+												</View>
+												<View grow gap={1}>
+													<View direction="row" gap={2} align="center">
+														<Text variant="body-2" weight="medium" maxLines={1}>
 															S{s.seasonNumber}: {s.name}
-														</div>
-														<span className="text-gray-400">
+														</Text>
+														<Text variant="body-3" color="neutral-faded">
 															{isExpanded ? "▼" : "▶"}
-														</span>
-													</div>
-													<div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+														</Text>
+													</View>
+													<Text variant="caption-1" color="neutral-faded">
 														{s.episodeCount ? `${s.episodeCount} eps` : "-"}
 														{s.airDate ? ` | ${s.airDate}` : ""}
-													</div>
+													</Text>
 													{s.overview ? (
-														<div className="mt-2 text-xs text-gray-700 line-clamp-3 dark:text-gray-300">
+														<Text variant="caption-1" color="neutral-faded" maxLines={3}>
 															{s.overview}
-														</div>
+														</Text>
 													) : null}
-												</div>
-											</button>
+												</View>
+							</View>
 
 											{isExpanded && (
-												<div className="p-3 space-y-2 border-t">
+												<View borderTop padding={3} gap={2}>
 													{episodes.length > 0 ? (
 														episodes.map((ep) => (
-															<div
-																key={ep.id}
-																className="flex gap-3 p-3 text-sm border rounded-lg bg-gray-50 dark:bg-gray-800"
-															>
-																<div className="h-16 overflow-hidden bg-gray-200 rounded w-28 shrink-0 dark:bg-gray-700">
-																	{ep.stillPath ? (
-																		<img
-																			alt=""
-																			className="object-cover w-full h-full"
-																			src={`${TMDB_STILL}${ep.stillPath}`}
-																			loading="lazy"
-																		/>
-																	) : null}
-																</div>
-																<div className="flex-1 min-w-0">
-																	<div className="font-medium">
-																		{ep.episodeNumber}. {ep.name}
-																	</div>
-																	{ep.airDate && (
-																		<div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-																			{ep.airDate}
-																			{ep.runtime ? ` | ${ep.runtime} min` : ""}
-																		</div>
-																	)}
-																	{ep.overview ? (
-																		<div className="mt-2 text-xs text-gray-700 dark:text-gray-300">
-																			{ep.overview}
-																		</div>
-																	) : null}
-																</div>
-															</div>
+															<Card key={ep.id}>
+																<View direction="row" gap={3}>
+																	<View
+																		width="112px"
+																		height="64px"
+																		borderRadius="small"
+																		overflow="hidden"
+																		backgroundColor="neutral-faded"
+																	>
+																		{ep.stillPath ? (
+																			<Image
+																				src={`${TMDB_STILL}${ep.stillPath}`}
+																				alt=""
+																				width="112px"
+																				height="64px"
+																			/>
+																		) : null}
+																	</View>
+																	<View grow gap={1}>
+																		<Text variant="body-2" weight="medium">
+																			{ep.episodeNumber}. {ep.name}
+																		</Text>
+																		{ep.airDate && (
+																			<Text variant="caption-1" color="neutral-faded">
+																				{ep.airDate}
+																				{ep.runtime ? ` | ${ep.runtime} min` : ""}
+																			</Text>
+																		)}
+																		{ep.overview ? (
+																			<Text variant="caption-1" color="neutral-faded">
+																				{ep.overview}
+																			</Text>
+																		) : null}
+																	</View>
+																</View>
+															</Card>
 														))
 													) : (
-														<div className="text-sm text-gray-600 dark:text-gray-400">
+														<Text variant="body-3" color="neutral-faded">
 															No episodes found for this season. Try clicking
 															"Re-enrich" to fetch episode data.
-														</div>
+														</Text>
 													)}
-												</div>
+												</View>
 											)}
-										</div>
+										</Card>
 									);
 								})}
-							</div>
+							</View>
 						) : (
-							<div className="text-sm text-gray-600 dark:text-gray-400">
+							<Text variant="body-3" color="neutral-faded">
 								No seasons yet.
-							</div>
+							</Text>
 						)}
-					</div>
+					</View>
 				) : null}
 
 				{activeTab === "cast" ? (
-					<div className="space-y-2">
-						<h2 className="text-lg font-semibold">Cast</h2>
+					<View gap={3}>
+						<Text variant="title-6">Cast</Text>
 						{cast.length ? (
-							<div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+							<View direction="row" gap={2} wrap>
 								{cast.slice(0, 18).map((c) => (
-									<div
-										key={c.id}
-										className="flex gap-3 p-3 text-sm bg-white border rounded-lg shadow-sm dark:bg-gray-900"
-									>
-										<div className="w-10 h-10 overflow-hidden bg-gray-200 rounded-full shrink-0 dark:bg-gray-800">
-											{c.person?.profilePath ? (
-												<img
-													alt=""
-													className="object-cover w-full h-full"
-													src={`${TMDB_PROFILE}${c.person.profilePath}`}
-													loading="lazy"
+									<View.Item key={c.id} columns={{ s: 12, m: 6, l: 4 }}>
+										<Card>
+											<View direction="row" gap={3} align="center">
+												<Avatar
+													size={10}
+													src={c.person?.profilePath ? `${TMDB_PROFILE}${c.person.profilePath}` : undefined}
+													initials={getInitials(c.person?.name ?? "Unknown")}
 												/>
-											) : (
-												<div className="flex items-center justify-center w-full h-full text-xs font-semibold text-gray-700 dark:text-gray-200">
-													{getInitials(c.person?.name ?? "Unknown")}
-												</div>
-											)}
-										</div>
-										<div className="flex-1 min-w-0">
-											<div className="font-medium truncate">
-												{c.person?.name ?? "Unknown"}
-											</div>
-											<div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-												{c.character ?? "-"}
-											</div>
-										</div>
-									</div>
+												<View grow gap={0}>
+													<Text variant="body-2" weight="medium" maxLines={1}>
+														{c.person?.name ?? "Unknown"}
+													</Text>
+													<Text variant="caption-1" color="neutral-faded">
+														{c.character ?? "-"}
+													</Text>
+												</View>
+											</View>
+										</Card>
+									</View.Item>
 								))}
-							</div>
+							</View>
 						) : (
-							<div className="text-sm text-gray-600 dark:text-gray-400">
+							<Text variant="body-3" color="neutral-faded">
 								No cast yet.
-							</div>
+							</Text>
 						)}
-					</div>
+					</View>
 				) : null}
 
 				{activeTab === "crew" ? (
-					<div className="space-y-2">
-						<h2 className="text-lg font-semibold">Crew</h2>
+					<View gap={3}>
+						<Text variant="title-6">Crew</Text>
 						{crew.length ? (
-							<div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+							<View direction="row" gap={2} wrap>
 								{crew.slice(0, 18).map((c) => (
-									<div
-										key={c.id}
-										className="flex gap-3 p-3 text-sm bg-white border rounded-lg shadow-sm dark:bg-gray-900"
-									>
-										<div className="w-10 h-10 overflow-hidden bg-gray-200 rounded-full shrink-0 dark:bg-gray-800">
-											{c.person?.profilePath ? (
-												<img
-													alt=""
-													className="object-cover w-full h-full"
-													src={`${TMDB_PROFILE}${c.person.profilePath}`}
-													loading="lazy"
+									<View.Item key={c.id} columns={{ s: 12, m: 6, l: 4 }}>
+										<Card>
+											<View direction="row" gap={3} align="center">
+												<Avatar
+													size={10}
+													src={c.person?.profilePath ? `${TMDB_PROFILE}${c.person.profilePath}` : undefined}
+													initials={getInitials(c.person?.name ?? "Unknown")}
 												/>
-											) : (
-												<div className="flex items-center justify-center w-full h-full text-xs font-semibold text-gray-700 dark:text-gray-200">
-													{getInitials(c.person?.name ?? "Unknown")}
-												</div>
-											)}
-										</div>
-										<div className="flex-1 min-w-0">
-											<div className="font-medium truncate">
-												{c.person?.name ?? "Unknown"}
-											</div>
-											<div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-												{[c.department, c.job].filter(Boolean).join(" | ") ||
-													"-"}
-											</div>
-										</div>
-									</div>
+												<View grow gap={0}>
+													<Text variant="body-2" weight="medium" maxLines={1}>
+														{c.person?.name ?? "Unknown"}
+													</Text>
+													<Text variant="caption-1" color="neutral-faded">
+														{[c.department, c.job].filter(Boolean).join(" | ") ||
+															"-"}
+													</Text>
+												</View>
+											</View>
+										</Card>
+									</View.Item>
 								))}
-							</div>
+							</View>
 						) : (
-							<div className="text-sm text-gray-600 dark:text-gray-400">
+							<Text variant="body-3" color="neutral-faded">
 								No crew yet.
-							</div>
+							</Text>
 						)}
-					</div>
+					</View>
 				) : null}
-			</div>
-		</div>
-	);
-}
-
-function TabButton(props: {
-	active: boolean;
-	label: string;
-	onClick: () => void;
-}) {
-	return (
-		<button
-			type="button"
-			onClick={props.onClick}
-			className={
-				props.active
-					? "rounded-md border border-blue-300 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-300"
-					: "rounded-md border bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
-			}
-		>
-			{props.label}
-		</button>
+			</View>
+		</View>
 	);
 }
 
 function DetailRow(props: { label: string; value: string | number }) {
 	return (
-		<div>
-			<div className="text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
-				{props.label}
-			</div>
-			<div className="mt-1 text-sm text-gray-800 dark:text-gray-200">
-				{props.value}
-			</div>
-		</div>
+		<View>
+			<Text variant="caption-1" weight="bold" color="neutral-faded">
+				{props.label.toUpperCase()}
+			</Text>
+			<Text variant="body-3">{props.value}</Text>
+		</View>
 	);
 }
 

@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { Reshaped, View, Text, Loader } from "reshaped";
 import * as React from "react";
 import { DefaultCatchBoundary } from "~/components/DefaultCatchBoundary";
 import { NotFound } from "~/components/NotFound";
@@ -59,10 +60,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<HeadContent />
 			</head>
 			<body>
-				<ClientOnly>
-					<ZeroInit>{children}</ZeroInit>
-					<TanStackRouterDevtools position="bottom-right" />
-				</ClientOnly>
+				<Reshaped theme="reshaped">
+					<ClientOnly>
+						<ZeroInit>{children}</ZeroInit>
+						<TanStackRouterDevtools position="bottom-right" />
+					</ClientOnly>
+				</Reshaped>
 				<Scripts />
 			</body>
 		</html>
@@ -78,9 +81,9 @@ function ClientOnly(props: { children: React.ReactNode }) {
 
 	if (!mounted) {
 		return (
-			<div className="p-6 text-sm text-gray-600 dark:text-gray-400">
-				Loading...
-			</div>
+			<View padding={6} align="center" justify="center">
+				<Loader size="medium" ariaLabel="Loading application" />
+			</View>
 		);
 	}
 
