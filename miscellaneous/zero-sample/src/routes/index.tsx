@@ -1,8 +1,8 @@
 import { useQuery, useZero } from "@rocicorp/zero/react";
-import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { nanoid } from "nanoid";
 import * as React from "react";
+import { useAppForm } from "~/components/forms/app-form";
 import { mutators } from "~/zero/mutators";
 import { queries } from "~/zero/queries";
 
@@ -80,7 +80,7 @@ function Home() {
 		showName: string;
 	} | null>(null);
 
-	const step1Form = useForm({
+	const step1Form = useAppForm({
 		defaultValues: {
 			watchStatus: "plan_to_watch" as WatchStatus,
 			startedDate: "",
@@ -124,7 +124,7 @@ function Home() {
 		},
 	});
 
-	const step2Form = useForm({
+	const step2Form = useAppForm({
 		defaultValues: {
 			currentSeason: "",
 			currentEpisode: "",
@@ -162,7 +162,7 @@ function Home() {
 		},
 	});
 
-	const step3Form = useForm({
+	const step3Form = useAppForm({
 		defaultValues: {
 			rating: "",
 			isFavorite: false,
@@ -297,52 +297,32 @@ function Home() {
 								void step1Form.handleSubmit();
 							}}
 						>
-							<step1Form.Field name="watchStatus">
+							<step1Form.AppField name="watchStatus">
 								{(field) => (
-									<label className="block">
-										<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-											Watch status
-										</div>
-										<select
-											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) =>
-												field.handleChange(e.target.value as WatchStatus)
-											}
-										>
-											{WATCH_STATUS_OPTIONS.map((option) => (
-												<option key={option.value} value={option.value}>
-													{option.label}
-												</option>
-											))}
-										</select>
-									</label>
+									<field.SelectField
+										label="Watch status"
+										options={WATCH_STATUS_OPTIONS}
+										className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+									/>
 								)}
-							</step1Form.Field>
-							<step1Form.Field name="startedDate">
+							</step1Form.AppField>
+							<step1Form.AppField name="startedDate">
 								{(field) => (
-									<label className="block">
-										<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-											Started date (optional)
-										</div>
-										<input
-											type="date"
-											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-										/>
-									</label>
+									<field.TextInputField
+										label="Started date (optional)"
+										type="date"
+										className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+									/>
 								)}
-							</step1Form.Field>
-							<button
-								disabled={wizardSubmitting}
-								type="submit"
-								className="px-3 text-sm font-medium text-white bg-blue-600 rounded-md h-9 hover:bg-blue-500 disabled:opacity-60"
-							>
-								{wizardSubmitting ? "Saving..." : "Save and continue"}
-							</button>
+							</step1Form.AppField>
+							<step1Form.AppForm>
+								<step1Form.SubmitButton
+									disabled={wizardSubmitting}
+									idleLabel="Save and continue"
+									submittingLabel="Saving..."
+									className="px-3 text-sm font-medium text-white bg-blue-600 rounded-md h-9 hover:bg-blue-500 disabled:opacity-60"
+								/>
+							</step1Form.AppForm>
 						</form>
 					) : null}
 
@@ -356,64 +336,44 @@ function Home() {
 							}}
 						>
 							<div className="grid gap-3 sm:grid-cols-2">
-								<step2Form.Field name="currentSeason">
+								<step2Form.AppField name="currentSeason">
 									{(field) => (
-										<label className="block">
-											<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-												Current season (optional)
-											</div>
-											<input
-												type="number"
-												min={1}
-												className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-												value={field.state.value}
-												onBlur={field.handleBlur}
-												onChange={(e) => field.handleChange(e.target.value)}
-											/>
-										</label>
-									)}
-								</step2Form.Field>
-								<step2Form.Field name="currentEpisode">
-									{(field) => (
-										<label className="block">
-											<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-												Current episode (optional)
-											</div>
-											<input
-												type="number"
-												min={1}
-												className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-												value={field.state.value}
-												onBlur={field.handleBlur}
-												onChange={(e) => field.handleChange(e.target.value)}
-											/>
-										</label>
-									)}
-								</step2Form.Field>
-							</div>
-							<step2Form.Field name="targetFinishDate">
-								{(field) => (
-									<label className="block">
-										<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-											Target finish date (optional)
-										</div>
-										<input
-											type="date"
+										<field.TextInputField
+											label="Current season (optional)"
+											type="number"
+											min={1}
 											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
 										/>
-									</label>
+									)}
+								</step2Form.AppField>
+								<step2Form.AppField name="currentEpisode">
+									{(field) => (
+										<field.TextInputField
+											label="Current episode (optional)"
+											type="number"
+											min={1}
+											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+										/>
+									)}
+								</step2Form.AppField>
+							</div>
+							<step2Form.AppField name="targetFinishDate">
+								{(field) => (
+									<field.TextInputField
+										label="Target finish date (optional)"
+										type="date"
+										className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+									/>
 								)}
-							</step2Form.Field>
-							<button
-								disabled={wizardSubmitting}
-								type="submit"
-								className="px-3 text-sm font-medium text-white bg-blue-600 rounded-md h-9 hover:bg-blue-500 disabled:opacity-60"
-							>
-								{wizardSubmitting ? "Saving..." : "Save and continue"}
-							</button>
+							</step2Form.AppField>
+							<step2Form.AppForm>
+								<step2Form.SubmitButton
+									disabled={wizardSubmitting}
+									idleLabel="Save and continue"
+									submittingLabel="Saving..."
+									className="px-3 text-sm font-medium text-white bg-blue-600 rounded-md h-9 hover:bg-blue-500 disabled:opacity-60"
+								/>
+							</step2Form.AppForm>
 						</form>
 					) : null}
 
@@ -426,60 +386,39 @@ function Home() {
 								void step3Form.handleSubmit();
 							}}
 						>
-							<step3Form.Field name="rating">
+							<step3Form.AppField name="rating">
 								{(field) => (
-									<label className="block">
-										<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-											Rating (1-10, optional)
-										</div>
-										<input
-											type="number"
-											min={1}
-											max={10}
-											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-										/>
-									</label>
+									<field.TextInputField
+										label="Rating (1-10, optional)"
+										type="number"
+										min={1}
+										max={10}
+										className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+									/>
 								)}
-							</step3Form.Field>
-							<step3Form.Field name="isFavorite">
+							</step3Form.AppField>
+							<step3Form.AppField name="isFavorite">
 								{(field) => (
-									<label className="flex items-center gap-2 text-sm">
-										<input
-											type="checkbox"
-											checked={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.checked)}
-										/>
-										Favorite show
-									</label>
+									<field.CheckboxField label="Favorite show" />
 								)}
-							</step3Form.Field>
-							<step3Form.Field name="notes">
+							</step3Form.AppField>
+							<step3Form.AppField name="notes">
 								{(field) => (
-									<label className="block">
-										<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-											Notes (optional)
-										</div>
-										<textarea
-											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-											rows={4}
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-										/>
-									</label>
+									<field.TextareaField
+										label="Notes (optional)"
+										rows={4}
+										className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+									/>
 								)}
-							</step3Form.Field>
-							<button
-								disabled={wizardSubmitting}
-								type="submit"
-								className="px-3 text-sm font-medium text-white bg-blue-600 rounded-md h-9 hover:bg-blue-500 disabled:opacity-60"
-							>
-								{wizardSubmitting ? "Saving..." : "Finish setup"}
-							</button>
+							</step3Form.AppField>
+							<step3Form.AppForm>
+								<step3Form.SubmitButton
+									disabled={wizardSubmitting}
+									idleLabel="Finish setup"
+									submittingLabel="Saving..."
+									className="px-3 text-sm font-medium text-white bg-blue-600 rounded-md h-9 hover:bg-blue-500 disabled:opacity-60"
+								/>
+							</step3Form.AppForm>
 						</form>
 					) : null}
 

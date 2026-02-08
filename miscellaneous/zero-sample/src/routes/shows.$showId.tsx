@@ -1,8 +1,8 @@
 import { useQuery, useZero } from "@rocicorp/zero/react";
-import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { nanoid } from "nanoid";
 import * as React from "react";
+import { useAppForm } from "~/components/forms/app-form";
 import { mutators } from "~/zero/mutators";
 import { queries } from "~/zero/queries";
 
@@ -70,7 +70,7 @@ function ShowDetails() {
 	>("tracking");
 	const [isEditingSetup, setIsEditingSetup] = React.useState(false);
 	const [editError, setEditError] = React.useState<string | null>(null);
-	const editForm = useForm({
+	const editForm = useAppForm({
 		defaultValues: {
 			watchStatus: "plan_to_watch" as WatchStatus,
 			startedDate: "",
@@ -310,153 +310,89 @@ function ShowDetails() {
 								className="p-4 space-y-3 bg-white border rounded-lg shadow-sm dark:bg-gray-900"
 							>
 								<div className="grid gap-3 sm:grid-cols-2">
-									<editForm.Field name="watchStatus">
+									<editForm.AppField name="watchStatus">
 										{(field) => (
-											<label className="block">
-												<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-													Watch status
-												</div>
-												<select
-													className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-													value={field.state.value}
-													onBlur={field.handleBlur}
-													onChange={(e) =>
-														field.handleChange(e.target.value as WatchStatus)
-													}
-												>
-													{WATCH_STATUS_OPTIONS.map((option) => (
-														<option key={option.value} value={option.value}>
-															{option.label}
-														</option>
-													))}
-												</select>
-											</label>
+											<field.SelectField
+												label="Watch status"
+												options={WATCH_STATUS_OPTIONS}
+												className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+											/>
 										)}
-									</editForm.Field>
-									<editForm.Field name="startedDate">
+									</editForm.AppField>
+									<editForm.AppField name="startedDate">
 										{(field) => (
-											<label className="block">
-												<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-													Started date
-												</div>
-												<input
-													type="date"
-													className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-													value={field.state.value}
-													onBlur={field.handleBlur}
-													onChange={(e) => field.handleChange(e.target.value)}
-												/>
-											</label>
+											<field.TextInputField
+												label="Started date"
+												type="date"
+												className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+											/>
 										)}
-									</editForm.Field>
-									<editForm.Field name="currentSeason">
+									</editForm.AppField>
+									<editForm.AppField name="currentSeason">
 										{(field) => (
-											<label className="block">
-												<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-													Current season
-												</div>
-												<input
-													type="number"
-													min={1}
-													className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-													value={field.state.value}
-													onBlur={field.handleBlur}
-													onChange={(e) => field.handleChange(e.target.value)}
-												/>
-											</label>
+											<field.TextInputField
+												label="Current season"
+												type="number"
+												min={1}
+												className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+											/>
 										)}
-									</editForm.Field>
-									<editForm.Field name="currentEpisode">
+									</editForm.AppField>
+									<editForm.AppField name="currentEpisode">
 										{(field) => (
-											<label className="block">
-												<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-													Current episode
-												</div>
-												<input
-													type="number"
-													min={1}
-													className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-													value={field.state.value}
-													onBlur={field.handleBlur}
-													onChange={(e) => field.handleChange(e.target.value)}
-												/>
-											</label>
+											<field.TextInputField
+												label="Current episode"
+												type="number"
+												min={1}
+												className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+											/>
 										)}
-									</editForm.Field>
-									<editForm.Field name="targetFinishDate">
+									</editForm.AppField>
+									<editForm.AppField name="targetFinishDate">
 										{(field) => (
-											<label className="block">
-												<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-													Target finish date
-												</div>
-												<input
-													type="date"
-													className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-													value={field.state.value}
-													onBlur={field.handleBlur}
-													onChange={(e) => field.handleChange(e.target.value)}
-												/>
-											</label>
+											<field.TextInputField
+												label="Target finish date"
+												type="date"
+												className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+											/>
 										)}
-									</editForm.Field>
-									<editForm.Field name="rating">
+									</editForm.AppField>
+									<editForm.AppField name="rating">
 										{(field) => (
-											<label className="block">
-												<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-													Rating (1-10)
-												</div>
-												<input
-													type="number"
-													min={1}
-													max={10}
-													className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-													value={field.state.value}
-													onBlur={field.handleBlur}
-													onChange={(e) => field.handleChange(e.target.value)}
-												/>
-											</label>
+											<field.TextInputField
+												label="Rating (1-10)"
+												type="number"
+												min={1}
+												max={10}
+												className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+											/>
 										)}
-									</editForm.Field>
+									</editForm.AppField>
 								</div>
 
-								<editForm.Field name="isFavorite">
+								<editForm.AppField name="isFavorite">
 									{(field) => (
-										<label className="flex items-center gap-2 text-sm">
-											<input
-												type="checkbox"
-												checked={field.state.value}
-												onBlur={field.handleBlur}
-												onChange={(e) => field.handleChange(e.target.checked)}
-											/>
-											Favorite show
-										</label>
+										<field.CheckboxField label="Favorite show" />
 									)}
-								</editForm.Field>
+								</editForm.AppField>
 
-								<editForm.Field name="notes">
+								<editForm.AppField name="notes">
 									{(field) => (
-										<label className="block">
-											<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-												Notes
-											</div>
-											<textarea
-												className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
-												rows={4}
-												value={field.state.value}
-												onBlur={field.handleBlur}
-												onChange={(e) => field.handleChange(e.target.value)}
-											/>
-										</label>
+										<field.TextareaField
+											label="Notes"
+											rows={4}
+											className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
+										/>
 									)}
-								</editForm.Field>
+								</editForm.AppField>
 
-								<button
-									type="submit"
-									disabled={editForm.state.isSubmitting}
-									className="px-3 text-sm font-medium text-white bg-blue-600 rounded-md h-9 hover:bg-blue-500 disabled:opacity-60"
-								>
-									{editForm.state.isSubmitting ? "Saving..." : "Save changes"}
-								</button>
+								<editForm.AppForm>
+									<editForm.SubmitButton
+										idleLabel="Save changes"
+										submittingLabel="Saving..."
+										className="px-3 text-sm font-medium text-white bg-blue-600 rounded-md h-9 hover:bg-blue-500 disabled:opacity-60"
+									/>
+								</editForm.AppForm>
 
 								{editError ? (
 									<div className="text-sm text-red-700 dark:text-red-300">

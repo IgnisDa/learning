@@ -1,8 +1,8 @@
 import { dropAllDatabases } from "@rocicorp/zero";
 import { ZeroProvider } from "@rocicorp/zero/react";
-import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
 import * as React from "react";
+import { useAppForm } from "~/components/forms/app-form";
 import { mutators } from "./mutators";
 import { schema } from "./schema";
 
@@ -168,7 +168,7 @@ function Header(props: {
 
 function LoginForm(props: { onSuccess: () => Promise<void> }) {
 	const [error, setError] = React.useState<string | null>(null);
-	const form = useForm({
+	const form = useAppForm({
 		defaultValues: {
 			email: "",
 		},
@@ -214,31 +214,24 @@ function LoginForm(props: { onSuccess: () => Promise<void> }) {
 			}}
 			className="mt-4 space-y-3"
 		>
-			<form.Field name="email">
+			<form.AppField name="email">
 				{(field) => (
-					<label className="block">
-						<div className="text-xs font-medium text-gray-700 dark:text-gray-200">
-							Email
-						</div>
-						<input
-							className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md shadow-sm dark:bg-gray-950"
-							type="email"
-							placeholder="you@example.com"
-							value={field.state.value}
-							onBlur={field.handleBlur}
-							onChange={(e) => field.handleChange(e.target.value)}
-							required
-						/>
-					</label>
+					<field.TextInputField
+						label="Email"
+						type="email"
+						placeholder="you@example.com"
+						required
+						className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md shadow-sm dark:bg-gray-950"
+					/>
 				)}
-			</form.Field>
-			<button
-				disabled={form.state.isSubmitting}
-				type="submit"
-				className="w-full px-3 text-sm font-medium text-white bg-blue-600 rounded-md h-9 hover:bg-blue-500 disabled:opacity-60"
-			>
-				{form.state.isSubmitting ? "Signing in..." : "Sign in"}
-			</button>
+			</form.AppField>
+			<form.AppForm>
+				<form.SubmitButton
+					idleLabel="Sign in"
+					submittingLabel="Signing in..."
+					className="w-full px-3 text-sm font-medium text-white bg-blue-600 rounded-md h-9 hover:bg-blue-500 disabled:opacity-60"
+				/>
+			</form.AppForm>
 			{error ? (
 				<div className="text-sm text-red-700 dark:text-red-300">{error}</div>
 			) : null}
