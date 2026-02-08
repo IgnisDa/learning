@@ -4,6 +4,12 @@ import { createBuilder } from "@rocicorp/zero";
 export type EnrichState = "queued" | "running" | "ready" | "error";
 export type CreditKind = "cast" | "crew";
 export type OutboxStatus = "pending" | "running" | "done" | "error";
+export type WatchStatus =
+	| "plan_to_watch"
+	| "watching"
+	| "completed"
+	| "on_hold"
+	| "dropped";
 export type ZeroContext = { userID: string };
 
 const showTable = {
@@ -78,6 +84,64 @@ const userShowTable = {
 			optional: false,
 			customType: null as unknown as number,
 			serverName: "added_at",
+		},
+		watchStatus: {
+			type: "string",
+			optional: true,
+			customType: null as unknown as WatchStatus,
+			serverName: "watch_status",
+		},
+		startedAt: {
+			type: "number",
+			optional: true,
+			customType: null as unknown as number,
+			serverName: "started_at",
+		},
+		currentSeason: {
+			type: "number",
+			optional: true,
+			customType: null as unknown as number,
+			serverName: "current_season",
+		},
+		currentEpisode: {
+			type: "number",
+			optional: true,
+			customType: null as unknown as number,
+			serverName: "current_episode",
+		},
+		targetFinishAt: {
+			type: "number",
+			optional: true,
+			customType: null as unknown as number,
+			serverName: "target_finish_at",
+		},
+		rating: {
+			type: "number",
+			optional: true,
+			customType: null as unknown as number,
+		},
+		isFavorite: {
+			type: "boolean",
+			optional: true,
+			customType: null as unknown as boolean,
+			serverName: "is_favorite",
+		},
+		notes: {
+			type: "string",
+			optional: true,
+			customType: null as unknown as string,
+		},
+		setupStep: {
+			type: "number",
+			optional: true,
+			customType: null as unknown as number,
+			serverName: "setup_step",
+		},
+		setupCompletedAt: {
+			type: "number",
+			optional: true,
+			customType: null as unknown as number,
+			serverName: "setup_completed_at",
 		},
 	},
 	primaryKey: ["userId", "showId"],

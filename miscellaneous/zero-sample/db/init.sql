@@ -107,3 +107,33 @@ CREATE INDEX IF NOT EXISTS outbox_topic_status_idx
 
 CREATE INDEX IF NOT EXISTS outbox_status_idx
   ON outbox (status);
+
+ALTER TABLE IF EXISTS user_show
+  ADD COLUMN IF NOT EXISTS watch_status text;
+
+ALTER TABLE IF EXISTS user_show
+  ADD COLUMN IF NOT EXISTS started_at bigint;
+
+ALTER TABLE IF EXISTS user_show
+  ADD COLUMN IF NOT EXISTS current_season integer;
+
+ALTER TABLE IF EXISTS user_show
+  ADD COLUMN IF NOT EXISTS current_episode integer;
+
+ALTER TABLE IF EXISTS user_show
+  ADD COLUMN IF NOT EXISTS target_finish_at bigint;
+
+ALTER TABLE IF EXISTS user_show
+  ADD COLUMN IF NOT EXISTS rating integer;
+
+ALTER TABLE IF EXISTS user_show
+  ADD COLUMN IF NOT EXISTS is_favorite boolean DEFAULT false;
+
+ALTER TABLE IF EXISTS user_show
+  ADD COLUMN IF NOT EXISTS notes text;
+
+ALTER TABLE IF EXISTS user_show
+  ADD COLUMN IF NOT EXISTS setup_step integer DEFAULT 1;
+
+ALTER TABLE IF EXISTS user_show
+  ADD COLUMN IF NOT EXISTS setup_completed_at bigint;
