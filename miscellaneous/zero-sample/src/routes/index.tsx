@@ -269,7 +269,7 @@ function Home() {
 	return (
 		<div className="p-4 space-y-8">
 			{wizardResult ? (
-				<div className="space-y-3 rounded-lg border bg-white p-4 shadow-sm dark:bg-gray-900">
+				<div className="p-4 space-y-3 bg-white border rounded-lg shadow-sm dark:bg-gray-900">
 					<div className="flex flex-wrap items-start justify-between gap-2">
 						<div>
 							<h2 className="text-lg font-semibold">Add show setup</h2>
@@ -280,7 +280,7 @@ function Home() {
 						<button
 							type="button"
 							onClick={onCancelWizard}
-							className="rounded-md border bg-white px-2 py-1 text-sm hover:bg-gray-50 dark:bg-gray-950"
+							className="px-2 py-1 text-sm bg-white border rounded-md hover:bg-gray-50 dark:bg-gray-950"
 						>
 							Cancel
 						</button>
@@ -293,7 +293,7 @@ function Home() {
 									Watch status
 								</div>
 								<select
-									className="mt-1 w-full rounded-md border bg-white px-3 py-2 text-sm dark:bg-gray-950"
+									className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
 									value={watchStatus}
 									onChange={(e) => setWatchStatus(e.target.value as WatchStatus)}
 								>
@@ -310,7 +310,7 @@ function Home() {
 								</div>
 								<input
 									type="date"
-									className="mt-1 w-full rounded-md border bg-white px-3 py-2 text-sm dark:bg-gray-950"
+									className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
 									value={startedDate}
 									onChange={(e) => setStartedDate(e.target.value)}
 								/>
@@ -318,7 +318,7 @@ function Home() {
 							<button
 								disabled={wizardSubmitting}
 								type="submit"
-								className="h-9 rounded-md bg-blue-600 px-3 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-60"
+								className="px-3 text-sm font-medium text-white bg-blue-600 rounded-md h-9 hover:bg-blue-500 disabled:opacity-60"
 							>
 								{wizardSubmitting ? "Saving..." : "Save and continue"}
 							</button>
@@ -335,7 +335,7 @@ function Home() {
 									<input
 										type="number"
 										min={1}
-										className="mt-1 w-full rounded-md border bg-white px-3 py-2 text-sm dark:bg-gray-950"
+										className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
 										value={currentSeason}
 										onChange={(e) => setCurrentSeason(e.target.value)}
 									/>
@@ -347,7 +347,7 @@ function Home() {
 									<input
 										type="number"
 										min={1}
-										className="mt-1 w-full rounded-md border bg-white px-3 py-2 text-sm dark:bg-gray-950"
+										className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
 										value={currentEpisode}
 										onChange={(e) => setCurrentEpisode(e.target.value)}
 									/>
@@ -359,7 +359,7 @@ function Home() {
 								</div>
 								<input
 									type="date"
-									className="mt-1 w-full rounded-md border bg-white px-3 py-2 text-sm dark:bg-gray-950"
+									className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
 									value={targetFinishDate}
 									onChange={(e) => setTargetFinishDate(e.target.value)}
 								/>
@@ -367,7 +367,7 @@ function Home() {
 							<button
 								disabled={wizardSubmitting}
 								type="submit"
-								className="h-9 rounded-md bg-blue-600 px-3 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-60"
+								className="px-3 text-sm font-medium text-white bg-blue-600 rounded-md h-9 hover:bg-blue-500 disabled:opacity-60"
 							>
 								{wizardSubmitting ? "Saving..." : "Save and continue"}
 							</button>
@@ -384,7 +384,7 @@ function Home() {
 									type="number"
 									min={1}
 									max={10}
-									className="mt-1 w-full rounded-md border bg-white px-3 py-2 text-sm dark:bg-gray-950"
+									className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
 									value={rating}
 									onChange={(e) => setRating(e.target.value)}
 								/>
@@ -402,7 +402,7 @@ function Home() {
 									Notes (optional)
 								</div>
 								<textarea
-									className="mt-1 w-full rounded-md border bg-white px-3 py-2 text-sm dark:bg-gray-950"
+									className="w-full px-3 py-2 mt-1 text-sm bg-white border rounded-md dark:bg-gray-950"
 									rows={4}
 									value={notes}
 									onChange={(e) => setNotes(e.target.value)}
@@ -411,7 +411,7 @@ function Home() {
 							<button
 								disabled={wizardSubmitting}
 								type="submit"
-								className="h-9 rounded-md bg-blue-600 px-3 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-60"
+								className="px-3 text-sm font-medium text-white bg-blue-600 rounded-md h-9 hover:bg-blue-500 disabled:opacity-60"
 							>
 								{wizardSubmitting ? "Saving..." : "Finish setup"}
 							</button>
@@ -425,7 +425,7 @@ function Home() {
 			) : null}
 
 			{wizardSuccess ? (
-				<div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800 dark:border-green-900/50 dark:bg-green-950/40 dark:text-green-200">
+				<div className="p-3 text-sm text-green-800 border border-green-200 rounded-lg bg-green-50 dark:border-green-900/50 dark:bg-green-950/40 dark:text-green-200">
 					Saved setup for {wizardSuccess.showName}.{" "}
 					<Link
 						to="/shows/$showId"
@@ -445,7 +445,7 @@ function Home() {
 				</div>
 
 				<input
-					className="w-full max-w-xl rounded-md border bg-white px-3 py-2 text-sm shadow-sm dark:bg-gray-900"
+					className="w-full max-w-xl px-3 py-2 text-sm bg-white border rounded-md shadow-sm dark:bg-gray-900"
 					placeholder="Search TV shows…"
 					value={q}
 					onChange={(e) => setQ(e.target.value)}
@@ -471,24 +471,24 @@ function Home() {
 							return (
 								<div
 									key={r.tmdbId}
-									className="flex gap-3 rounded-lg border bg-white p-3 shadow-sm dark:bg-gray-900"
+									className="flex gap-3 p-3 bg-white border rounded-lg shadow-sm dark:bg-gray-900"
 								>
-									<div className="h-20 w-14 shrink-0 overflow-hidden rounded bg-gray-200 dark:bg-gray-800">
+									<div className="h-20 overflow-hidden bg-gray-200 rounded w-14 shrink-0 dark:bg-gray-800">
 										{r.posterPath ? (
 											<img
 												alt=""
-												className="h-full w-full object-cover"
+												className="object-cover w-full h-full"
 												src={`${TMDB_IMG}${r.posterPath}`}
 												loading="lazy"
 											/>
 										) : null}
 									</div>
-									<div className="min-w-0 flex-1">
-										<div className="truncate text-sm font-medium">{r.name}</div>
-										<div className="line-clamp-2 text-xs text-gray-600 dark:text-gray-400">
+									<div className="flex-1 min-w-0">
+										<div className="text-sm font-medium truncate">{r.name}</div>
+										<div className="text-xs text-gray-600 line-clamp-2 dark:text-gray-400">
 											{r.overview || "No overview"}
 										</div>
-										<div className="mt-2 flex items-center justify-between gap-2">
+										<div className="flex items-center justify-between gap-2 mt-2">
 											<button
 												disabled={alreadyAdded || inWizard}
 												className={
@@ -524,21 +524,21 @@ function Home() {
 								params={{
 									showId: row.show.id,
 								}}
-								className="flex gap-3 rounded-lg border bg-white p-3 shadow-sm hover:border-gray-400 dark:bg-gray-900"
+								className="flex gap-3 p-3 bg-white border rounded-lg shadow-sm hover:border-gray-400 dark:bg-gray-900"
 							>
-								<div className="h-20 w-14 shrink-0 overflow-hidden rounded bg-gray-200 dark:bg-gray-800">
+								<div className="h-20 overflow-hidden bg-gray-200 rounded w-14 shrink-0 dark:bg-gray-800">
 									{row.show.posterPath ? (
 										<img
 											alt=""
-											className="h-full w-full object-cover"
+											className="object-cover w-full h-full"
 											src={`${TMDB_IMG}${row.show.posterPath}`}
 											loading="lazy"
 										/>
 									) : null}
 								</div>
-								<div className="min-w-0 flex-1">
-									<div className="truncate text-sm font-medium">{row.show.name}</div>
-									<div className="mt-1 flex items-center gap-2">
+								<div className="flex-1 min-w-0">
+									<div className="text-sm font-medium truncate">{row.show.name}</div>
+									<div className="flex items-center gap-2 mt-1">
 										<span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700 dark:bg-gray-800 dark:text-gray-200">
 											{row.show.enrichState}
 										</span>
@@ -559,7 +559,7 @@ function Home() {
 										</div>
 									)}
 									{row.show.enrichError ? (
-										<div className="mt-1 line-clamp-2 text-xs text-red-700 dark:text-red-300">
+										<div className="mt-1 text-xs text-red-700 line-clamp-2 dark:text-red-300">
 											{row.show.enrichError}
 										</div>
 									) : null}
