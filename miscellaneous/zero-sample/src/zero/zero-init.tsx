@@ -5,8 +5,12 @@ import * as React from "react";
 import { mutators } from "./mutators";
 import { schema } from "./schema";
 
-const cacheURL =
-	import.meta.env.VITE_PUBLIC_ZERO_CACHE_URL ?? "http://localhost:4848";
+const defaultCacheURL =
+	typeof window !== "undefined"
+		? new URL("/_zero", window.location.origin).toString()
+		: "http://localhost:4848";
+
+const cacheURL = import.meta.env.VITE_PUBLIC_ZERO_CACHE_URL ?? defaultCacheURL;
 
 const logLevel = import.meta.env.VITE_PUBLIC_ZERO_LOG_LEVEL;
 

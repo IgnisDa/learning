@@ -1,0 +1,14 @@
+{
+	admin off
+	auto_https off
+}
+
+:{$CADDY_PORT:3000} {
+	redir /_zero /_zero/ 308
+
+	handle_path /_zero/* {
+		reverse_proxy 127.0.0.1:4848
+	}
+
+	reverse_proxy 127.0.0.1:3001
+}

@@ -14,6 +14,67 @@ POC app that demonstrates:
 - Zero cache: `npx zero-cache-dev` (http://localhost:4848)
 - Worker: `npm run worker`
 
+## Docker (single container)
+
+This container runs all required processes together:
+
+- app server (TanStack Start)
+- `zero-cache`
+- TMDB worker (`npm run worker`)
+- Caddy reverse proxy (single public port)
+
+At startup it waits for Postgres, then runs `db/init.sql`.
+
+Use this `docker-compose.yml` (from this folder):
+
+```yaml
+services:
+  upstream-db:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: zero
+      POSTGRES_PASSWORD: pass
+    ports:
+      - "5432:5432"
+    command: postgres -c wal_level=logical
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d zero"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  zero-sample:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      upstream-db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://postgres:pass@upstream-db:5432/zero
+      TMDB_API_KEY: <your_tmdb_key>
+      ZERO_ADMIN_PASSWORD: <set-a-strong-password>
+      ZERO_APP_ID: zero_sample
+      ZERO_REPLICA_FILE: /data/zero.db
+    ports:
+      - "3000:3000"
+    volumes:
+      - zero-sample-data:/data
+
+volumes:
+  zero-sample-data:
+```
+
+Then run:
+
+```sh
+docker compose up --build
+```
+
+Open http://localhost:3000.
+
+`zero-cache` is available behind Caddy at `/_zero` on the same host/port.
+
 ## Setup
 
 Requirements:
@@ -26,6 +87,7 @@ Requirements:
 - `DATABASE_URL`
 - `TMDB_API_KEY` (either a v3 API key or a v4 "API Read Access Token")
 - `ZERO_UPSTREAM_DB` (set it to the same value as `DATABASE_URL`)
+- `ZERO_ADMIN_PASSWORD` (required by `zero-cache` when `NODE_ENV=production`)
 
 Note: this app expects cookie auth forwarding to be enabled in `zero-cache`:
 
