@@ -14,7 +14,7 @@
     "start:zero": "ZERO_PORT=4848 zero-cache",
     "start:app": "PORT=3001 NITRO_PORT=3001 node .output/server/index.mjs",
     "start:proxy": "CADDY_PORT=3000 caddy run --config /etc/caddy/Caddyfile",
-    "start:container": "concurrently --names app,zero,worker,proxy --kill-others \"npm run start:app\" \"npm run start:zero\" \"npm run worker\" \"npm run start:proxy\""
+    "start:container": "concurrently --names app,zero,worker,proxy \"npm run start:app\" \"npm run start:zero\" \"npm run worker\" \"npm run start:proxy\""
   },
   "dependencies": {
     "@rocicorp/zero": "0.25.2",
