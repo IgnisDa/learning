@@ -26,4 +26,4 @@ EXPOSE 3000
 
 VOLUME ["/convex/data"]
 
-CMD ["/usr/local/bin/docker-entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
