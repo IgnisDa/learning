@@ -22,9 +22,8 @@ At container startup, the entrypoint:
 1. Starts Convex backend
 2. Waits for backend readiness
 3. Generates an admin key
-4. Acquires a lock at `/convex/data/deploy.lock`
-5. Runs `npm exec -- convex deploy --yes`
-6. Starts Caddy
+4. Runs `npm exec -- convex deploy --yes`
+5. Starts Caddy
 
 If deploy fails, container startup fails (fail-fast behavior).
 
@@ -55,4 +54,4 @@ docker compose down -v
 ## Notes
 
 - `.env.local` is excluded from Docker build context via `.dockerignore`.
-- Persistent data (including deploy lock and DB) lives under `/convex/data`.
+- Persistent data (DB + storage) lives under `/convex/data`.
