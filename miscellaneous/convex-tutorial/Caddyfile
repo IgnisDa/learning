@@ -1,0 +1,44 @@
+{
+	admin off
+	auto_https off
+}
+
+:3000 {
+	# Convex backend API
+	handle /api/* {
+		reverse_proxy 127.0.0.1:3210
+	}
+
+	# Convex sync WebSocket endpoint
+	handle /sync/* {
+		reverse_proxy 127.0.0.1:3210
+	}
+
+	handle /version {
+		reverse_proxy 127.0.0.1:3210
+	}
+
+	# Optional prefixed backend route
+	redir /_backend /_backend/ 308
+	handle_path /_backend/* {
+		reverse_proxy 127.0.0.1:3210
+	}
+
+	# Convex HTTP actions
+	redir /_site /_site/ 308
+	handle_path /_site/* {
+		reverse_proxy 127.0.0.1:3211
+	}
+
+	# Dashboard is intentionally not included in this image
+	handle /_dashboard* {
+		respond "Convex dashboard is not enabled in this container." 404
+	}
+
+	# Static frontend app
+	handle {
+		root * /app/dist
+		try_files {path} /index.html
+		file_server
+	}
+}
