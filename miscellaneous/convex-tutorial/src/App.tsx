@@ -1,5 +1,6 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useDebouncedValue } from "@mantine/hooks";
+import { useMutation } from "@tanstack/react-query";
 import {
   Authenticated,
   AuthLoading,
@@ -9,14 +10,6 @@ import {
 import { useEffect, useState } from "react";
 import { api } from "../convex/_generated/api";
 import { Auth } from "./components/Auth";
-
-type SearchResult = {
-  name: string;
-  tmdbId: number;
-  overview: string;
-  firstAirDate?: string;
-  posterPath: string | null;
-};
 
 const TMDB_IMG = "https://image.tmdb.org/t/p/w185";
 
@@ -38,47 +31,25 @@ export default function App() {
 
 function Dashboard() {
   const { signOut } = useAuthActions();
-  const searchShows = useAction(api.tmdb.searchShows);
-
   const [searchQuery, setSearchQuery] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
+  const searchShowsAction = useAction(api.tmdb.searchShows);
   const [debouncedQuery] = useDebouncedValue(searchQuery, 250);
-  const [searchError, setSearchError] = useState<string | null>(null);
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+
+  const {
+    error: searchError,
+    mutate: searchShows,
+    data: searchResults,
+    isPending: isSearching,
+  } = useMutation({
+    mutationFn: async (query: string) => {
+      return await searchShowsAction({ query });
+    },
+  });
 
   useEffect(() => {
-    let cancelled = false;
-
-    async function runSearch() {
-      const trimmed = debouncedQuery.trim();
-      if (trimmed.length < 2) {
-        setSearchResults([]);
-        setSearchError(null);
-        return;
-      }
-
-      setIsSearching(true);
-      setSearchError(null);
-
-      try {
-        const results = await searchShows({ query: trimmed });
-        if (cancelled) return;
-        setSearchResults(results);
-      } catch (e) {
-        if (cancelled) return;
-        setSearchResults([]);
-        setSearchError(e instanceof Error ? e.message : "Search failed");
-      } finally {
-        if (!cancelled) {
-          setIsSearching(false);
-        }
-      }
-    }
-
-    void runSearch();
-    return () => {
-      cancelled = true;
-    };
+    const trimmed = debouncedQuery.trim();
+    if (trimmed.length < 2) return;
+    searchShows(trimmed);
   }, [debouncedQuery, searchShows]);
 
   return (
@@ -106,9 +77,16 @@ function Dashboard() {
 
         {isSearching && <div className="loading">Searching...</div>}
 
-        {searchError && <div className="error">Error: {searchError}</div>}
+        {searchError && (
+          <div className="error">
+            Error:{" "}
+            {searchError instanceof Error
+              ? searchError.message
+              : "Search failed"}
+          </div>
+        )}
 
-        {searchResults.length > 0 && (
+        {searchResults && searchResults.length > 0 && (
           <div className="results-container">
             <p className="results-count">
               {searchResults.length} result
@@ -146,7 +124,7 @@ function Dashboard() {
 
         {searchQuery.trim().length >= 2 &&
           !isSearching &&
-          searchResults.length === 0 &&
+          searchResults?.length === 0 &&
           !searchError && (
             <div className="no-results">No shows found for "{searchQuery}"</div>
           )}
