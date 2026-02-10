@@ -3,8 +3,7 @@ FROM node:22-bookworm-slim AS builder
 WORKDIR /app
 
 COPY package*.json yarn.lock ./
-RUN yarn ci
-
+RUN yarn install --frozen-lockfile --non-interactive
 COPY . .
 RUN yarn build
 
