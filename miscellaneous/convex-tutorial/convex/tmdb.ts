@@ -12,11 +12,11 @@ type TmdbSearchTvResponse = {
 };
 
 export type SearchResult = {
-  tmdbId: number;
   name: string;
+  tmdbId: number;
   overview: string;
-  posterPath: string | null;
   firstAirDate?: string;
+  posterPath: string | null;
 };
 
 export const searchShows = action({
@@ -63,8 +63,7 @@ export const searchShows = action({
 
     const data = (await res.json()) as TmdbSearchTvResponse;
 
-    // Format and return results (limit to 12)
-    return (data.results ?? []).slice(0, 12).map((r) => ({
+    return (data.results ?? []).map((r) => ({
       tmdbId: r.id,
       name: r.name,
       overview: r.overview,
