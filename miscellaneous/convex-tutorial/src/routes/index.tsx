@@ -11,7 +11,9 @@ function IndexPage() {
   return (
     <>
       <AuthLoading>
-        <div className="loading">Loading...</div>
+        <div className="mx-auto mt-24 w-fit rounded-md border border-neutral-200 bg-white px-4 py-2 text-sm text-neutral-600 shadow-sm">
+          Loading...
+        </div>
       </AuthLoading>
       <Unauthenticated>
         <RedirectToSignIn />
@@ -30,5 +32,9 @@ function RedirectToSignIn() {
     navigate({ to: "/signin" });
   }, [navigate]);
 
-  return <div className="loading">Redirecting to sign in...</div>;
+  return (
+    <div className="mx-auto mt-24 w-fit rounded-md border border-neutral-200 bg-white px-4 py-2 text-sm text-neutral-600 shadow-sm">
+      Redirecting to sign in...
+    </div>
+  );
 }

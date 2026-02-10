@@ -85,9 +85,9 @@ docker compose down -v
 - `TMDB_API_KEY` - Your TMDB API key for movie data (optional, but required for movie features)
 
 These variables are automatically synced to Convex at startup via `scripts/setup-env.mjs`. The script loads variables from:
-1. `.env.local` (takes precedence, git-ignored)
-2. `.env` (fallback)
-3. Shell environment variables
+
+1. `.env`
+2. Shell environment variables
 
 ### Notes
 
