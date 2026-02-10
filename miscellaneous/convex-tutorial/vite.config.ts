@@ -4,11 +4,10 @@ import { defineConfig } from "vite";
 import viteTsConfigPaths from "vite-tsconfig-paths";
 
 const config = defineConfig({
+  preview: { host: "127.0.0.1" },
   plugins: [
     viteTsConfigPaths({ projects: ["./tsconfig.json"] }),
-    tanstackStart({
-      prerender: { enabled: true },
-    }),
+    tanstackStart({ prerender: { enabled: true } }),
     viteReact(),
   ],
 });
