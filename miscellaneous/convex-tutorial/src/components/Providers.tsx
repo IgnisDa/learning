@@ -5,9 +5,8 @@ import { ConvexReactClient } from "convex/react";
 import { useState, type ReactNode } from "react";
 
 function getConvexUrl() {
-  if (typeof window !== "undefined") {
+  if (typeof window !== "undefined")
     return import.meta.env.VITE_CONVEX_URL || window.location.origin;
-  }
   return import.meta.env.VITE_CONVEX_URL || "https://placeholder.convex.cloud";
 }
 
