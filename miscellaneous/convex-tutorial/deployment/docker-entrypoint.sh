@@ -58,7 +58,7 @@ if [ "$AUTO_DEPLOY_NORMALIZED" = "1" ] || [ "$AUTO_DEPLOY_NORMALIZED" = "true" ]
   unset CONVEX_DEPLOYMENT || true
   (
     cd /app
-    npm exec -- convex deploy --yes
+    yarn exec -- convex deploy --yes
   )
   echo "Convex functions deployed successfully."
 else

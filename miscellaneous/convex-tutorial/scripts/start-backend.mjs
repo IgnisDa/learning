@@ -24,7 +24,7 @@ const checkBackend = async () => {
 
       // Run environment setup (auth + app env vars)
       try {
-        execSync("npm run setup-env", { stdio: "inherit" });
+        execSync("yarn run setup-env", { stdio: "inherit" });
       } catch (error) {
         console.error("\n⚠️  Environment setup failed, but continuing...\n");
       }
