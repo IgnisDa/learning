@@ -1,5 +1,6 @@
 FROM node:22-bookworm-slim AS builder
 WORKDIR /app
+RUN npm install -g yarn@1.22.22
 COPY package*.json yarn.lock ./
 RUN yarn install --frozen-lockfile --non-interactive
 COPY . .
@@ -7,6 +8,7 @@ RUN yarn build
 
 FROM ghcr.io/get-convex/convex-backend:latest AS runtime
 WORKDIR /app
+RUN npm install -g yarn@1.22.22
 COPY --from=caddy:2.9.1 /usr/bin/caddy /usr/local/bin/caddy
 COPY --from=builder /app/package.json /app/package.json
 COPY --from=builder /app/yarn.lock /app/yarn.lock
