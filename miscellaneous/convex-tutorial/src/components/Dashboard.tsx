@@ -1,35 +1,13 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useMutation } from "@tanstack/react-query";
-import {
-  Authenticated,
-  AuthLoading,
-  Unauthenticated,
-  useAction,
-} from "convex/react";
+import { useAction } from "convex/react";
 import { useEffect, useState } from "react";
-import { api } from "../convex/_generated/api";
-import { Auth } from "./components/Auth";
+import { api } from "../../convex/_generated/api";
 
 const TMDB_IMG = "https://image.tmdb.org/t/p/w185";
 
-export default function App() {
-  return (
-    <>
-      <AuthLoading>
-        <div>Loading...</div>
-      </AuthLoading>
-      <Unauthenticated>
-        <Auth />
-      </Unauthenticated>
-      <Authenticated>
-        <Dashboard />
-      </Authenticated>
-    </>
-  );
-}
-
-function Dashboard() {
+export function Dashboard() {
   const { signOut } = useAuthActions();
   const [searchQuery, setSearchQuery] = useState("");
   const searchShowsAction = useAction(api.tmdb.searchShows);

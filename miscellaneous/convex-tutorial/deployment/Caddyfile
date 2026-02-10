@@ -30,11 +30,6 @@
 		reverse_proxy 127.0.0.1:3211
 	}
 
-	# Dashboard is intentionally not included in this image
-	handle /_dashboard* {
-		respond "Convex dashboard is not enabled in this container." 404
-	}
-
 	# Static frontend app
 	handle {
 		root * /app/dist

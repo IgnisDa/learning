@@ -1,5 +1,5 @@
 {
-  "include": ["./src", "./convex", "vite.config.mts"],
+  "include": ["./src", "./convex", "vite.config.ts"],
   "compilerOptions": {
     "strict": true,
     "noEmit": true,
@@ -15,5 +15,9 @@
     "allowSyntheticDefaultImports": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "baseUrl": "."
   }
 }

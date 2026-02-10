@@ -1,11 +1,39 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useAuthActions } from "@convex-dev/auth/react";
-import { useState, FormEvent } from "react";
+import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
+import { useState, type FormEvent, useEffect } from "react";
 
-interface SignUpProps {
-  onToggle: () => void;
+export const Route = createFileRoute("/signup")({
+  component: SignUpPage,
+});
+
+function SignUpPage() {
+  return (
+    <>
+      <AuthLoading>
+        <div className="loading">Loading...</div>
+      </AuthLoading>
+      <Authenticated>
+        <RedirectToHome />
+      </Authenticated>
+      <Unauthenticated>
+        <SignUpForm />
+      </Unauthenticated>
+    </>
+  );
 }
 
-export function SignUp({ onToggle }: SignUpProps) {
+function RedirectToHome() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    navigate({ to: "/" });
+  }, [navigate]);
+
+  return <div className="loading">Redirecting...</div>;
+}
+
+function SignUpForm() {
   const { signIn } = useAuthActions();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -16,7 +44,7 @@ export function SignUp({ onToggle }: SignUpProps) {
     setError(null);
 
     const formData = new FormData(event.currentTarget);
-    
+
     try {
       await signIn("password", formData);
     } catch (err) {
@@ -26,9 +54,9 @@ export function SignUp({ onToggle }: SignUpProps) {
   };
 
   return (
-    <div>
+    <div className="auth-container">
       <h2>Sign Up</h2>
-      {error && <div style={{ color: "red" }}>{error}</div>}
+      {error && <div className="error">{error}</div>}
       <form onSubmit={handleSubmit}>
         <div>
           <input
@@ -56,9 +84,7 @@ export function SignUp({ onToggle }: SignUpProps) {
       </form>
       <p>
         Already have an account?{" "}
-        <button type="button" onClick={onToggle} disabled={isLoading}>
-          Sign in
-        </button>
+        <Link to="/signin">Sign in</Link>
       </p>
     </div>
   );
