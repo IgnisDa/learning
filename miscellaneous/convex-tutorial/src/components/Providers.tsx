@@ -19,8 +19,8 @@ export function Providers({ children }: { children: ReactNode }) {
     const queryClient = new QueryClient({
       defaultOptions: {
         queries: {
-          queryKeyHashFn: convexQueryClient.hashFn(),
           queryFn: convexQueryClient.queryFn(),
+          queryKeyHashFn: convexQueryClient.hashFn(),
         },
       },
     });
