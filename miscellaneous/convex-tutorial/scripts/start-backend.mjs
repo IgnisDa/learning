@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-import { spawn, execSync } from 'child_process';
+import { spawn, execSync } from "child_process";
 
-console.log('🚀 Starting Convex backend...\n');
+console.log("🚀 Starting Convex backend...\n");
 
 // Start Convex dev
-const backend = spawn('npx', ['convex', 'dev'], {
-  stdio: 'inherit',
-  shell: true
+const backend = spawn("npx", ["convex", "dev"], {
+  stdio: "inherit",
+  shell: true,
 });
 
 // Wait for backend to be ready
@@ -16,26 +16,26 @@ const maxAttempts = 30;
 const checkBackend = async () => {
   while (attempts < maxAttempts) {
     try {
-      execSync('curl -s http://127.0.0.1:3210/version', { 
-        stdio: 'ignore', 
-        timeout: 1000 
+      execSync("curl -s http://127.0.0.1:3210/version", {
+        stdio: "ignore",
+        timeout: 1000,
       });
-      console.log('\n✅ Backend is ready! Checking environment...\n');
-      
-      // Run auth configuration check
+      console.log("\n✅ Backend is ready! Checking environment...\n");
+
+      // Run environment setup (auth + app env vars)
       try {
-        execSync('npm run configure-auth', { stdio: 'inherit' });
+        execSync("npm run setup-env", { stdio: "inherit" });
       } catch (error) {
-        console.error('\n⚠️  Auth configuration failed, but continuing...\n');
+        console.error("\n⚠️  Environment setup failed, but continuing...\n");
       }
-      
+
       return;
     } catch (e) {
       attempts++;
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }
-  console.error('\n❌ Backend failed to start\n');
+  console.error("\n❌ Backend failed to start\n");
   backend.kill();
   process.exit(1);
 };
@@ -44,16 +44,16 @@ const checkBackend = async () => {
 setTimeout(checkBackend, 2000);
 
 // Handle cleanup
-process.on('SIGINT', () => {
+process.on("SIGINT", () => {
   backend.kill();
   process.exit(0);
 });
 
-process.on('SIGTERM', () => {
+process.on("SIGTERM", () => {
   backend.kill();
   process.exit(0);
 });
 
-backend.on('exit', (code) => {
+backend.on("exit", (code) => {
   process.exit(code);
 });

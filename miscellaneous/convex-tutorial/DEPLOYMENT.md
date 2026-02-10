@@ -24,7 +24,9 @@ At container startup, the entrypoint:
 1. Starts Convex backend
 2. Waits for backend readiness
 3. Generates an admin key
-4. Configures auth environment variables (`JWT_PRIVATE_KEY`, `JWKS`)
+4. Configures environment variables:
+   - Auth: `JWT_PRIVATE_KEY`, `JWKS`, `SITE_URL` (auto-generated)
+   - App: `TMDB_API_KEY` (synced from host environment if set)
 5. Runs `npm exec -- convex deploy --yes`
 6. Starts Caddy
 
@@ -50,6 +52,7 @@ services:
       - CONVEX_CLOUD_ORIGIN=http://localhost:3000
       - CONVEX_SITE_ORIGIN=http://localhost:3000/_site
       - CONVEX_AUTO_DEPLOY=1
+      - TMDB_API_KEY=${TMDB_API_KEY:-}
 
 volumes:
   convex-data:
@@ -69,11 +72,17 @@ docker compose down -v
 
 ### Environment Variables
 
+**Docker/Deployment:**
 - `CONVEX_CLOUD_ORIGIN` (default: `http://localhost:3000`)
 - `CONVEX_SITE_ORIGIN` (default: `http://localhost:3000/_site`)
 - `CONVEX_AUTO_DEPLOY` (default: `1`; set `0` to disable auto-deploy)
 - `DO_NOT_REQUIRE_SSL` (optional for local dev)
 - `DISABLE_BEACON` (optional telemetry disable)
+
+**Application (synced to Convex automatically):**
+- `TMDB_API_KEY` - Your TMDB API key for movie data (optional, but required for movie features)
+
+These variables are automatically synced from your local environment to Convex at startup via `scripts/setup-env.mjs`.
 
 ### Notes
 
