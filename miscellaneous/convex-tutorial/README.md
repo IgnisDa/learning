@@ -22,10 +22,13 @@ At container startup, the entrypoint:
 1. Starts Convex backend
 2. Waits for backend readiness
 3. Generates an admin key
-4. Runs `npm exec -- convex deploy --yes`
-5. Starts Caddy
+4. Configures auth environment variables (`JWT_PRIVATE_KEY`, `JWKS`)
+5. Runs `npm exec -- convex deploy --yes`
+6. Starts Caddy
 
 If deploy fails, container startup fails (fail-fast behavior).
+
+**Authentication is automatically configured** - users can immediately sign up and log in without any manual setup.
 
 ## Run with Docker Compose
 
@@ -61,7 +64,7 @@ npm run dev
 ```
 
 The `npm run dev` command automatically:
-1. Checks for required Convex environment variables (`JWT_PRIVATE_KEY`, `JWKS`, `SITE_URL`)
+1. Checks for required Convex environment variables (`JWT_PRIVATE_KEY`, `JWKS`)
 2. Generates and sets them if missing
 3. Initializes the Convex backend
 4. Starts both the frontend and backend in parallel
@@ -77,7 +80,6 @@ npm run setup-env
 This script will check and configure:
 - `JWT_PRIVATE_KEY` - RSA private key for JWT signing
 - `JWKS` - JSON Web Key Set for token verification
-- `SITE_URL` - Your application URL (default: http://localhost:5173)
 
 ### Resetting Environment
 

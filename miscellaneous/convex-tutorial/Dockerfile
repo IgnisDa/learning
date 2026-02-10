@@ -17,6 +17,7 @@ COPY --from=builder /app/package.json /app/package.json
 COPY --from=builder /app/package-lock.json /app/package-lock.json
 COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/convex /app/convex
+COPY --from=builder /app/scripts /app/scripts
 COPY --from=builder /app/tsconfig.json /app/tsconfig.json
 COPY --from=builder /app/dist /app/dist
 COPY Caddyfile /etc/caddy/Caddyfile

@@ -33,6 +33,16 @@ done
 
 ADMIN_KEY="$(cd /convex && ./generate_admin_key.sh)"
 
+echo "Setting up Convex Auth environment variables..."
+export CONVEX_SELF_HOSTED_URL="http://127.0.0.1:3210"
+export CONVEX_SELF_HOSTED_ADMIN_KEY="$ADMIN_KEY"
+unset CONVEX_DEPLOYMENT || true
+(
+  cd /app
+  node scripts/setup-env.mjs
+)
+echo "Auth environment variables configured."
+
 echo ""
 echo "============================================"
 echo "Admin Key (save this for CLI):"
