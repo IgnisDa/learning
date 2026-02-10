@@ -38,7 +38,7 @@ Create a `docker-compose.yml` file:
 
 ```yaml
 services:
-  convex-chat:
+  convex-tutorial:
     build:
       context: .
       dockerfile: deployment/Dockerfile

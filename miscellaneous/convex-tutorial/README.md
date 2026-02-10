@@ -1,12 +1,10 @@
-# Convex Chat Application
+# Convex Tutorial Application
 
-A real-time chat application built with React, Convex, and TypeScript. Features user authentication and Wikipedia integration.
+An application built with React, Convex, and TypeScript. Features user authentication and self-hosted backend.
 
 ## Features
 
-- **Real-time messaging** - Messages appear instantly for all users
 - **User authentication** - Email/password sign up and sign in
-- **Wikipedia integration** - Use `/wiki <topic>` to get summaries from Wikipedia
 - **Self-hosted Convex backend** - Run your own Convex instance
 
 ## Quick Start
@@ -45,10 +43,7 @@ If you delete `~/.convex/anonymous-convex-backend-state/`, the environment varia
 ## Usage
 
 1. **Sign up** - Create an account with your email and password
-2. **Chat** - Send messages in real-time with other users
-3. **Wikipedia lookup** - Type `/wiki <topic>` to get information from Wikipedia
-
-Example: `/wiki React` will fetch and display a summary about React from Wikipedia.
+2. **Access the application** - Once authenticated, you'll see the main dashboard
 
 ## Project Structure
 
@@ -56,10 +51,9 @@ Example: `/wiki React` will fetch and display a summary about React from Wikiped
 convex-tutorial/
   src/               # React frontend
     components/      # Auth components
-    App.tsx         # Main chat interface
+    App.tsx         # Main application interface
   convex/           # Convex backend
     auth.ts         # Authentication logic
-    chat.ts         # Chat mutations and queries
     schema.ts       # Database schema
   scripts/          # Development utilities
   deployment/       # Docker deployment files
