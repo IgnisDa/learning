@@ -19,82 +19,52 @@ export default defineSchema({
     name: v.optional(v.string()),
     image: v.optional(v.string()),
     email: v.optional(v.string()),
-    emailVerificationTime: v.optional(v.number()),
     phone: v.optional(v.string()),
-    phoneVerificationTime: v.optional(v.number()),
     isAnonymous: v.optional(v.boolean()),
+    phoneVerificationTime: v.optional(v.number()),
+    emailVerificationTime: v.optional(v.number()),
   }).index("email", ["email"]),
 
-  show: defineTable({
-    tmdbId: v.number(),
+  shows: defineTable({
     name: v.string(),
+    tmdbId: v.number(),
     overview: v.optional(v.string()),
     posterPath: v.optional(v.string()),
-    enrichState: v.string(),
-    enrichError: v.optional(v.string()),
-    enrichedAt: v.optional(v.number()),
   }),
 
-  userShow: defineTable({
-    userId: v.id("users"),
-    showId: v.id("show"),
-    addedAt: v.number(),
-    watchStatus: v.optional(v.string()),
-    startedAt: v.optional(v.number()),
-    currentSeason: v.optional(v.number()),
-    currentEpisode: v.optional(v.number()),
-    targetFinishAt: v.optional(v.number()),
-    rating: v.optional(v.number()),
-    isFavorite: v.optional(v.boolean()),
-    notes: v.optional(v.string()),
-    setupStep: v.optional(v.number()),
-    setupCompletedAt: v.optional(v.number()),
-  }),
-
-  season: defineTable({
-    showId: v.id("show"),
-    seasonNumber: v.number(),
+  seasons: defineTable({
     name: v.string(),
+    seasonNumber: v.number(),
+    showId: v.id("shows"),
+    airDate: v.optional(v.string()),
     overview: v.optional(v.string()),
     posterPath: v.optional(v.string()),
     episodeCount: v.optional(v.number()),
-    airDate: v.optional(v.string()),
   }),
 
-  person: defineTable({
-    tmdbPersonId: v.number(),
+  persons: defineTable({
     name: v.string(),
+    tmdbPersonId: v.number(),
     profilePath: v.optional(v.string()),
   }),
 
-  episode: defineTable({
-    seasonId: v.id("season"),
-    episodeNumber: v.number(),
+  episodes: defineTable({
     name: v.string(),
-    overview: v.optional(v.string()),
-    stillPath: v.optional(v.string()),
+    episodeNumber: v.number(),
+    seasonId: v.id("seasons"),
     airDate: v.optional(v.string()),
     runtime: v.optional(v.number()),
+    overview: v.optional(v.string()),
+    stillPath: v.optional(v.string()),
   }),
 
-  credit: defineTable({
-    showId: v.id("show"),
-    personId: v.id("person"),
+  credits: defineTable({
     kind: v.string(),
-    character: v.optional(v.string()),
+    showId: v.id("shows"),
     job: v.optional(v.string()),
+    personId: v.id("persons"),
+    character: v.optional(v.string()),
     department: v.optional(v.string()),
     orderIndex: v.optional(v.number()),
-  }),
-
-  outbox: defineTable({
-    topic: v.string(),
-    showId: v.id("show"),
-    tmdbId: v.number(),
-    status: v.string(),
-    attempts: v.number(),
-    lockedAt: v.optional(v.number()),
-    lastError: v.optional(v.string()),
-    createdAt: v.number(),
   }),
 });
