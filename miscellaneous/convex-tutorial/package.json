@@ -2,11 +2,11 @@
   "version": "0.0.0",
   "name": "convex-tutorial",
   "scripts": {
-    "dev:backend": "node scripts/dev-backend.mjs",
     "build": "tsc && vite build",
     "dev:frontend": "vite --open",
-    "setup-env": "node scripts/setup-env.mjs",
     "predev": "convex dev --once",
+    "setup-env": "node scripts/setup-env.mjs",
+    "dev:backend": "node scripts/dev-backend.mjs",
     "dev": "npm-run-all --parallel dev:backend dev:frontend"
   },
   "dependencies": {
