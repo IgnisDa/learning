@@ -1,4 +1,5 @@
 import { useAuthActions } from "@convex-dev/auth/react";
+import { useDebouncedValue } from "@mantine/hooks";
 import {
   Authenticated,
   AuthLoading,
@@ -10,11 +11,11 @@ import { api } from "../convex/_generated/api";
 import { Auth } from "./components/Auth";
 
 type SearchResult = {
-  tmdbId: number;
   name: string;
+  tmdbId: number;
   overview: string;
-  posterPath: string | null;
   firstAirDate?: string;
+  posterPath: string | null;
 };
 
 const TMDB_IMG = "https://image.tmdb.org/t/p/w185";
@@ -41,15 +42,15 @@ function Dashboard() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [debouncedQuery] = useDebouncedValue(searchQuery, 250);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
 
-  // Debounced search effect
   useEffect(() => {
     let cancelled = false;
 
     async function runSearch() {
-      const trimmed = searchQuery.trim();
+      const trimmed = debouncedQuery.trim();
       if (trimmed.length < 2) {
         setSearchResults([]);
         setSearchError(null);
@@ -74,12 +75,11 @@ function Dashboard() {
       }
     }
 
-    const timer = setTimeout(runSearch, 250);
+    void runSearch();
     return () => {
       cancelled = true;
-      clearTimeout(timer);
     };
-  }, [searchQuery, searchShows]);
+  }, [debouncedQuery, searchShows]);
 
   return (
     <main>
@@ -120,8 +120,8 @@ function Dashboard() {
                   <div className="show-poster">
                     {show.posterPath ? (
                       <img
-                        src={`${TMDB_IMG}${show.posterPath}`}
                         alt={show.name}
+                        src={`${TMDB_IMG}${show.posterPath}`}
                       />
                     ) : (
                       <div className="poster-placeholder">No Image</div>
