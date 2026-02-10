@@ -1,14 +1,30 @@
 import { useEffect, useState } from "react";
-import { faker } from "@faker-js/faker";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation, useQuery, Authenticated, Unauthenticated, AuthLoading } from "convex/react";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "../convex/_generated/api";
-
-// For demo purposes. In a real app, you'd have real user data.
-const NAME = getOrSetFakeName();
+import { Auth } from "./components/Auth";
 
 export default function App() {
+  return (
+    <>
+      <AuthLoading>
+        <div>Loading...</div>
+      </AuthLoading>
+      <Unauthenticated>
+        <Auth />
+      </Unauthenticated>
+      <Authenticated>
+        <Chat />
+      </Authenticated>
+    </>
+  );
+}
+
+function Chat() {
   const messages = useQuery(api.chat.getMessages);
+  const currentUser = useQuery(api.chat.getCurrentUser);
   const sendMessage = useMutation(api.chat.sendMessage);
+  const { signOut } = useAuthActions();
 
   const [newMessageText, setNewMessageText] = useState("");
 
@@ -19,28 +35,30 @@ export default function App() {
     }, 0);
   }, [messages]);
 
+  const currentUserEmail = currentUser?.email || "";
+
   return (
     <main className="chat">
       <header>
         <h1>Convex Chat</h1>
         <p>
-          Connected as <strong>{NAME}</strong>
+          Connected as <strong>{currentUserEmail}</strong>
         </p>
+        <button onClick={() => void signOut()}>Sign Out</button>
       </header>
       {messages?.map((message) => (
         <article
           key={message._id}
-          className={message.user === NAME ? "message-mine" : ""}
+          className={message.user === currentUserEmail ? "message-mine" : ""}
         >
           <div>{message.user}</div>
-
           <p>{message.body}</p>
         </article>
       ))}
       <form
         onSubmit={async (e) => {
           e.preventDefault();
-          await sendMessage({ body: newMessageText, user: NAME });
+          await sendMessage({ body: newMessageText });
           setNewMessageText("");
         }}
       >
@@ -59,15 +77,4 @@ export default function App() {
       </form>
     </main>
   );
-}
-
-function getOrSetFakeName() {
-  const NAME_KEY = "tutorial_name";
-  const name = sessionStorage.getItem(NAME_KEY);
-  if (!name) {
-    const newName = faker.person.firstName();
-    sessionStorage.setItem(NAME_KEY, newName);
-    return newName;
-  }
-  return name;
 }

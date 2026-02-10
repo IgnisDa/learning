@@ -51,7 +51,40 @@ docker compose down -v
 - `DO_NOT_REQUIRE_SSL` (optional for local dev)
 - `DISABLE_BEACON` (optional telemetry disable)
 
+## Local Development
+
+For local development without Docker:
+
+```bash
+npm install
+npm run dev
+```
+
+The `npm run dev` command automatically:
+1. Checks for required Convex environment variables (`JWT_PRIVATE_KEY`, `JWKS`, `SITE_URL`)
+2. Generates and sets them if missing
+3. Initializes the Convex backend
+4. Starts both the frontend and backend in parallel
+
+### Manual Environment Setup
+
+If you need to manually set up environment variables:
+
+```bash
+npm run setup-env
+```
+
+This script will check and configure:
+- `JWT_PRIVATE_KEY` - RSA private key for JWT signing
+- `JWKS` - JSON Web Key Set for token verification
+- `SITE_URL` - Your application URL (default: http://localhost:5173)
+
+### Resetting Environment
+
+If you delete `~/.convex/anonymous-convex-backend-state/`, the environment variables will be cleared. Simply run `npm run dev` again to automatically reconfigure them.
+
 ## Notes
 
 - `.env.local` is excluded from Docker build context via `.dockerignore`.
 - Persistent data (DB + storage) lives under `/convex/data`.
+- Environment variables are stored in the Convex deployment and persist across restarts.

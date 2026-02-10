@@ -1,15 +1,29 @@
 import { api, internal } from "./_generated/api";
-import { internalAction, mutation, query } from "./_generated/server";
+import { internalAction, internalMutation, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 export const sendMessage = mutation({
-  args: { user: v.string(), body: v.string() },
-  handler: async ({ db, scheduler }, { user, body }) => {
-    await db.insert("messages", { body, user });
+  args: { body: v.string() },
+  handler: async (ctx, { body }) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      throw new Error("User must be authenticated to send messages");
+    }
+    
+    // Get user's email to display in chat
+    const user = await ctx.db.get(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    
+    const userDisplay = user.email || "Anonymous";
+    
+    await ctx.db.insert("messages", { body, user: userDisplay });
 
     if (body.startsWith("/wiki")) {
       const topic = body.slice(body.indexOf(" ") + 1);
-      await scheduler.runAfter(0, internal.chat.getWikipediaSummary, {
+      await ctx.scheduler.runAfter(0, internal.chat.getWikipediaSummary, {
         topic,
       });
     }
@@ -24,17 +38,34 @@ export const getMessages = query({
   },
 });
 
+export const getCurrentUser = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
+    return await ctx.db.get(userId);
+  },
+});
+
+export const sendWikipediaMessage = internalMutation({
+  args: { body: v.string() },
+  handler: async (ctx, { body }) => {
+    await ctx.db.insert("messages", { body, user: "Wikipedia" });
+  },
+});
+
 export const getWikipediaSummary = internalAction({
   args: { topic: v.string() },
-  handler: async ({ scheduler }, { topic }) => {
+  handler: async ({ runMutation }, { topic }) => {
     const response = await fetch(
       `https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles=${encodeURIComponent(topic)}`,
     );
 
     const summary = getSummaryFromJSON(await response.json());
-    await scheduler.runAfter(0, api.chat.sendMessage, {
+    await runMutation(internal.chat.sendWikipediaMessage, {
       body: summary,
-      user: "Wikipedia",
     });
   },
 });
