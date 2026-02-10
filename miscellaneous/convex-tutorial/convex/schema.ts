@@ -2,16 +2,6 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 import { authTables } from "@convex-dev/auth/server";
 
-export type EnrichState = "queued" | "running" | "ready" | "error";
-export type CreditKind = "cast" | "crew";
-export type OutboxStatus = "pending" | "running" | "done" | "error";
-export type WatchStatus =
-  | "plan_to_watch"
-  | "watching"
-  | "completed"
-  | "on_hold"
-  | "dropped";
-
 export default defineSchema({
   ...authTables,
   // Custom users table definition with required auth fields
