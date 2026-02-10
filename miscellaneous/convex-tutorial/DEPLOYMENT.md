@@ -73,6 +73,7 @@ docker compose down -v
 ### Environment Variables
 
 **Docker/Deployment:**
+
 - `CONVEX_CLOUD_ORIGIN` (default: `http://localhost:3000`)
 - `CONVEX_SITE_ORIGIN` (default: `http://localhost:3000/_site`)
 - `CONVEX_AUTO_DEPLOY` (default: `1`; set `0` to disable auto-deploy)
@@ -80,9 +81,13 @@ docker compose down -v
 - `DISABLE_BEACON` (optional telemetry disable)
 
 **Application (synced to Convex automatically):**
+
 - `TMDB_API_KEY` - Your TMDB API key for movie data (optional, but required for movie features)
 
-These variables are automatically synced from your local environment to Convex at startup via `scripts/setup-env.mjs`.
+These variables are automatically synced to Convex at startup via `scripts/setup-env.mjs`. The script loads variables from:
+1. `.env.local` (takes precedence, git-ignored)
+2. `.env` (fallback)
+3. Shell environment variables
 
 ### Notes
 
