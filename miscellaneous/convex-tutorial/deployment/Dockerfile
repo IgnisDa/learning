@@ -20,8 +20,8 @@ COPY --from=builder /app/convex /app/convex
 COPY --from=builder /app/scripts /app/scripts
 COPY --from=builder /app/tsconfig.json /app/tsconfig.json
 COPY --from=builder /app/dist /app/dist
-COPY Caddyfile /etc/caddy/Caddyfile
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY deployment/Caddyfile /etc/caddy/Caddyfile
+COPY deployment/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 

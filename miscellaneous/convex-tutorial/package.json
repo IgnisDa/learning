@@ -5,8 +5,8 @@
     "build": "tsc && vite build",
     "dev:frontend": "vite --open",
     "predev": "convex dev --once",
-    "setup-env": "node scripts/setup-env.mjs",
-    "dev:backend": "node scripts/dev-backend.mjs",
+    "configure-auth": "node scripts/configure-auth.mjs",
+    "dev:backend": "node scripts/start-backend.mjs",
     "dev": "npm-run-all --parallel dev:backend dev:frontend"
   },
   "dependencies": {

@@ -1,62 +1,17 @@
-# Convex Tutorial (Single-Container Docker)
+# Convex Chat Application
 
-This project runs as a single container on port `3000` with:
+A real-time chat application built with React, Convex, and TypeScript. Features user authentication and Wikipedia integration.
 
-- React app served as static files by Caddy
-- Self-hosted Convex backend
-- Convex HTTP actions proxy
+## Features
 
-The Convex dashboard is intentionally **not** included.
+- **Real-time messaging** - Messages appear instantly for all users
+- **User authentication** - Email/password sign up and sign in
+- **Wikipedia integration** - Use `/wiki <topic>` to get summaries from Wikipedia
+- **Self-hosted Convex backend** - Run your own Convex instance
 
-## Routes
+## Quick Start
 
-- App: `http://localhost:3000/`
-- Convex API + sync: `http://localhost:3000` (proxied to backend)
-- Convex site proxy: `http://localhost:3000/_site/`
-- Convex dashboard: disabled (`/_dashboard` returns 404)
-
-## Auto Deploy on Startup
-
-At container startup, the entrypoint:
-
-1. Starts Convex backend
-2. Waits for backend readiness
-3. Generates an admin key
-4. Configures auth environment variables (`JWT_PRIVATE_KEY`, `JWKS`)
-5. Runs `npm exec -- convex deploy --yes`
-6. Starts Caddy
-
-If deploy fails, container startup fails (fail-fast behavior).
-
-**Authentication is automatically configured** - users can immediately sign up and log in without any manual setup.
-
-## Run with Docker Compose
-
-Use the compose file at `/tmp/convex-tutorial-docker/docker-compose.yml`:
-
-```bash
-cd /tmp/convex-tutorial-docker
-docker compose up --build
-```
-
-To reset everything:
-
-```bash
-cd /tmp/convex-tutorial-docker
-docker compose down -v
-```
-
-## Key Environment Variables
-
-- `CONVEX_CLOUD_ORIGIN` (default: `http://localhost:3000`)
-- `CONVEX_SITE_ORIGIN` (default: `http://localhost:3000/_site`)
-- `CONVEX_AUTO_DEPLOY` (default: `1`; set `0` to disable auto-deploy)
-- `DO_NOT_REQUIRE_SSL` (optional for local dev)
-- `DISABLE_BEACON` (optional telemetry disable)
-
-## Local Development
-
-For local development without Docker:
+### Local Development
 
 ```bash
 npm install
@@ -69,12 +24,14 @@ The `npm run dev` command automatically:
 3. Initializes the Convex backend
 4. Starts both the frontend and backend in parallel
 
-### Manual Environment Setup
+The app will be available at `http://localhost:5173`
 
-If you need to manually set up environment variables:
+### Manual Auth Configuration
+
+If you need to manually configure authentication environment variables:
 
 ```bash
-npm run setup-env
+npm run configure-auth
 ```
 
 This script will check and configure:
@@ -85,8 +42,44 @@ This script will check and configure:
 
 If you delete `~/.convex/anonymous-convex-backend-state/`, the environment variables will be cleared. Simply run `npm run dev` again to automatically reconfigure them.
 
-## Notes
+## Usage
 
-- `.env.local` is excluded from Docker build context via `.dockerignore`.
-- Persistent data (DB + storage) lives under `/convex/data`.
-- Environment variables are stored in the Convex deployment and persist across restarts.
+1. **Sign up** - Create an account with your email and password
+2. **Chat** - Send messages in real-time with other users
+3. **Wikipedia lookup** - Type `/wiki <topic>` to get information from Wikipedia
+
+Example: `/wiki React` will fetch and display a summary about React from Wikipedia.
+
+## Project Structure
+
+```
+convex-tutorial/
+  src/               # React frontend
+    components/      # Auth components
+    App.tsx         # Main chat interface
+  convex/           # Convex backend
+    auth.ts         # Authentication logic
+    chat.ts         # Chat mutations and queries
+    schema.ts       # Database schema
+  scripts/          # Development utilities
+  deployment/       # Docker deployment files
+```
+
+## Development Scripts
+
+- `npm run dev` - Start both frontend and backend in development mode
+- `npm run dev:frontend` - Start only the frontend (Vite)
+- `npm run dev:backend` - Start only the backend (Convex)
+- `npm run configure-auth` - Manually configure auth environment variables
+- `npm run build` - Build the production bundle
+
+## Deployment
+
+For Docker deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+
+## Tech Stack
+
+- **Frontend**: React, TypeScript, Vite
+- **Backend**: Convex (self-hosted)
+- **Auth**: @convex-dev/auth with JWT
+- **Deployment**: Docker, Caddy

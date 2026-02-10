@@ -22,11 +22,11 @@ const checkBackend = async () => {
       });
       console.log('\n✅ Backend is ready! Checking environment...\n');
       
-      // Run setup-env check
+      // Run auth configuration check
       try {
-        execSync('npm run setup-env', { stdio: 'inherit' });
+        execSync('npm run configure-auth', { stdio: 'inherit' });
       } catch (error) {
-        console.error('\n⚠️  Environment setup failed, but continuing...\n');
+        console.error('\n⚠️  Auth configuration failed, but continuing...\n');
       }
       
       return;

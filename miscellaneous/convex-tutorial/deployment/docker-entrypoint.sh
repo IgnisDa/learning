@@ -39,7 +39,7 @@ export CONVEX_SELF_HOSTED_ADMIN_KEY="$ADMIN_KEY"
 unset CONVEX_DEPLOYMENT || true
 (
   cd /app
-  node scripts/setup-env.mjs
+  node scripts/configure-auth.mjs
 )
 echo "Auth environment variables configured."
 
