@@ -33,7 +33,6 @@
 	# Static frontend app
 	handle {
 		root * /app/dist
-		try_files {path} /index.html
 		file_server
 	}
 }
