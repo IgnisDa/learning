@@ -13,7 +13,7 @@ const TMDB_POSTER = "https://image.tmdb.org/t/p/w342";
 const TMDB_PROFILE = "https://image.tmdb.org/t/p/w185";
 const TMDB_STILL = "https://image.tmdb.org/t/p/w300";
 
-export const Route = createFileRoute("/__dashboard/show")({
+export const Route = createFileRoute("/_dashboard/show")({
   validateSearch: (search: Record<string, unknown>) => ({
     id: typeof search.id === "string" ? search.id : undefined,
   }),

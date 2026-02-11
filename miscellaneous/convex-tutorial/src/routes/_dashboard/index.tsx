@@ -3,7 +3,7 @@ import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
 import { useEffect } from "react";
 import { Dashboard } from "@/components/Dashboard";
 
-export const Route = createFileRoute("/__dashboard/")({
+export const Route = createFileRoute("/_dashboard/")({
   component: IndexPage,
 });
 

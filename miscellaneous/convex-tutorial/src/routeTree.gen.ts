@@ -11,8 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SigninRouteImport } from './routes/signin'
-import { Route as _dashboardIndexRouteImport } from './routes/__dashboard/index'
-import { Route as _dashboardShowRouteImport } from './routes/__dashboard/show'
+import { Route as DashboardIndexRouteImport } from './routes/_dashboard/index'
+import { Route as DashboardShowRouteImport } from './routes/_dashboard/show'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -24,13 +24,13 @@ const SigninRoute = SigninRouteImport.update({
   path: '/signin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const _dashboardIndexRoute = _dashboardIndexRouteImport.update({
-  id: '/__dashboard/',
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/_dashboard/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const _dashboardShowRoute = _dashboardShowRouteImport.update({
-  id: '/__dashboard/show',
+const DashboardShowRoute = DashboardShowRouteImport.update({
+  id: '/_dashboard/show',
   path: '/show',
   getParentRoute: () => rootRouteImport,
 } as any)
@@ -38,35 +38,35 @@ const _dashboardShowRoute = _dashboardShowRouteImport.update({
 export interface FileRoutesByFullPath {
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
-  '/show': typeof _dashboardShowRoute
-  '/': typeof _dashboardIndexRoute
+  '/show': typeof DashboardShowRoute
+  '/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
-  '/show': typeof _dashboardShowRoute
-  '/': typeof _dashboardIndexRoute
+  '/show': typeof DashboardShowRoute
+  '/': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
-  '/__dashboard/show': typeof _dashboardShowRoute
-  '/__dashboard/': typeof _dashboardIndexRoute
+  '/_dashboard/show': typeof DashboardShowRoute
+  '/_dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths: '/signin' | '/signup' | '/show' | '/'
   fileRoutesByTo: FileRoutesByTo
   to: '/signin' | '/signup' | '/show' | '/'
-  id: '__root__' | '/signin' | '/signup' | '/__dashboard/show' | '/__dashboard/'
+  id: '__root__' | '/signin' | '/signup' | '/_dashboard/show' | '/_dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   SigninRoute: typeof SigninRoute
   SignupRoute: typeof SignupRoute
-  _dashboardShowRoute: typeof _dashboardShowRoute
-  _dashboardIndexRoute: typeof _dashboardIndexRoute
+  DashboardShowRoute: typeof DashboardShowRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -85,18 +85,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SigninRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/__dashboard/': {
-      id: '/__dashboard/'
+    '/_dashboard/': {
+      id: '/_dashboard/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof _dashboardIndexRouteImport
+      preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/__dashboard/show': {
-      id: '/__dashboard/show'
+    '/_dashboard/show': {
+      id: '/_dashboard/show'
       path: '/show'
       fullPath: '/show'
-      preLoaderRoute: typeof _dashboardShowRouteImport
+      preLoaderRoute: typeof DashboardShowRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -105,8 +105,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   SigninRoute: SigninRoute,
   SignupRoute: SignupRoute,
-  _dashboardShowRoute: _dashboardShowRoute,
-  _dashboardIndexRoute: _dashboardIndexRoute,
+  DashboardShowRoute: DashboardShowRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
