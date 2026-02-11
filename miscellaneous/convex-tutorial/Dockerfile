@@ -5,7 +5,7 @@ RUN yarn install --frozen-lockfile --non-interactive
 COPY . .
 RUN yarn build
 
-FROM ghcr.io/get-convex/convex-backend:latest AS runtime
+FROM ghcr.io/get-convex/convex-backend:4ef979bd2092596726da3ad9d13decc5b3ad2aea AS runtime
 WORKDIR /app
 RUN npm install -g yarn@1.22.22
 COPY --from=caddy:2.9.1 /usr/bin/caddy /usr/local/bin/caddy
