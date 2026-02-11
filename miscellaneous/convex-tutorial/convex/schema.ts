@@ -1,10 +1,10 @@
+import { authTables } from "@convex-dev/auth/server";
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
-import { authTables } from "@convex-dev/auth/server";
 
 export default defineSchema({
   ...authTables,
-  // Custom users table definition with required auth fields
+
   users: defineTable({
     name: v.optional(v.string()),
     image: v.optional(v.string()),
@@ -20,7 +20,15 @@ export default defineSchema({
     tmdbId: v.number(),
     overview: v.optional(v.string()),
     posterPath: v.optional(v.string()),
-  }),
+  }).index("tmdbId", ["tmdbId"]),
+
+  userShows: defineTable({
+    userId: v.id("users"),
+    showId: v.id("shows"),
+  })
+    .index("userId", ["userId"])
+    .index("showId", ["showId"])
+    .index("userIdShowId", ["userId", "showId"]),
 
   seasons: defineTable({
     name: v.string(),
@@ -30,13 +38,15 @@ export default defineSchema({
     overview: v.optional(v.string()),
     posterPath: v.optional(v.string()),
     episodeCount: v.optional(v.number()),
-  }),
+  })
+    .index("showId", ["showId"])
+    .index("showIdSeasonNumber", ["showId", "seasonNumber"]),
 
   persons: defineTable({
     name: v.string(),
     tmdbPersonId: v.number(),
     profilePath: v.optional(v.string()),
-  }),
+  }).index("tmdbPersonId", ["tmdbPersonId"]),
 
   episodes: defineTable({
     name: v.string(),
@@ -46,7 +56,9 @@ export default defineSchema({
     runtime: v.optional(v.number()),
     overview: v.optional(v.string()),
     stillPath: v.optional(v.string()),
-  }),
+  })
+    .index("seasonId", ["seasonId"])
+    .index("seasonIdEpisodeNumber", ["seasonId", "episodeNumber"]),
 
   credits: defineTable({
     kind: v.string(),
@@ -56,5 +68,5 @@ export default defineSchema({
     character: v.optional(v.string()),
     department: v.optional(v.string()),
     orderIndex: v.optional(v.number()),
-  }),
+  }).index("showId", ["showId"]),
 });
