@@ -19,7 +19,6 @@ COPY --from=builder /app/dist/client /app/dist
 COPY deployment/Caddyfile /etc/caddy/Caddyfile
 COPY deployment/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-ENV CONVEX_AUTO_DEPLOY=1
 ENV CONVEX_CLOUD_ORIGIN=http://localhost:3000
 ENV CONVEX_SITE_ORIGIN=http://localhost:3000/_site
 EXPOSE 3000

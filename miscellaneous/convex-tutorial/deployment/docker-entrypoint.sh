@@ -3,7 +3,6 @@ set -euo pipefail
 
 export CONVEX_CLOUD_ORIGIN="${CONVEX_CLOUD_ORIGIN:-http://localhost:3000}"
 export CONVEX_SITE_ORIGIN="${CONVEX_SITE_ORIGIN:-http://localhost:3000/_site}"
-export CONVEX_AUTO_DEPLOY="${CONVEX_AUTO_DEPLOY:-1}"
 
 echo "Starting Convex backend..."
 (
@@ -50,20 +49,15 @@ echo "$ADMIN_KEY"
 echo "============================================"
 echo ""
 
-AUTO_DEPLOY_NORMALIZED="$(printf '%s' "$CONVEX_AUTO_DEPLOY" | tr '[:upper:]' '[:lower:]')"
-if [ "$AUTO_DEPLOY_NORMALIZED" = "1" ] || [ "$AUTO_DEPLOY_NORMALIZED" = "true" ] || [ "$AUTO_DEPLOY_NORMALIZED" = "yes" ]; then
-  echo "Deploying Convex functions..."
-  export CONVEX_SELF_HOSTED_URL="http://127.0.0.1:3210"
-  export CONVEX_SELF_HOSTED_ADMIN_KEY="$ADMIN_KEY"
-  unset CONVEX_DEPLOYMENT || true
-  (
-    cd /app
-    yarn exec -- convex deploy --yes
-  )
-  echo "Convex functions deployed successfully."
-else
-  echo "Skipping Convex auto deploy (CONVEX_AUTO_DEPLOY=$CONVEX_AUTO_DEPLOY)."
-fi
+echo "Deploying Convex functions..."
+export CONVEX_SELF_HOSTED_URL="http://127.0.0.1:3210"
+export CONVEX_SELF_HOSTED_ADMIN_KEY="$ADMIN_KEY"
+unset CONVEX_DEPLOYMENT || true
+(
+  cd /app
+  yarn exec -- convex deploy --yes
+)
+echo "Convex functions deployed successfully."
 
 echo "Starting Caddy reverse proxy..."
 echo ""

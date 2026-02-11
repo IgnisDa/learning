@@ -51,7 +51,6 @@ services:
     environment:
       - CONVEX_CLOUD_ORIGIN=http://localhost:3000
       - CONVEX_SITE_ORIGIN=http://localhost:3000/_site
-      - CONVEX_AUTO_DEPLOY=1
       - TMDB_API_KEY=${TMDB_API_KEY:-}
 
 volumes:
@@ -76,7 +75,6 @@ docker compose down -v
 
 - `CONVEX_CLOUD_ORIGIN` (default: `http://localhost:3000`)
 - `CONVEX_SITE_ORIGIN` (default: `http://localhost:3000/_site`)
-- `CONVEX_AUTO_DEPLOY` (default: `1`; set `0` to disable auto-deploy)
 - `DO_NOT_REQUIRE_SSL` (optional for local dev)
 - `DISABLE_BEACON` (optional telemetry disable)
 
