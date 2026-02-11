@@ -3,7 +3,7 @@ import { execSync } from "child_process";
 import { config } from "dotenv";
 import { exportJWK, exportPKCS8, generateKeyPair } from "jose";
 
-config({ path: ".env" });
+config({ path: ".env.local" });
 
 // Auth-related variables that are auto-generated
 const AUTH_VARS = ["JWT_PRIVATE_KEY", "JWKS", "SITE_URL"];
