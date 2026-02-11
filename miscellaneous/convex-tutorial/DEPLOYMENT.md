@@ -91,6 +91,5 @@ These variables are automatically synced to Convex at startup via `scripts/setup
 
 ### Notes
 
-- `.env.local` is excluded from Docker build context via `.dockerignore`.
 - Persistent data (DB + storage) lives under `/convex/data`.
 - Environment variables are stored in the Convex deployment and persist across restarts.
