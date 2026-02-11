@@ -172,7 +172,7 @@ export const listMyShows = query({
       _id: Id<"shows">;
       overview: string | undefined;
       posterPath: string | undefined;
-      _creationTime: Doc<"shows">["_creationTime"];
+      addedAt: number;
     }> = [];
 
     for (const userShow of userShows) {
@@ -183,13 +183,138 @@ export const listMyShows = query({
         _id: show._id,
         name: show.name,
         tmdbId: show.tmdbId,
+        addedAt: userShow._creationTime,
         overview: show.overview,
         posterPath: show.posterPath,
-        _creationTime: show._creationTime,
       });
     }
 
-    return myShows.sort((a, b) => b._creationTime - a._creationTime);
+    return myShows.sort((a, b) => b.addedAt - a.addedAt);
+  },
+});
+
+export const getMyShowDetails = query({
+  args: {
+    showId: v.id("shows"),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return null;
+
+    const userShow = await ctx.db
+      .query("userShows")
+      .withIndex("userIdShowId", (q) =>
+        q.eq("userId", userId).eq("showId", args.showId),
+      )
+      .first();
+    if (!userShow) return null;
+
+    const show = await ctx.db.get(args.showId);
+    if (!show) return null;
+
+    const seasons = await ctx.db
+      .query("seasons")
+      .withIndex("showId", (q) => q.eq("showId", show._id))
+      .collect();
+
+    const seasonsWithEpisodes = await Promise.all(
+      seasons
+        .slice()
+        .sort((a, b) => a.seasonNumber - b.seasonNumber)
+        .map(async (season) => {
+          const episodes = await ctx.db
+            .query("episodes")
+            .withIndex("seasonId", (q) => q.eq("seasonId", season._id))
+            .collect();
+
+          return {
+            id: season._id,
+            seasonNumber: season.seasonNumber,
+            name: season.name,
+            overview: season.overview,
+            posterPath: season.posterPath,
+            episodeCount: season.episodeCount,
+            airDate: season.airDate,
+            episodes: episodes
+              .slice()
+              .sort((a, b) => a.episodeNumber - b.episodeNumber)
+              .map((episode) => ({
+                id: episode._id,
+                episodeNumber: episode.episodeNumber,
+                name: episode.name,
+                overview: episode.overview,
+                stillPath: episode.stillPath,
+                airDate: episode.airDate,
+                runtime: episode.runtime,
+              })),
+          };
+        }),
+    );
+
+    const credits = await ctx.db
+      .query("credits")
+      .withIndex("showId", (q) => q.eq("showId", show._id))
+      .collect();
+
+    const peopleById = new Map<Id<"persons">, Doc<"persons">>();
+    await Promise.all(
+      credits.map(async (credit) => {
+        if (peopleById.has(credit.personId)) return;
+        const person = await ctx.db.get(credit.personId);
+        if (person) {
+          peopleById.set(person._id, person);
+        }
+      }),
+    );
+
+    const cast = credits
+      .filter((credit) => credit.kind === "cast")
+      .map((credit) => ({
+        id: credit._id,
+        character: credit.character,
+        orderIndex: credit.orderIndex,
+        person: peopleById.get(credit.personId)
+          ? {
+              id: credit.personId,
+              name: peopleById.get(credit.personId)!.name,
+              profilePath: peopleById.get(credit.personId)!.profilePath,
+            }
+          : null,
+      }))
+      .sort(
+        (a, b) =>
+          (a.orderIndex ?? Number.MAX_SAFE_INTEGER) -
+          (b.orderIndex ?? Number.MAX_SAFE_INTEGER),
+      );
+
+    const crew = credits
+      .filter((credit) => credit.kind === "crew")
+      .map((credit) => ({
+        id: credit._id,
+        department: credit.department,
+        job: credit.job,
+        person: peopleById.get(credit.personId)
+          ? {
+              id: credit.personId,
+              name: peopleById.get(credit.personId)!.name,
+              profilePath: peopleById.get(credit.personId)!.profilePath,
+            }
+          : null,
+      }));
+
+    return {
+      show: {
+        id: show._id,
+        tmdbId: show.tmdbId,
+        name: show.name,
+        overview: show.overview,
+        posterPath: show.posterPath,
+        addedAt: userShow._creationTime,
+      },
+      seasons: seasonsWithEpisodes,
+      cast,
+      crew,
+    };
   },
 });
 
@@ -319,7 +444,10 @@ export const saveShowGraphFromTmdb = internalMutation({
       .first();
 
     if (!existingUserShow) {
-      await ctx.db.insert("userShows", { showId, userId: args.userId });
+      await ctx.db.insert("userShows", {
+        showId,
+        userId: args.userId,
+      });
     }
 
     const existingCredits = await ctx.db

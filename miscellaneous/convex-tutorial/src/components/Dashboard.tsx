@@ -1,6 +1,7 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useMutation } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { useAction, useQuery } from "convex/react";
 import { useEffect, useState, type CSSProperties } from "react";
 import { api } from "../../convex/_generated/api";
@@ -53,6 +54,9 @@ export function Dashboard() {
   }, [activeTab, debouncedQuery, searchShows]);
 
   const myShowTmdbIds = new Set(myShows.map((show) => show.tmdbId));
+  const myShowIdByTmdbId = new Map(
+    myShows.map((show) => [show.tmdbId, show._id] as const),
+  );
 
   return (
     <main className="w-full max-w-6xl min-h-screen px-4 pt-8 pb-10 mx-auto sm:px-6 lg:px-8">
@@ -163,6 +167,16 @@ export function Dashboard() {
                           {show.overview || "No description available"}
                         </p>
                       </div>
+
+                      <div className="shrink-0">
+                        <Link
+                          className="inline-flex items-center justify-center px-4 text-sm font-medium transition bg-white border rounded-md h-9 border-neutral-300 text-neutral-700 hover:border-neutral-400 hover:bg-neutral-100 hover:text-neutral-900"
+                          search={{ id: show._id }}
+                          to="/show"
+                        >
+                          View
+                        </Link>
+                      </div>
                     </li>
                   ))}
                 </ul>
@@ -228,6 +242,7 @@ export function Dashboard() {
                     const alreadyAdded = myShowTmdbIds.has(show.tmdbId);
                     const isAddingCurrent =
                       isAddingShow && addShowVariables === show.tmdbId;
+                    const existingShowId = myShowIdByTmdbId.get(show.tmdbId);
 
                     return (
                       <li
@@ -269,18 +284,24 @@ export function Dashboard() {
                         </div>
 
                         <div className="shrink-0">
-                          <button
-                            className="inline-flex items-center justify-center px-4 text-sm font-medium transition bg-white border rounded-md h-9 border-neutral-300 text-neutral-700 hover:border-neutral-400 hover:bg-neutral-100 hover:text-neutral-900 disabled:cursor-not-allowed disabled:opacity-60"
-                            disabled={alreadyAdded || isAddingCurrent}
-                            onClick={() => addShow(show.tmdbId)}
-                            type="button"
-                          >
-                            {alreadyAdded
-                              ? "Added"
-                              : isAddingCurrent
-                                ? "Adding..."
-                                : "Add"}
-                          </button>
+                          {alreadyAdded && existingShowId ? (
+                            <Link
+                              className="inline-flex items-center justify-center px-4 text-sm font-medium transition bg-white border rounded-md h-9 border-neutral-300 text-neutral-700 hover:border-neutral-400 hover:bg-neutral-100 hover:text-neutral-900"
+                              search={{ id: existingShowId }}
+                              to="/show"
+                            >
+                              View
+                            </Link>
+                          ) : (
+                            <button
+                              className="inline-flex items-center justify-center px-4 text-sm font-medium transition bg-white border rounded-md h-9 border-neutral-300 text-neutral-700 hover:border-neutral-400 hover:bg-neutral-100 hover:text-neutral-900 disabled:cursor-not-allowed disabled:opacity-60"
+                              disabled={isAddingCurrent}
+                              onClick={() => addShow(show.tmdbId)}
+                              type="button"
+                            >
+                              {isAddingCurrent ? "Adding..." : "Add"}
+                            </button>
+                          )}
                         </div>
                       </li>
                     );
