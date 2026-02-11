@@ -4,17 +4,9 @@
 }
 
 :3000 {
-	# Convex backend API
-	handle /api/* {
-		reverse_proxy 127.0.0.1:3210
-	}
-
-	# Convex sync WebSocket endpoint
-	handle /sync/* {
-		reverse_proxy 127.0.0.1:3210
-	}
-
-	handle /version {
+	# Convex backend API, sync WebSocket endpoint, and version
+	@backend path /api/* /sync/* /version
+	handle @backend {
 		reverse_proxy 127.0.0.1:3210
 	}
 

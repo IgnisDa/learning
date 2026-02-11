@@ -8,7 +8,7 @@ RUN yarn build
 FROM ghcr.io/get-convex/convex-backend:4ef979bd2092596726da3ad9d13decc5b3ad2aea AS runtime
 WORKDIR /app
 RUN npm install -g yarn@1.22.22
-COPY --from=caddy:2.9.1 /usr/bin/caddy /usr/local/bin/caddy
+COPY --from=caddy:2.10.2 /usr/bin/caddy /usr/local/bin/caddy
 COPY --from=builder /app/package.json /app/package.json
 COPY --from=builder /app/yarn.lock /app/yarn.lock
 COPY --from=builder /app/node_modules /app/node_modules
