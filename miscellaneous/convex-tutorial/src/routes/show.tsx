@@ -57,6 +57,9 @@ function ShowPage() {
   const [activeTab, setActiveTab] = useState<"seasons" | "cast" | "crew">(
     "seasons",
   );
+  const [expandedSeasonIds, setExpandedSeasonIds] = useState<Set<string>>(
+    () => new Set(),
+  );
 
   const details = useQuery(
     api.tmdb.getMyShowDetails,
@@ -65,6 +68,18 @@ function ShowPage() {
 
   const cast = useMemo(() => details?.cast ?? [], [details]);
   const crew = useMemo(() => details?.crew ?? [], [details]);
+
+  const toggleSeason = (seasonId: string) => {
+    setExpandedSeasonIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(seasonId)) {
+        next.delete(seasonId);
+      } else {
+        next.add(seasonId);
+      }
+      return next;
+    });
+  };
 
   if (!id) {
     return (
@@ -201,7 +216,12 @@ function ShowPage() {
                 className="overflow-hidden border rounded-lg border-neutral-200"
                 key={season.id}
               >
-                <div className="flex items-start gap-4 p-4 bg-neutral-50">
+                <button
+                  aria-expanded={expandedSeasonIds.has(String(season.id))}
+                  className="flex items-start w-full gap-4 p-4 text-left transition bg-neutral-50 hover:bg-neutral-100"
+                  onClick={() => toggleSeason(String(season.id))}
+                  type="button"
+                >
                   <div className="w-16 h-24 overflow-hidden border rounded-md shrink-0 border-neutral-200 bg-neutral-100">
                     {season.posterPath ? (
                       <img
@@ -233,48 +253,56 @@ function ShowPage() {
                       </p>
                     )}
                   </div>
-                </div>
+                  <span className="text-sm text-neutral-500">
+                    {expandedSeasonIds.has(String(season.id)) ? "-" : "+"}
+                  </span>
+                </button>
 
-                <ul className="bg-white divide-y divide-neutral-200">
-                  {season.episodes.map((episode) => (
-                    <li className="flex items-start gap-3 p-3" key={episode.id}>
-                      <div className="overflow-hidden border rounded h-17 w-30 shrink-0 border-neutral-200 bg-neutral-100">
-                        {episode.stillPath ? (
-                          <img
-                            alt={episode.name}
-                            className="object-cover w-full h-full"
-                            src={`${TMDB_STILL}${episode.stillPath}`}
-                          />
-                        ) : (
-                          <div className="flex items-center justify-center w-full h-full text-xs text-neutral-500">
-                            E{episode.episodeNumber}
-                          </div>
-                        )}
-                      </div>
+                {expandedSeasonIds.has(String(season.id)) && (
+                  <ul className="pl-6 bg-white divide-y divide-neutral-200 sm:pl-10">
+                    {season.episodes.map((episode) => (
+                      <li
+                        className="flex items-start gap-3 p-3"
+                        key={episode.id}
+                      >
+                        <div className="overflow-hidden border rounded h-17 w-30 shrink-0 border-neutral-200 bg-neutral-100">
+                          {episode.stillPath ? (
+                            <img
+                              alt={episode.name}
+                              className="object-cover w-full h-full"
+                              src={`${TMDB_STILL}${episode.stillPath}`}
+                            />
+                          ) : (
+                            <div className="flex items-center justify-center w-full h-full text-xs text-neutral-500">
+                              E{episode.episodeNumber}
+                            </div>
+                          )}
+                        </div>
 
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-neutral-900">
-                          {episode.episodeNumber}. {episode.name}
-                        </p>
-                        <p className="mt-0.5 text-xs text-neutral-500">
-                          {episode.airDate ?? "Unknown air date"}
-                          {episode.runtime ? ` - ${episode.runtime} min` : ""}
-                        </p>
-                        {episode.overview && (
-                          <p className="mt-1 text-sm leading-5 text-neutral-600">
-                            {episode.overview}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-neutral-900">
+                            {episode.episodeNumber}. {episode.name}
                           </p>
-                        )}
-                      </div>
-                    </li>
-                  ))}
+                          <p className="mt-0.5 text-xs text-neutral-500">
+                            {episode.airDate ?? "Unknown air date"}
+                            {episode.runtime ? ` - ${episode.runtime} min` : ""}
+                          </p>
+                          {episode.overview && (
+                            <p className="mt-1 text-sm leading-5 text-neutral-600">
+                              {episode.overview}
+                            </p>
+                          )}
+                        </div>
+                      </li>
+                    ))}
 
-                  {season.episodes.length === 0 && (
-                    <li className="px-4 py-3 text-sm text-neutral-500">
-                      No episode data available.
-                    </li>
-                  )}
-                </ul>
+                    {season.episodes.length === 0 && (
+                      <li className="px-4 py-3 text-sm text-neutral-500">
+                        No episode data available.
+                      </li>
+                    )}
+                  </ul>
+                )}
               </article>
             ))}
           </div>
