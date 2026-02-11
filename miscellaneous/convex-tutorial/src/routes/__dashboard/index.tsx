@@ -3,7 +3,7 @@ import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
 import { useEffect } from "react";
 import { Dashboard } from "@/components/Dashboard";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/__dashboard/")({
   component: IndexPage,
 });
 
@@ -11,7 +11,7 @@ function IndexPage() {
   return (
     <>
       <AuthLoading>
-        <div className="mx-auto mt-24 w-fit rounded-md border border-neutral-200 bg-white px-4 py-2 text-sm text-neutral-600 shadow-sm">
+        <div className="px-4 py-2 mx-auto mt-24 text-sm bg-white border rounded-md shadow-sm w-fit border-neutral-200 text-neutral-600">
           Loading...
         </div>
       </AuthLoading>
@@ -33,7 +33,7 @@ function RedirectToSignIn() {
   }, [navigate]);
 
   return (
-    <div className="mx-auto mt-24 w-fit rounded-md border border-neutral-200 bg-white px-4 py-2 text-sm text-neutral-600 shadow-sm">
+    <div className="px-4 py-2 mx-auto mt-24 text-sm bg-white border rounded-md shadow-sm w-fit border-neutral-200 text-neutral-600">
       Redirecting to sign in...
     </div>
   );

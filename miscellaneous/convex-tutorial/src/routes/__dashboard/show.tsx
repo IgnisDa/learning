@@ -6,14 +6,14 @@ import {
   useQuery,
 } from "convex/react";
 import { useEffect, useMemo, useState } from "react";
-import { api } from "../../convex/_generated/api";
-import type { Id } from "../../convex/_generated/dataModel";
+import { api } from "../../../convex/_generated/api";
+import type { Id } from "../../../convex/_generated/dataModel";
 
 const TMDB_POSTER = "https://image.tmdb.org/t/p/w342";
 const TMDB_PROFILE = "https://image.tmdb.org/t/p/w185";
 const TMDB_STILL = "https://image.tmdb.org/t/p/w300";
 
-export const Route = createFileRoute("/show")({
+export const Route = createFileRoute("/__dashboard/show")({
   validateSearch: (search: Record<string, unknown>) => ({
     id: typeof search.id === "string" ? search.id : undefined,
   }),
