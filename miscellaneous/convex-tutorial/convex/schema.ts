@@ -69,4 +69,18 @@ export default defineSchema({
     department: v.optional(v.string()),
     orderIndex: v.optional(v.number()),
   }).index("showId", ["showId"]),
+
+  workPoolResults: defineTable({
+    workId: v.string(),
+    poolName: v.string(),
+    entityType: v.string(),
+    entityId: v.string(),
+    jobType: v.string(),
+    status: v.union(v.literal("pending"), v.literal("complete")),
+    context: v.optional(v.any()),
+    result: v.optional(v.any()),
+    error: v.optional(v.string()),
+  })
+    .index("workId", ["workId"])
+    .index("entity_status", ["entityType", "entityId", "status"]),
 });

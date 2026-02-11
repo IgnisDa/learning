@@ -29,7 +29,7 @@ export function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const myShows = useQuery(api.tmdb.listMyShows) ?? [];
   const searchShowsAction = useAction(api.tmdb.searchShows);
-  const addShowFromTmdbMutation = useConvexMutation(api.tmdb.addShowFromTmdb);
+  const addShowFromTmdbAction = useAction(api.tmdb.addShowFromTmdb);
   const [debouncedQuery] = useDebouncedValue(searchQuery, 250);
 
   const {
@@ -50,7 +50,7 @@ export function Dashboard() {
     variables: addShowVariables,
   } = useMutation({
     mutationFn: async ({ tmdbId, name }: { tmdbId: number; name: string }) => {
-      return await addShowFromTmdbMutation({ tmdbId, name });
+      return await addShowFromTmdbAction({ tmdbId, name });
     },
   });
 

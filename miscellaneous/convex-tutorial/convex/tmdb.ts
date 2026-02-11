@@ -7,6 +7,7 @@ import {
   action,
   internalAction,
   internalMutation,
+  internalQuery,
   mutation,
   query,
   type MutationCtx,
@@ -77,41 +78,6 @@ export type SearchResult = {
   posterPath: string | null;
 };
 
-const castCreditValidator = v.object({
-  personTmdbId: v.number(),
-  personName: v.string(),
-  profilePath: v.optional(v.string()),
-  character: v.optional(v.string()),
-  orderIndex: v.optional(v.number()),
-});
-
-const crewCreditValidator = v.object({
-  personTmdbId: v.number(),
-  personName: v.string(),
-  profilePath: v.optional(v.string()),
-  department: v.optional(v.string()),
-  job: v.optional(v.string()),
-});
-
-const seasonValidator = v.object({
-  seasonNumber: v.number(),
-  name: v.string(),
-  overview: v.optional(v.string()),
-  posterPath: v.optional(v.string()),
-  episodeCount: v.optional(v.number()),
-  airDate: v.optional(v.string()),
-  episodes: v.array(
-    v.object({
-      episodeNumber: v.number(),
-      name: v.string(),
-      overview: v.optional(v.string()),
-      stillPath: v.optional(v.string()),
-      airDate: v.optional(v.string()),
-      runtime: v.optional(v.number()),
-    }),
-  ),
-});
-
 async function tmdbFetch<T>(path: string): Promise<T> {
   const tmdbKey = process.env.TMDB_API_KEY;
   if (!tmdbKey) throw new Error("TMDB_API_KEY is not configured");
@@ -137,26 +103,468 @@ async function tmdbFetch<T>(path: string): Promise<T> {
   return (await res.json()) as T;
 }
 
-export const searchShows = action({
-  args: { query: v.string() },
-  handler: async (_ctx, args): Promise<SearchResult[]> => {
-    const trimmedQuery = args.query.trim();
-
-    // Return empty array if query is too short
-    if (trimmedQuery.length < 2) return [];
-
-    const encodedQuery = encodeURIComponent(trimmedQuery);
+export const fetchSearchResults = internalAction({
+  args: { query: v.string(), workId: v.string() },
+  handler: async (ctx, args) => {
+    const encodedQuery = encodeURIComponent(args.query);
     const data = await tmdbFetch<TmdbSearchTvResponse>(
       `/search/tv?query=${encodedQuery}&include_adult=false`,
     );
 
-    return (data.results ?? []).map((r) => ({
+    const results = (data.results ?? []).map((r) => ({
       tmdbId: r.id,
       name: r.name,
       overview: r.overview,
       posterPath: r.poster_path,
       firstAirDate: r.first_air_date,
     }));
+
+    await ctx.runMutation(internal.tmdb.saveWorkResult, {
+      workId: args.workId,
+      result: results,
+    });
+  },
+});
+
+export const searchShows = action({
+  args: { query: v.string() },
+  handler: async (ctx, args): Promise<SearchResult[]> => {
+    const trimmedQuery = args.query.trim();
+
+    if (trimmedQuery.length < 2) return [];
+
+    const workId = crypto.randomUUID();
+
+    await ctx.runMutation(internal.tmdb.createPendingWorkResult, {
+      workId,
+      poolName: "tmdb",
+      entityType: "search",
+      entityId: workId, // Use workId as entityId for search (no persistent entity)
+      jobType: "searchShows",
+      context: { query: trimmedQuery },
+    });
+
+    await tmdbWorkpool.enqueueAction(ctx, internal.tmdb.fetchSearchResults, {
+      query: trimmedQuery,
+      workId,
+    });
+
+    while (true) {
+      const status = await ctx.runQuery(internal.tmdb.getWorkResultStatus, {
+        workId,
+      });
+      if (status === "complete") {
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+
+    const workResult = await ctx.runQuery(internal.tmdb.getWorkResult, {
+      workId,
+    });
+
+    await ctx.runMutation(internal.tmdb.deleteWorkResult, { workId });
+
+    return (workResult?.result as SearchResult[]) ?? [];
+  },
+});
+
+export const fetchShowDetails = internalAction({
+  args: { tmdbId: v.number(), showId: v.id("shows"), workId: v.string() },
+  handler: async (ctx, args) => {
+    const tv = await tmdbFetch<TmdbTvDetails>(`/tv/${args.tmdbId}`);
+
+    const seasonNumbers = (tv.seasons ?? [])
+      .map((season) => season.season_number)
+      .filter((seasonNumber) => Number.isFinite(seasonNumber));
+
+    await ctx.runMutation(internal.tmdb.saveWorkResult, {
+      workId: args.workId,
+      result: {
+        name: tv.name,
+        overview: tv.overview,
+        posterPath: tv.poster_path,
+        seasonNumbers,
+      },
+    });
+  },
+});
+
+export const fetchShowCredits = internalAction({
+  args: { tmdbId: v.number(), showId: v.id("shows"), workId: v.string() },
+  handler: async (ctx, args) => {
+    const credits = await tmdbFetch<TmdbTvCredits>(
+      `/tv/${args.tmdbId}/credits`,
+    );
+
+    const castCredits = (credits.cast ?? []).map((cast) => ({
+      personName: cast.name,
+      personTmdbId: cast.id,
+      orderIndex: cast.order ?? undefined,
+      character: cast.character ?? undefined,
+      profilePath: cast.profile_path ?? undefined,
+    }));
+
+    const crewCredits = (credits.crew ?? []).map((crew) => ({
+      personTmdbId: crew.id,
+      personName: crew.name,
+      job: crew.job ?? undefined,
+      department: crew.department ?? undefined,
+      profilePath: crew.profile_path ?? undefined,
+    }));
+
+    await ctx.runMutation(internal.tmdb.saveWorkResult, {
+      workId: args.workId,
+      result: { castCredits, crewCredits },
+    });
+  },
+});
+
+export const fetchSeasonDetails = internalAction({
+  args: {
+    tmdbId: v.number(),
+    showId: v.id("shows"),
+    seasonNumber: v.number(),
+    workId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const season = await tmdbFetch<TmdbTvSeasonDetails>(
+      `/tv/${args.tmdbId}/season/${args.seasonNumber}`,
+    );
+
+    const episodes = (season.episodes ?? []).map((episode) => ({
+      name: episode.name,
+      episodeNumber: episode.episode_number,
+      runtime: episode.runtime ?? undefined,
+      airDate: episode.air_date ?? undefined,
+      overview: episode.overview ?? undefined,
+      stillPath: episode.still_path ?? undefined,
+    }));
+
+    await ctx.runMutation(internal.tmdb.saveWorkResult, {
+      workId: args.workId,
+      result: {
+        seasonNumber: season.season_number,
+        airDate: season.air_date ?? undefined,
+        overview: season.overview ?? undefined,
+        posterPath: season.poster_path ?? undefined,
+        name: season.name ?? `Season ${season.season_number}`,
+        episodeCount:
+          typeof season.episode_count === "number"
+            ? season.episode_count
+            : episodes.length,
+        episodes,
+      },
+    });
+  },
+});
+
+export const saveWorkResult = internalMutation({
+  args: {
+    workId: v.string(),
+    result: v.optional(v.any()),
+    error: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const workResult = await ctx.db
+      .query("workPoolResults")
+      .withIndex("workId", (q) => q.eq("workId", args.workId))
+      .first();
+
+    if (!workResult) {
+      throw new Error(`Work result not found for workId: ${args.workId}`);
+    }
+
+    await ctx.db.patch(workResult._id, {
+      status: "complete",
+      result: args.result,
+      error: args.error,
+    });
+  },
+});
+
+export const createShowRecord = internalMutation({
+  args: {
+    name: v.string(),
+    tmdbId: v.number(),
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    const existingShow = await ctx.db
+      .query("shows")
+      .withIndex("tmdbId", (q) => q.eq("tmdbId", args.tmdbId))
+      .first();
+
+    let showId: Id<"shows">;
+    let alreadyExists = false;
+
+    if (existingShow) {
+      showId = existingShow._id;
+      alreadyExists = true;
+    } else {
+      showId = await ctx.db.insert("shows", {
+        name: args.name,
+        tmdbId: args.tmdbId,
+      });
+    }
+
+    const existingUserShow = await ctx.db
+      .query("userShows")
+      .withIndex("userIdShowId", (q) =>
+        q.eq("userId", args.userId).eq("showId", showId),
+      )
+      .first();
+
+    if (!existingUserShow) {
+      await ctx.db.insert("userShows", {
+        showId,
+        userId: args.userId,
+      });
+    }
+
+    return { showId, alreadyExists };
+  },
+});
+
+export const createPendingWorkResult = internalMutation({
+  args: {
+    workId: v.string(),
+    poolName: v.string(),
+    entityType: v.string(),
+    entityId: v.string(),
+    jobType: v.string(),
+    context: v.optional(v.any()),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.insert("workPoolResults", {
+      workId: args.workId,
+      poolName: args.poolName,
+      entityType: args.entityType,
+      entityId: args.entityId,
+      jobType: args.jobType,
+      status: "pending",
+      context: args.context,
+    });
+  },
+});
+
+export const getWorkResultStatus = internalQuery({
+  args: { workId: v.string() },
+  handler: async (ctx, args) => {
+    const result = await ctx.db
+      .query("workPoolResults")
+      .withIndex("workId", (q) => q.eq("workId", args.workId))
+      .first();
+    return result?.status ?? "pending";
+  },
+});
+
+export const getWorkResult = internalQuery({
+  args: { workId: v.string() },
+  handler: async (ctx, args) => {
+    const result = await ctx.db
+      .query("workPoolResults")
+      .withIndex("workId", (q) => q.eq("workId", args.workId))
+      .first();
+    return result;
+  },
+});
+
+export const deleteWorkResult = internalMutation({
+  args: { workId: v.string() },
+  handler: async (ctx, args) => {
+    const result = await ctx.db
+      .query("workPoolResults")
+      .withIndex("workId", (q) => q.eq("workId", args.workId))
+      .first();
+    if (result) {
+      await ctx.db.delete(result._id);
+    }
+  },
+});
+
+export const getAuthenticatedUserId = internalQuery({
+  args: {},
+  handler: async (ctx) => {
+    return await getAuthUserId(ctx);
+  },
+});
+
+export const isShowLoading = internalQuery({
+  args: { showId: v.id("shows") },
+  handler: async (ctx, args) => {
+    const pendingWork = await ctx.db
+      .query("workPoolResults")
+      .withIndex("entity_status", (q) =>
+        q
+          .eq("entityType", "shows")
+          .eq("entityId", args.showId)
+          .eq("status", "pending"),
+      )
+      .first();
+    return pendingWork !== null;
+  },
+});
+
+export const saveShowDataFromResults = internalMutation({
+  args: {
+    showId: v.id("shows"),
+    workIds: v.array(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const workResults = await Promise.all(
+      args.workIds.map(async (workId) => {
+        const result = await ctx.db
+          .query("workPoolResults")
+          .withIndex("workId", (q) => q.eq("workId", workId))
+          .first();
+        return result;
+      }),
+    );
+
+    let showDetails: {
+      name: string;
+      overview?: string;
+      posterPath?: string | null;
+    } | null = null;
+    let castCredits: Array<{
+      personName: string;
+      personTmdbId: number;
+      orderIndex?: number;
+      character?: string;
+      profilePath?: string;
+    }> = [];
+    let crewCredits: Array<{
+      personTmdbId: number;
+      personName: string;
+      job?: string;
+      department?: string;
+      profilePath?: string;
+    }> = [];
+    const seasons: Array<{
+      seasonNumber: number;
+      name: string;
+      overview?: string;
+      posterPath?: string;
+      episodeCount?: number;
+      airDate?: string;
+      episodes: Array<{
+        name: string;
+        episodeNumber: number;
+        runtime?: number;
+        airDate?: string;
+        overview?: string;
+        stillPath?: string;
+      }>;
+    }> = [];
+
+    for (const workResult of workResults) {
+      if (!workResult || !workResult.result) continue;
+
+      if (workResult.jobType === "showDetails") {
+        showDetails = workResult.result;
+      } else if (workResult.jobType === "credits") {
+        castCredits = workResult.result.castCredits ?? [];
+        crewCredits = workResult.result.crewCredits ?? [];
+      } else if (workResult.jobType === "season") {
+        seasons.push(workResult.result);
+      }
+    }
+
+    const showId = args.showId;
+
+    if (showDetails) {
+      await ctx.db.patch(showId, {
+        name: showDetails.name,
+        overview: showDetails.overview,
+        posterPath: showDetails.posterPath ?? undefined,
+      });
+    }
+
+    const existingCredits = await ctx.db
+      .query("credits")
+      .withIndex("showId", (q) => q.eq("showId", showId))
+      .collect();
+    for (const credit of existingCredits) {
+      await ctx.db.delete(credit._id);
+    }
+
+    const existingSeasons = await ctx.db
+      .query("seasons")
+      .withIndex("showId", (q) => q.eq("showId", showId))
+      .collect();
+    for (const season of existingSeasons) {
+      const existingEpisodes = await ctx.db
+        .query("episodes")
+        .withIndex("seasonId", (q) => q.eq("seasonId", season._id))
+        .collect();
+      for (const episode of existingEpisodes) {
+        await ctx.db.delete(episode._id);
+      }
+      await ctx.db.delete(season._id);
+    }
+
+    for (const season of seasons) {
+      const seasonId = await ctx.db.insert("seasons", {
+        showId,
+        seasonNumber: season.seasonNumber,
+        name: season.name,
+        overview: season.overview,
+        posterPath: season.posterPath,
+        episodeCount: season.episodeCount,
+        airDate: season.airDate,
+      });
+
+      for (const episode of season.episodes) {
+        await ctx.db.insert("episodes", {
+          seasonId,
+          name: episode.name,
+          airDate: episode.airDate,
+          runtime: episode.runtime,
+          overview: episode.overview,
+          stillPath: episode.stillPath,
+          episodeNumber: episode.episodeNumber,
+        });
+      }
+    }
+
+    for (const castCredit of castCredits) {
+      const personId = await upsertPerson(ctx, {
+        name: castCredit.personName,
+        profilePath: castCredit.profilePath,
+        tmdbPersonId: castCredit.personTmdbId,
+      });
+
+      await ctx.db.insert("credits", {
+        showId,
+        personId,
+        kind: "cast",
+        character: castCredit.character,
+        orderIndex: castCredit.orderIndex,
+      });
+    }
+
+    for (const crewCredit of crewCredits) {
+      const personId = await upsertPerson(ctx, {
+        tmdbPersonId: crewCredit.personTmdbId,
+        name: crewCredit.personName,
+        profilePath: crewCredit.profilePath,
+      });
+
+      await ctx.db.insert("credits", {
+        showId,
+        personId,
+        kind: "crew",
+        job: crewCredit.job,
+        department: crewCredit.department,
+      });
+    }
+
+    for (const workResult of workResults) {
+      if (workResult) {
+        await ctx.db.delete(workResult._id);
+      }
+    }
   },
 });
 
@@ -177,11 +585,22 @@ export const listMyShows = query({
       overview: string | undefined;
       posterPath: string | undefined;
       addedAt: number;
+      isLoading: boolean;
     }> = [];
 
     for (const userShow of userShows) {
       const show = await ctx.db.get(userShow.showId);
       if (!show) continue;
+
+      const pendingWork = await ctx.db
+        .query("workPoolResults")
+        .withIndex("entity_status", (q) =>
+          q
+            .eq("entityType", "shows")
+            .eq("entityId", show._id)
+            .eq("status", "pending"),
+        )
+        .first();
 
       myShows.push({
         _id: show._id,
@@ -190,6 +609,7 @@ export const listMyShows = query({
         addedAt: userShow._creationTime,
         overview: show.overview,
         posterPath: show.posterPath,
+        isLoading: pendingWork !== null,
       });
     }
 
@@ -304,10 +724,21 @@ export const getMyShowDetails = query({
           : null,
       }));
 
+    const pendingWork = await ctx.db
+      .query("workPoolResults")
+      .withIndex("entity_status", (q) =>
+        q
+          .eq("entityType", "shows")
+          .eq("entityId", show._id)
+          .eq("status", "pending"),
+      )
+      .first();
+
     return {
       cast,
       crew,
       seasons: seasonsWithEpisodes,
+      isLoading: pendingWork !== null,
       show: {
         id: show._id,
         name: show.name,
@@ -320,236 +751,133 @@ export const getMyShowDetails = query({
   },
 });
 
-export const addShowFromTmdb = mutation({
+export const addShowFromTmdb = action({
   args: { name: v.string(), tmdbId: v.number() },
-  handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
+  handler: async (
+    ctx,
+    args,
+  ): Promise<{ ok: boolean; tmdbId: number; showId: Id<"shows"> }> => {
+    const userId = await ctx.runQuery(internal.tmdb.getAuthenticatedUserId, {});
     if (!userId) throw new Error("You must be signed in to add a show");
 
-    // Check if show already exists
-    const existingShow = await ctx.db
-      .query("shows")
-      .withIndex("tmdbId", (q) => q.eq("tmdbId", args.tmdbId))
-      .first();
-
-    let showId: Id<"shows">;
-    if (existingShow) {
-      showId = existingShow._id;
-    } else {
-      // Create a minimal show entry
-      showId = await ctx.db.insert("shows", {
-        name: args.name,
-        tmdbId: args.tmdbId,
-      });
-    }
-
-    // Check if user already has this show
-    const existingUserShow = await ctx.db
-      .query("userShows")
-      .withIndex("userIdShowId", (q) =>
-        q.eq("userId", userId).eq("showId", showId),
-      )
-      .first();
-
-    if (!existingUserShow) {
-      // Create the userShow row
-      await ctx.db.insert("userShows", {
-        showId,
-        userId,
-      });
-    }
-
-    // Enqueue the TMDB fetching work to the workpool
-    await tmdbWorkpool.enqueueAction(
-      ctx,
-      internal.tmdb.fetchAndSaveShowFromTmdb,
-      { showId, tmdbId: args.tmdbId },
+    const { showId, alreadyExists } = await ctx.runMutation(
+      internal.tmdb.createShowRecord,
+      { name: args.name, tmdbId: args.tmdbId, userId },
     );
+
+    if (alreadyExists) {
+      const isLoading = await ctx.runQuery(internal.tmdb.isShowLoading, {
+        showId,
+      });
+      if (!isLoading) {
+        return { ok: true, tmdbId: args.tmdbId, showId };
+      }
+    }
+
+    const allWorkIds: string[] = [];
+
+    const generateWorkId = () => crypto.randomUUID();
+
+    const pollUntilComplete = async (workId: string) => {
+      while (true) {
+        const status = await ctx.runQuery(internal.tmdb.getWorkResultStatus, {
+          workId,
+        });
+        if (status === "complete") {
+          return;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+    };
+
+    const showDetailsWorkId = generateWorkId();
+    allWorkIds.push(showDetailsWorkId);
+
+    await ctx.runMutation(internal.tmdb.createPendingWorkResult, {
+      workId: showDetailsWorkId,
+      poolName: "tmdb",
+      entityType: "shows",
+      entityId: showId,
+      jobType: "showDetails",
+    });
+
+    await tmdbWorkpool.enqueueAction(ctx, internal.tmdb.fetchShowDetails, {
+      tmdbId: args.tmdbId,
+      showId,
+      workId: showDetailsWorkId,
+    });
+
+    await pollUntilComplete(showDetailsWorkId);
+
+    const showDetailsResult = await ctx.runQuery(internal.tmdb.getWorkResult, {
+      workId: showDetailsWorkId,
+    });
+
+    const seasonNumbers: number[] =
+      showDetailsResult?.result?.seasonNumbers ?? [];
+
+    const creditsWorkId = generateWorkId();
+    allWorkIds.push(creditsWorkId);
+
+    await ctx.runMutation(internal.tmdb.createPendingWorkResult, {
+      workId: creditsWorkId,
+      poolName: "tmdb",
+      entityType: "shows",
+      entityId: showId,
+      jobType: "credits",
+    });
+
+    await tmdbWorkpool.enqueueAction(ctx, internal.tmdb.fetchShowCredits, {
+      tmdbId: args.tmdbId,
+      showId,
+      workId: creditsWorkId,
+    });
+
+    for (const seasonNumber of seasonNumbers) {
+      const seasonWorkId = generateWorkId();
+      allWorkIds.push(seasonWorkId);
+
+      await ctx.runMutation(internal.tmdb.createPendingWorkResult, {
+        workId: seasonWorkId,
+        poolName: "tmdb",
+        entityType: "shows",
+        entityId: showId,
+        jobType: "season",
+        context: { seasonNumber },
+      });
+
+      await tmdbWorkpool.enqueueAction(ctx, internal.tmdb.fetchSeasonDetails, {
+        tmdbId: args.tmdbId,
+        showId,
+        seasonNumber,
+        workId: seasonWorkId,
+      });
+    }
+
+    const remainingWorkIds = allWorkIds.filter(
+      (id) => id !== showDetailsWorkId,
+    );
+    const pendingWorkIds = new Set(remainingWorkIds);
+
+    while (pendingWorkIds.size > 0) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      for (const workId of [...pendingWorkIds]) {
+        const status = await ctx.runQuery(internal.tmdb.getWorkResultStatus, {
+          workId,
+        });
+        if (status === "complete") {
+          pendingWorkIds.delete(workId);
+        }
+      }
+    }
+
+    await ctx.runMutation(internal.tmdb.saveShowDataFromResults, {
+      showId,
+      workIds: allWorkIds,
+    });
 
     return { ok: true, tmdbId: args.tmdbId, showId };
-  },
-});
-
-export const fetchAndSaveShowFromTmdb = internalAction({
-  args: { tmdbId: v.number(), showId: v.id("shows") },
-  handler: async (ctx, args) => {
-    const tv = await tmdbFetch<TmdbTvDetails>(`/tv/${args.tmdbId}`);
-    const credits = await tmdbFetch<TmdbTvCredits>(
-      `/tv/${args.tmdbId}/credits`,
-    );
-
-    const seasonNumbers = (tv.seasons ?? [])
-      .map((season) => season.season_number)
-      .filter((seasonNumber) => Number.isFinite(seasonNumber));
-
-    const seasonDetails = await Promise.all(
-      seasonNumbers.map((seasonNumber) =>
-        tmdbFetch<TmdbTvSeasonDetails>(
-          `/tv/${args.tmdbId}/season/${seasonNumber}`,
-        ),
-      ),
-    );
-
-    const seasons = seasonDetails.map((season) => {
-      const episodes = (season.episodes ?? []).map((episode) => ({
-        name: episode.name,
-        episodeNumber: episode.episode_number,
-        runtime: episode.runtime ?? undefined,
-        airDate: episode.air_date ?? undefined,
-        overview: episode.overview ?? undefined,
-        stillPath: episode.still_path ?? undefined,
-      }));
-
-      return {
-        episodes,
-        seasonNumber: season.season_number,
-        airDate: season.air_date ?? undefined,
-        overview: season.overview ?? undefined,
-        posterPath: season.poster_path ?? undefined,
-        name: season.name ?? `Season ${season.season_number}`,
-        episodeCount:
-          typeof season.episode_count === "number"
-            ? season.episode_count
-            : episodes.length,
-      };
-    });
-
-    const castCredits = (credits.cast ?? []).map((cast) => ({
-      personName: cast.name,
-      personTmdbId: cast.id,
-      orderIndex: cast.order ?? undefined,
-      character: cast.character ?? undefined,
-      profilePath: cast.profile_path ?? undefined,
-    }));
-
-    const crewCredits = (credits.crew ?? []).map((crew) => ({
-      personTmdbId: crew.id,
-      personName: crew.name,
-      job: crew.job ?? undefined,
-      department: crew.department ?? undefined,
-      profilePath: crew.profile_path ?? undefined,
-    }));
-
-    await ctx.runMutation(internal.tmdb.updateShowDataFromTmdb, {
-      showId: args.showId,
-      seasons,
-      castCredits,
-      crewCredits,
-      show: {
-        name: tv.name,
-        tmdbId: args.tmdbId,
-        overview: tv.overview ?? undefined,
-        posterPath: tv.poster_path ?? undefined,
-      },
-    });
-  },
-});
-
-export const updateShowDataFromTmdb = internalMutation({
-  args: {
-    showId: v.id("shows"),
-    seasons: v.array(seasonValidator),
-    castCredits: v.array(castCreditValidator),
-    crewCredits: v.array(crewCreditValidator),
-    show: v.object({
-      tmdbId: v.number(),
-      name: v.string(),
-      overview: v.optional(v.string()),
-      posterPath: v.optional(v.string()),
-    }),
-  },
-  handler: async (ctx, args) => {
-    const showId = args.showId;
-
-    // Update the show with full data
-    await ctx.db.patch(showId, {
-      name: args.show.name,
-      overview: args.show.overview,
-      posterPath: args.show.posterPath,
-    });
-
-    // Delete existing credits
-    const existingCredits = await ctx.db
-      .query("credits")
-      .withIndex("showId", (q) => q.eq("showId", showId))
-      .collect();
-    for (const credit of existingCredits) {
-      await ctx.db.delete(credit._id);
-    }
-
-    // Delete existing seasons and episodes
-    const existingSeasons = await ctx.db
-      .query("seasons")
-      .withIndex("showId", (q) => q.eq("showId", showId))
-      .collect();
-    for (const season of existingSeasons) {
-      const existingEpisodes = await ctx.db
-        .query("episodes")
-        .withIndex("seasonId", (q) => q.eq("seasonId", season._id))
-        .collect();
-      for (const episode of existingEpisodes) {
-        await ctx.db.delete(episode._id);
-      }
-      await ctx.db.delete(season._id);
-    }
-
-    // Insert new seasons and episodes
-    for (const season of args.seasons) {
-      const seasonId = await ctx.db.insert("seasons", {
-        showId,
-        seasonNumber: season.seasonNumber,
-        name: season.name,
-        overview: season.overview,
-        posterPath: season.posterPath,
-        episodeCount: season.episodeCount,
-        airDate: season.airDate,
-      });
-
-      for (const episode of season.episodes) {
-        await ctx.db.insert("episodes", {
-          seasonId,
-          name: episode.name,
-          airDate: episode.airDate,
-          runtime: episode.runtime,
-          overview: episode.overview,
-          stillPath: episode.stillPath,
-          episodeNumber: episode.episodeNumber,
-        });
-      }
-    }
-
-    // Insert new credits
-    for (const castCredit of args.castCredits) {
-      const personId = await upsertPerson(ctx, {
-        name: castCredit.personName,
-        profilePath: castCredit.profilePath,
-        tmdbPersonId: castCredit.personTmdbId,
-      });
-
-      await ctx.db.insert("credits", {
-        showId,
-        personId,
-        kind: "cast",
-        character: castCredit.character,
-        orderIndex: castCredit.orderIndex,
-      });
-    }
-
-    for (const crewCredit of args.crewCredits) {
-      const personId = await upsertPerson(ctx, {
-        tmdbPersonId: crewCredit.personTmdbId,
-        name: crewCredit.personName,
-        profilePath: crewCredit.profilePath,
-      });
-
-      await ctx.db.insert("credits", {
-        showId,
-        personId,
-        kind: "crew",
-        job: crewCredit.job,
-        department: crewCredit.department,
-      });
-    }
   },
 });
 
