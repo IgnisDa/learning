@@ -4,20 +4,18 @@
 }
 
 :3000 {
-	# Convex backend API, sync WebSocket endpoint, and version
 	@backend path /api/* /sync/* /version
 	handle @backend {
 		reverse_proxy 127.0.0.1:3210
 	}
 
-	# Optional prefixed backend route
-	redir /_backend /_backend/ 308
+	@trailing path /_backend /_site
+	redir @trailing {path}/ 308
+
 	handle_path /_backend/* {
 		reverse_proxy 127.0.0.1:3210
 	}
 
-	# Convex HTTP actions
-	redir /_site /_site/ 308
 	handle_path /_site/* {
 		reverse_proxy 127.0.0.1:3211
 	}
