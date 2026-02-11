@@ -20,7 +20,6 @@
 		reverse_proxy 127.0.0.1:3211
 	}
 
-	# Static frontend app
 	handle {
 		root * /app/dist
 		file_server
