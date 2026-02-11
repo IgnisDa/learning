@@ -1,13 +1,20 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { Workpool } from "@convex-dev/workpool";
 import { v } from "convex/values";
-import { internal } from "./_generated/api";
+import { components, internal } from "./_generated/api";
 import { Doc, Id } from "./_generated/dataModel";
 import {
   action,
+  internalAction,
   internalMutation,
+  mutation,
   query,
   type MutationCtx,
 } from "./_generated/server";
+
+const tmdbWorkpool = new Workpool(components.tmdbWorkpool, {
+  maxParallelism: 5,
+});
 
 type TmdbSearchTvResponse = {
   results?: Array<{
@@ -131,9 +138,7 @@ async function tmdbFetch<T>(path: string): Promise<T> {
 }
 
 export const searchShows = action({
-  args: {
-    query: v.string(),
-  },
+  args: { query: v.string() },
   handler: async (_ctx, args): Promise<SearchResult[]> => {
     const trimmedQuery = args.query.trim();
 
@@ -156,7 +161,6 @@ export const searchShows = action({
 });
 
 export const listMyShows = query({
-  args: {},
   handler: async (ctx) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) return [];
@@ -194,9 +198,7 @@ export const listMyShows = query({
 });
 
 export const getMyShowDetails = query({
-  args: {
-    showId: v.id("shows"),
-  },
+  args: { showId: v.id("shows") },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) return null;
@@ -303,29 +305,74 @@ export const getMyShowDetails = query({
       }));
 
     return {
+      cast,
+      crew,
+      seasons: seasonsWithEpisodes,
       show: {
         id: show._id,
-        tmdbId: show.tmdbId,
         name: show.name,
+        tmdbId: show.tmdbId,
         overview: show.overview,
         posterPath: show.posterPath,
         addedAt: userShow._creationTime,
       },
-      seasons: seasonsWithEpisodes,
-      cast,
-      crew,
     };
   },
 });
 
-export const addShowFromTmdb = action({
-  args: {
-    tmdbId: v.number(),
-  },
+export const addShowFromTmdb = mutation({
+  args: { name: v.string(), tmdbId: v.number() },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("You must be signed in to add a show");
 
+    // Check if show already exists
+    const existingShow = await ctx.db
+      .query("shows")
+      .withIndex("tmdbId", (q) => q.eq("tmdbId", args.tmdbId))
+      .first();
+
+    let showId: Id<"shows">;
+    if (existingShow) {
+      showId = existingShow._id;
+    } else {
+      // Create a minimal show entry
+      showId = await ctx.db.insert("shows", {
+        name: args.name,
+        tmdbId: args.tmdbId,
+      });
+    }
+
+    // Check if user already has this show
+    const existingUserShow = await ctx.db
+      .query("userShows")
+      .withIndex("userIdShowId", (q) =>
+        q.eq("userId", userId).eq("showId", showId),
+      )
+      .first();
+
+    if (!existingUserShow) {
+      // Create the userShow row
+      await ctx.db.insert("userShows", {
+        showId,
+        userId,
+      });
+    }
+
+    // Enqueue the TMDB fetching work to the workpool
+    await tmdbWorkpool.enqueueAction(
+      ctx,
+      internal.tmdb.fetchAndSaveShowFromTmdb,
+      { showId, tmdbId: args.tmdbId },
+    );
+
+    return { ok: true, tmdbId: args.tmdbId, showId };
+  },
+});
+
+export const fetchAndSaveShowFromTmdb = internalAction({
+  args: { tmdbId: v.number(), showId: v.id("shows") },
+  handler: async (ctx, args) => {
     const tv = await tmdbFetch<TmdbTvDetails>(`/tv/${args.tmdbId}`);
     const credits = await tmdbFetch<TmdbTvCredits>(
       `/tv/${args.tmdbId}/credits`,
@@ -383,8 +430,8 @@ export const addShowFromTmdb = action({
       profilePath: crew.profile_path ?? undefined,
     }));
 
-    await ctx.runMutation(internal.tmdb.saveShowGraphFromTmdb, {
-      userId,
+    await ctx.runMutation(internal.tmdb.updateShowDataFromTmdb, {
+      showId: args.showId,
       seasons,
       castCredits,
       crewCredits,
@@ -395,14 +442,12 @@ export const addShowFromTmdb = action({
         posterPath: tv.poster_path ?? undefined,
       },
     });
-
-    return { ok: true, tmdbId: args.tmdbId };
   },
 });
 
-export const saveShowGraphFromTmdb = internalMutation({
+export const updateShowDataFromTmdb = internalMutation({
   args: {
-    userId: v.id("users"),
+    showId: v.id("shows"),
     seasons: v.array(seasonValidator),
     castCredits: v.array(castCreditValidator),
     crewCredits: v.array(crewCreditValidator),
@@ -414,42 +459,16 @@ export const saveShowGraphFromTmdb = internalMutation({
     }),
   },
   handler: async (ctx, args) => {
-    const existingShow = await ctx.db
-      .query("shows")
-      .withIndex("tmdbId", (q) => q.eq("tmdbId", args.show.tmdbId))
-      .first();
+    const showId = args.showId;
 
-    const showId = existingShow
-      ? existingShow._id
-      : await ctx.db.insert("shows", {
-          tmdbId: args.show.tmdbId,
-          name: args.show.name,
-          overview: args.show.overview,
-          posterPath: args.show.posterPath,
-        });
+    // Update the show with full data
+    await ctx.db.patch(showId, {
+      name: args.show.name,
+      overview: args.show.overview,
+      posterPath: args.show.posterPath,
+    });
 
-    if (existingShow) {
-      await ctx.db.patch(showId, {
-        name: args.show.name,
-        overview: args.show.overview,
-        posterPath: args.show.posterPath,
-      });
-    }
-
-    const existingUserShow = await ctx.db
-      .query("userShows")
-      .withIndex("userIdShowId", (q) =>
-        q.eq("userId", args.userId).eq("showId", showId),
-      )
-      .first();
-
-    if (!existingUserShow) {
-      await ctx.db.insert("userShows", {
-        showId,
-        userId: args.userId,
-      });
-    }
-
+    // Delete existing credits
     const existingCredits = await ctx.db
       .query("credits")
       .withIndex("showId", (q) => q.eq("showId", showId))
@@ -458,6 +477,7 @@ export const saveShowGraphFromTmdb = internalMutation({
       await ctx.db.delete(credit._id);
     }
 
+    // Delete existing seasons and episodes
     const existingSeasons = await ctx.db
       .query("seasons")
       .withIndex("showId", (q) => q.eq("showId", showId))
@@ -473,6 +493,7 @@ export const saveShowGraphFromTmdb = internalMutation({
       await ctx.db.delete(season._id);
     }
 
+    // Insert new seasons and episodes
     for (const season of args.seasons) {
       const seasonId = await ctx.db.insert("seasons", {
         showId,
@@ -497,6 +518,7 @@ export const saveShowGraphFromTmdb = internalMutation({
       }
     }
 
+    // Insert new credits
     for (const castCredit of args.castCredits) {
       const personId = await upsertPerson(ctx, {
         name: castCredit.personName,

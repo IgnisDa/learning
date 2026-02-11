@@ -3,7 +3,11 @@ import { useDebouncedValue } from "@mantine/hooks";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
-import { useAction, useQuery } from "convex/react";
+import {
+  useAction,
+  useMutation as useConvexMutation,
+  useQuery,
+} from "convex/react";
 import { useEffect, useState, type CSSProperties } from "react";
 
 export const Route = createFileRoute("/_dashboard/")({
@@ -25,7 +29,7 @@ export function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const myShows = useQuery(api.tmdb.listMyShows) ?? [];
   const searchShowsAction = useAction(api.tmdb.searchShows);
-  const addShowFromTmdbAction = useAction(api.tmdb.addShowFromTmdb);
+  const addShowFromTmdbMutation = useConvexMutation(api.tmdb.addShowFromTmdb);
   const [debouncedQuery] = useDebouncedValue(searchQuery, 250);
 
   const {
@@ -45,8 +49,8 @@ export function Dashboard() {
     isPending: isAddingShow,
     variables: addShowVariables,
   } = useMutation({
-    mutationFn: async (tmdbId: number) => {
-      return await addShowFromTmdbAction({ tmdbId });
+    mutationFn: async ({ tmdbId, name }: { tmdbId: number; name: string }) => {
+      return await addShowFromTmdbMutation({ tmdbId, name });
     },
   });
 
@@ -245,7 +249,7 @@ export function Dashboard() {
                   {searchResults.map((show) => {
                     const alreadyAdded = myShowTmdbIds.has(show.tmdbId);
                     const isAddingCurrent =
-                      isAddingShow && addShowVariables === show.tmdbId;
+                      isAddingShow && addShowVariables?.tmdbId === show.tmdbId;
                     const existingShowId = myShowIdByTmdbId.get(show.tmdbId);
 
                     return (
@@ -300,7 +304,12 @@ export function Dashboard() {
                             <button
                               className="inline-flex items-center justify-center px-4 text-sm font-medium transition bg-white border rounded-md h-9 border-neutral-300 text-neutral-700 hover:border-neutral-400 hover:bg-neutral-100 hover:text-neutral-900 disabled:cursor-not-allowed disabled:opacity-60"
                               disabled={isAddingCurrent}
-                              onClick={() => addShow(show.tmdbId)}
+                              onClick={() =>
+                                addShow({
+                                  tmdbId: show.tmdbId,
+                                  name: show.name,
+                                })
+                              }
                               type="button"
                             >
                               {isAddingCurrent ? "Adding..." : "Add"}
