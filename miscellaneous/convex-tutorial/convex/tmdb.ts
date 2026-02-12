@@ -246,16 +246,16 @@ export const fetchShowCredits = internalAction({
       personName: cast.name,
       personTmdbId: cast.id,
       orderIndex: cast.order,
-      character: cast.character,
-      profilePath: cast.profile_path,
+      character: cast.character ?? undefined,
+      profilePath: cast.profile_path ?? undefined,
     }));
 
     const crewCredits = (credits.crew ?? []).map((crew) => ({
-      job: crew.job,
+      job: crew.job ?? undefined,
       personTmdbId: crew.id,
       personName: crew.name,
-      department: crew.department,
-      profilePath: crew.profile_path,
+      department: crew.department ?? undefined,
+      profilePath: crew.profile_path ?? undefined,
     }));
 
     await ctx.runMutation(internal.tmdb.saveWorkResult, {
@@ -279,10 +279,10 @@ export const fetchSeasonDetails = internalAction({
 
     const episodes = (season.episodes ?? []).map((episode) => ({
       name: episode.name,
-      runtime: episode.runtime,
-      airDate: episode.air_date,
-      overview: episode.overview,
-      stillPath: episode.still_path,
+      runtime: episode.runtime ?? undefined,
+      airDate: episode.air_date ?? undefined,
+      overview: episode.overview ?? undefined,
+      stillPath: episode.still_path ?? undefined,
       episodeNumber: episode.episode_number,
     }));
 
@@ -290,9 +290,9 @@ export const fetchSeasonDetails = internalAction({
       workId: args.workId,
       result: {
         episodes,
-        airDate: season.air_date,
-        overview: season.overview,
-        posterPath: season.poster_path,
+        airDate: season.air_date ?? undefined,
+        overview: season.overview ?? undefined,
+        posterPath: season.poster_path ?? undefined,
         seasonNumber: season.season_number,
         name: season.name ?? `Season ${season.season_number}`,
         episodeCount:
