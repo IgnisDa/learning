@@ -7,11 +7,11 @@
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "predev": "convex dev --once",
+    "dev": "node scripts/dev.mjs",
     "setup-env": "node scripts/setup-env.mjs",
     "dev:backend": "node scripts/start-backend.mjs",
     "dev:proxy": "caddy run --config deployment/Caddyfile",
-    "dev:frontend": "vite dev --host 127.0.0.1 --port 3001",
-    "dev": "npm-run-all --parallel dev:backend dev:frontend dev:proxy 'typecheck --watch --preserveWatchOutput'"
+    "dev:frontend": "vite dev --host 127.0.0.1 --port 3001"
   },
   "dependencies": {
     "@auth/core": "^0.37.0",
