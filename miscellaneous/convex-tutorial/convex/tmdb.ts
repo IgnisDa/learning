@@ -138,15 +138,13 @@ export const searchShows = action({
     await ctx.runMutation(internal.tmdb.createPendingWorkResult, {
       workId,
       poolName: "tmdb",
-      entityType: "search",
-      entityId: workId, // Use workId as entityId for search (no persistent entity)
       jobType: "searchShows",
       context: { query: trimmedQuery },
     });
 
     await tmdbWorkpool.enqueueAction(ctx, internal.tmdb.fetchSearchResults, {
-      query: trimmedQuery,
       workId,
+      query: trimmedQuery,
     });
 
     while (true) {
@@ -330,8 +328,6 @@ export const createPendingWorkResult = internalMutation({
   args: {
     workId: v.string(),
     poolName: v.string(),
-    entityType: v.string(),
-    entityId: v.string(),
     jobType: v.string(),
     context: v.optional(v.any()),
   },
@@ -339,8 +335,6 @@ export const createPendingWorkResult = internalMutation({
     await ctx.db.insert("workPoolResults", {
       workId: args.workId,
       poolName: args.poolName,
-      entityType: args.entityType,
-      entityId: args.entityId,
       jobType: args.jobType,
       status: "pending",
       context: args.context,
@@ -387,22 +381,6 @@ export const getAuthenticatedUserId = internalQuery({
   args: {},
   handler: async (ctx) => {
     return await getAuthUserId(ctx);
-  },
-});
-
-export const isShowLoading = internalQuery({
-  args: { showId: v.id("shows") },
-  handler: async (ctx, args) => {
-    const pendingWork = await ctx.db
-      .query("workPoolResults")
-      .withIndex("entity_status", (q) =>
-        q
-          .eq("entityType", "shows")
-          .eq("entityId", args.showId)
-          .eq("status", "pending"),
-      )
-      .first();
-    return pendingWork !== null;
   },
 });
 
@@ -585,22 +563,11 @@ export const listMyShows = query({
       overview: string | undefined;
       posterPath: string | undefined;
       addedAt: number;
-      isLoading: boolean;
     }> = [];
 
     for (const userShow of userShows) {
       const show = await ctx.db.get(userShow.showId);
       if (!show) continue;
-
-      const pendingWork = await ctx.db
-        .query("workPoolResults")
-        .withIndex("entity_status", (q) =>
-          q
-            .eq("entityType", "shows")
-            .eq("entityId", show._id)
-            .eq("status", "pending"),
-        )
-        .first();
 
       myShows.push({
         _id: show._id,
@@ -609,7 +576,6 @@ export const listMyShows = query({
         addedAt: userShow._creationTime,
         overview: show.overview,
         posterPath: show.posterPath,
-        isLoading: pendingWork !== null,
       });
     }
 
@@ -724,21 +690,10 @@ export const getMyShowDetails = query({
           : null,
       }));
 
-    const pendingWork = await ctx.db
-      .query("workPoolResults")
-      .withIndex("entity_status", (q) =>
-        q
-          .eq("entityType", "shows")
-          .eq("entityId", show._id)
-          .eq("status", "pending"),
-      )
-      .first();
-
     return {
       cast,
       crew,
       seasons: seasonsWithEpisodes,
-      isLoading: pendingWork !== null,
       show: {
         id: show._id,
         name: show.name,
@@ -766,12 +721,7 @@ export const addShowFromTmdb = action({
     );
 
     if (alreadyExists) {
-      const isLoading = await ctx.runQuery(internal.tmdb.isShowLoading, {
-        showId,
-      });
-      if (!isLoading) {
-        return { ok: true, tmdbId: args.tmdbId, showId };
-      }
+      return { ok: true, tmdbId: args.tmdbId, showId };
     }
 
     const allWorkIds: string[] = [];
@@ -796,8 +746,6 @@ export const addShowFromTmdb = action({
     await ctx.runMutation(internal.tmdb.createPendingWorkResult, {
       workId: showDetailsWorkId,
       poolName: "tmdb",
-      entityType: "shows",
-      entityId: showId,
       jobType: "showDetails",
     });
 
@@ -822,8 +770,6 @@ export const addShowFromTmdb = action({
     await ctx.runMutation(internal.tmdb.createPendingWorkResult, {
       workId: creditsWorkId,
       poolName: "tmdb",
-      entityType: "shows",
-      entityId: showId,
       jobType: "credits",
     });
 
@@ -840,8 +786,6 @@ export const addShowFromTmdb = action({
       await ctx.runMutation(internal.tmdb.createPendingWorkResult, {
         workId: seasonWorkId,
         poolName: "tmdb",
-        entityType: "shows",
-        entityId: showId,
         jobType: "season",
         context: { seasonNumber },
       });
