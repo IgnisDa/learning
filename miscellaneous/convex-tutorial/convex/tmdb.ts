@@ -19,6 +19,27 @@ const tmdbWorkpool = new Workpool(components.tmdbWorkpool, {
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+async function enqueueWork<T extends Record<string, any>>(
+  ctx: ActionCtx,
+  action: any,
+  jobType: string,
+  args: T,
+  context?: any,
+): Promise<string> {
+  const workId = crypto.randomUUID();
+
+  await ctx.runMutation(internal.tmdb.createPendingWorkResult, {
+    workId,
+    jobType,
+    context,
+    poolName: "tmdb",
+  });
+
+  await tmdbWorkpool.enqueueAction(ctx, action, { ...args, workId });
+
+  return workId;
+}
+
 async function pollWorkResults(
   ctx: ActionCtx,
   workIds: string | string[],
@@ -152,19 +173,13 @@ export const searchShows = action({
 
     if (trimmedQuery.length < 2) return [];
 
-    const workId = crypto.randomUUID();
-
-    await ctx.runMutation(internal.tmdb.createPendingWorkResult, {
-      workId,
-      poolName: "tmdb",
-      jobType: "searchShows",
-      context: { query: trimmedQuery },
-    });
-
-    await tmdbWorkpool.enqueueAction(ctx, internal.tmdb.fetchSearchResults, {
-      workId,
-      query: trimmedQuery,
-    });
+    const workId = await enqueueWork(
+      ctx,
+      internal.tmdb.fetchSearchResults,
+      "searchShows",
+      { query: trimmedQuery },
+      { query: trimmedQuery },
+    );
 
     await pollWorkResults(ctx, workId, 100);
 
@@ -736,20 +751,14 @@ export const addShowFromTmdb = action({
     }
 
     const allWorkIds: string[] = [];
-    const showDetailsWorkId = crypto.randomUUID();
+
+    const showDetailsWorkId = await enqueueWork(
+      ctx,
+      internal.tmdb.fetchShowDetails,
+      "showDetails",
+      { tmdbId: args.tmdbId, showId },
+    );
     allWorkIds.push(showDetailsWorkId);
-
-    await ctx.runMutation(internal.tmdb.createPendingWorkResult, {
-      workId: showDetailsWorkId,
-      poolName: "tmdb",
-      jobType: "showDetails",
-    });
-
-    await tmdbWorkpool.enqueueAction(ctx, internal.tmdb.fetchShowDetails, {
-      tmdbId: args.tmdbId,
-      showId,
-      workId: showDetailsWorkId,
-    });
 
     await pollWorkResults(ctx, showDetailsWorkId);
 
@@ -760,38 +769,23 @@ export const addShowFromTmdb = action({
     const seasonNumbers: number[] =
       showDetailsResult?.result?.seasonNumbers ?? [];
 
-    const creditsWorkId = crypto.randomUUID();
+    const creditsWorkId = await enqueueWork(
+      ctx,
+      internal.tmdb.fetchShowCredits,
+      "credits",
+      { tmdbId: args.tmdbId, showId },
+    );
     allWorkIds.push(creditsWorkId);
 
-    await ctx.runMutation(internal.tmdb.createPendingWorkResult, {
-      workId: creditsWorkId,
-      poolName: "tmdb",
-      jobType: "credits",
-    });
-
-    await tmdbWorkpool.enqueueAction(ctx, internal.tmdb.fetchShowCredits, {
-      tmdbId: args.tmdbId,
-      showId,
-      workId: creditsWorkId,
-    });
-
     for (const seasonNumber of seasonNumbers) {
-      const seasonWorkId = crypto.randomUUID();
+      const seasonWorkId = await enqueueWork(
+        ctx,
+        internal.tmdb.fetchSeasonDetails,
+        "season",
+        { tmdbId: args.tmdbId, showId, seasonNumber },
+        { seasonNumber },
+      );
       allWorkIds.push(seasonWorkId);
-
-      await ctx.runMutation(internal.tmdb.createPendingWorkResult, {
-        workId: seasonWorkId,
-        poolName: "tmdb",
-        jobType: "season",
-        context: { seasonNumber },
-      });
-
-      await tmdbWorkpool.enqueueAction(ctx, internal.tmdb.fetchSeasonDetails, {
-        tmdbId: args.tmdbId,
-        showId,
-        seasonNumber,
-        workId: seasonWorkId,
-      });
     }
 
     const remainingWorkIds = allWorkIds.filter(
