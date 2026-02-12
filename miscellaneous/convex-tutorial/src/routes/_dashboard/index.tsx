@@ -180,9 +180,9 @@ export function Dashboard() {
 
                       <div className="shrink-0">
                         <Link
+                          to="/show/$id"
+                          params={{ id: show._id }}
                           className="inline-flex items-center justify-center px-4 text-sm font-medium transition bg-white border rounded-md h-9 border-neutral-300 text-neutral-700 hover:border-neutral-400 hover:bg-neutral-100 hover:text-neutral-900"
-                          search={{ id: show._id }}
-                          to="/show"
                         >
                           View
                         </Link>
@@ -294,9 +294,9 @@ export function Dashboard() {
                         <div className="shrink-0">
                           {alreadyAdded && existingShowId ? (
                             <Link
+                              to="/show/$id"
+                              params={{ id: existingShowId }}
                               className="inline-flex items-center justify-center px-4 text-sm font-medium transition bg-white border rounded-md h-9 border-neutral-300 text-neutral-700 hover:border-neutral-400 hover:bg-neutral-100 hover:text-neutral-900"
-                              search={{ id: existingShowId }}
-                              to="/show"
                             >
                               View
                             </Link>

@@ -8,15 +8,12 @@ const TMDB_POSTER = "https://image.tmdb.org/t/p/w342";
 const TMDB_PROFILE = "https://image.tmdb.org/t/p/w185";
 const TMDB_STILL = "https://image.tmdb.org/t/p/w300";
 
-export const Route = createFileRoute("/_dashboard/show")({
+export const Route = createFileRoute("/_dashboard/show/$id")({
   component: ShowPage,
-  validateSearch: (search: Record<string, unknown>) => ({
-    id: typeof search.id === "string" ? search.id : undefined,
-  }),
 });
 
 function ShowPage() {
-  const { id } = Route.useSearch();
+  const { id } = Route.useParams();
   const [activeTab, setActiveTab] = useState<"seasons" | "cast" | "crew">(
     "seasons",
   );
