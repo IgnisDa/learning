@@ -14,7 +14,6 @@ import {
 } from "./_generated/server";
 import type { FunctionReference } from "convex/server";
 
-// - move convex to subpath via caddy
 // - add convex workflow
 // - start displaying details of cast/crew of each season
 
