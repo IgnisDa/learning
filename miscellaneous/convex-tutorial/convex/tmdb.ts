@@ -12,6 +12,7 @@ import {
   query,
   type MutationCtx,
 } from "./_generated/server";
+import type { FunctionReference } from "convex/server";
 
 const tmdbWorkpool = new Workpool(components.tmdbWorkpool, {
   maxParallelism: 5,
@@ -19,12 +20,15 @@ const tmdbWorkpool = new Workpool(components.tmdbWorkpool, {
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function enqueueWork<T extends Record<string, any>>(
+async function enqueueWork<
+  TArgs extends Record<string, any>,
+  TContext = unknown,
+>(
   ctx: ActionCtx,
-  action: any,
+  action: FunctionReference<"action", "internal", TArgs & { workId: string }>,
   jobType: string,
-  args: T,
-  context?: any,
+  args: TArgs,
+  context?: TContext,
 ): Promise<string> {
   const workId = crypto.randomUUID();
 
@@ -42,8 +46,8 @@ async function enqueueWork<T extends Record<string, any>>(
 
 async function pollWorkResults(
   ctx: ActionCtx,
-  workIds: string | string[],
-  intervalMs = 500,
+  workIds: string | readonly string[],
+  intervalMs: number = 500,
 ) {
   const pending = new Set(Array.isArray(workIds) ? workIds : [workIds]);
   while (pending.size > 0) {
@@ -118,6 +122,12 @@ export type SearchResult = {
   posterPath: string | null;
 };
 
+/**
+ * Fetches data from The Movie Database (TMDB) API
+ * @param path - API endpoint path (e.g., "/search/tv?query=...")
+ * @returns Parsed JSON response of type T
+ * @throws Error if TMDB_API_KEY is not configured or if the API request fails
+ */
 async function tmdbFetch<T>(path: string): Promise<T> {
   const tmdbKey = process.env.TMDB_API_KEY;
   if (!tmdbKey) throw new Error("TMDB_API_KEY is not configured");
