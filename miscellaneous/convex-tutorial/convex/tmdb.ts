@@ -373,17 +373,11 @@ export const enqueueShowCreditsJob = internalMutation({
     await tmdbWorkPool.enqueueAction(
       ctx,
       internal.tmdb.fetchShowCredits,
-      {
-        tmdbId: args.tmdbId,
-        showId: args.showId,
-      },
+      { tmdbId: args.tmdbId, showId: args.showId },
       {
         retry: TMDB_RETRY_BEHAVIOR,
         onComplete: internal.tmdb.handleWorkpoolCompletion,
-        context: {
-          workflowId: args.workflowId,
-          eventName: args.eventName,
-        },
+        context: { eventName: args.eventName, workflowId: args.workflowId },
       },
     );
   },
@@ -392,10 +386,10 @@ export const enqueueShowCreditsJob = internalMutation({
 export const enqueueSeasonJob = internalMutation({
   args: {
     tmdbId: v.number(),
+    eventName: v.string(),
+    workflowId: v.string(),
     seasonNumber: v.number(),
     showId: v.id("shows"),
-    workflowId: v.string(),
-    eventName: v.string(),
   },
   handler: async (ctx, args) => {
     await tmdbWorkPool.enqueueAction(
@@ -403,16 +397,13 @@ export const enqueueSeasonJob = internalMutation({
       internal.tmdb.fetchSeasonDetails,
       {
         tmdbId: args.tmdbId,
-        seasonNumber: args.seasonNumber,
         showId: args.showId,
+        seasonNumber: args.seasonNumber,
       },
       {
         retry: TMDB_RETRY_BEHAVIOR,
         onComplete: internal.tmdb.handleWorkpoolCompletion,
-        context: {
-          workflowId: args.workflowId,
-          eventName: args.eventName,
-        },
+        context: { eventName: args.eventName, workflowId: args.workflowId },
       },
     );
   },
@@ -521,39 +512,33 @@ export const searchShowsResult = query({
   handler: async (ctx, args) => {
     if (!args.workId) return null;
 
-    try {
-      const status = await tmdbWorkflow.status(ctx, args.workId as WorkflowId);
+    const status = await tmdbWorkflow.status(ctx, args.workId as WorkflowId);
 
-      if (status.type === "inProgress") {
-        return {
-          workId: args.workId,
-          error: undefined,
-          result: undefined,
-          status: "pending" as const,
-        };
-      }
-
-      if (status.type === "completed") {
-        return {
-          workId: args.workId,
-          error: undefined,
-          status: "complete" as const,
-          result: status.result as SearchResult[] | undefined,
-        };
-      }
-
+    if (status.type === "inProgress")
       return {
-        workId: args.workId,
+        error: undefined,
         result: undefined,
-        status: "complete" as const,
-        error:
-          status.type === "failed"
-            ? status.error
-            : "Search workflow was canceled",
+        workId: args.workId,
+        status: "pending" as const,
       };
-    } catch {
-      return null;
-    }
+
+    if (status.type === "completed")
+      return {
+        error: undefined,
+        workId: args.workId,
+        status: "complete" as const,
+        result: status.result as SearchResult[] | undefined,
+      };
+
+    return {
+      result: undefined,
+      workId: args.workId,
+      status: "complete" as const,
+      error:
+        status.type === "failed"
+          ? status.error
+          : "Search workflow was canceled",
+    };
   },
 });
 
