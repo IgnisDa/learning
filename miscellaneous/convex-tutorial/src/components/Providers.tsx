@@ -6,7 +6,11 @@ import { useState, type ReactNode } from "react";
 
 export function Providers({ children }: { children: ReactNode }) {
   const [{ convex, queryClient }] = useState(() => {
-    const convexUrl = import.meta.env.VITE_CONVEX_URL || window.location.origin;
+    const convexUrl =
+      import.meta.env.VITE_CONVEX_URL ||
+      (typeof window !== "undefined"
+        ? window.location.origin
+        : "http://localhost:3000");
     const convex = new ConvexReactClient(convexUrl);
     const convexQueryClient = new ConvexQueryClient(convex);
     const queryClient = new QueryClient({

@@ -59,12 +59,15 @@ unset CONVEX_DEPLOYMENT || true
 )
 echo "Convex functions deployed successfully."
 
+echo "Starting frontend SSR server..."
+FRONTEND_PORT="${FRONTEND_PORT:-3001}"
+PORT="$FRONTEND_PORT" NITRO_PORT="$FRONTEND_PORT" node .output/server/index.mjs &
 echo "Starting Caddy reverse proxy..."
 echo ""
 echo "============================================"
 echo "Services available at:"
-echo "  - App:       http://localhost:3000/"
-echo "  - Backend:   http://localhost:3000/"
+echo "  - App:       http://localhost:3000"
+echo "  - Backend:   http://localhost:3000/api"
 echo "  - HTTP Actions: http://localhost:3000/_site/"
 echo "============================================"
 echo ""
