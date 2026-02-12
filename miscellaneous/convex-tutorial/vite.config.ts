@@ -8,7 +8,7 @@ const config = defineConfig({
   preview: { host: "127.0.0.1" },
   plugins: [
     viteTsConfigPaths({ projects: ["./tsconfig.json"] }),
-    tanstackStart({ prerender: { enabled: true } }),
+    tanstackStart(),
     viteReact(),
     tailwindcss(),
   ],
