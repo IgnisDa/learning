@@ -24,8 +24,8 @@ function DashboardSearch() {
   const [searchQuery, setSearchQuery] = useState("");
   const myShows = useQuery(api.tmdb.index.listMyShows) ?? [];
   const searchShowsAction = useAction(api.tmdb.search.searchShows);
+  const [debouncedQuery] = useDebouncedValue(searchQuery, 1000);
   const addShowFromTmdbAction = useAction(api.tmdb.details.addShowFromTmdb);
-  const [debouncedQuery] = useDebouncedValue(searchQuery, 250);
 
   const {
     data: searchData,
