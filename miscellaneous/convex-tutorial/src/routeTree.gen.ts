@@ -13,6 +13,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SigninRouteImport } from './routes/signin'
 import { Route as DashboardRouteRouteImport } from './routes/_dashboard/route'
 import { Route as DashboardIndexRouteImport } from './routes/_dashboard/index'
+import { Route as DashboardSearchRouteImport } from './routes/_dashboard/search'
 import { Route as DashboardShowIdRouteImport } from './routes/_dashboard/show.$id'
 
 const SignupRoute = SignupRouteImport.update({
@@ -34,6 +35,11 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
+const DashboardSearchRoute = DashboardSearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
 const DashboardShowIdRoute = DashboardShowIdRouteImport.update({
   id: '/show/$id',
   path: '/show/$id',
@@ -43,12 +49,14 @@ const DashboardShowIdRoute = DashboardShowIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
+  '/search': typeof DashboardSearchRoute
   '/': typeof DashboardIndexRoute
   '/show/$id': typeof DashboardShowIdRoute
 }
 export interface FileRoutesByTo {
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
+  '/search': typeof DashboardSearchRoute
   '/': typeof DashboardIndexRoute
   '/show/$id': typeof DashboardShowIdRoute
 }
@@ -57,19 +65,21 @@ export interface FileRoutesById {
   '/_dashboard': typeof DashboardRouteRouteWithChildren
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
+  '/_dashboard/search': typeof DashboardSearchRoute
   '/_dashboard/': typeof DashboardIndexRoute
   '/_dashboard/show/$id': typeof DashboardShowIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/signin' | '/signup' | '/' | '/show/$id'
+  fullPaths: '/signin' | '/signup' | '/search' | '/' | '/show/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/signin' | '/signup' | '/' | '/show/$id'
+  to: '/signin' | '/signup' | '/search' | '/' | '/show/$id'
   id:
     | '__root__'
     | '/_dashboard'
     | '/signin'
     | '/signup'
+    | '/_dashboard/search'
     | '/_dashboard/'
     | '/_dashboard/show/$id'
   fileRoutesById: FileRoutesById
@@ -110,6 +120,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/_dashboard/search': {
+      id: '/_dashboard/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof DashboardSearchRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
     '/_dashboard/show/$id': {
       id: '/_dashboard/show/$id'
       path: '/show/$id'
@@ -121,11 +138,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface DashboardRouteRouteChildren {
+  DashboardSearchRoute: typeof DashboardSearchRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardShowIdRoute: typeof DashboardShowIdRoute
 }
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
+  DashboardSearchRoute: DashboardSearchRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardShowIdRoute: DashboardShowIdRoute,
 }
