@@ -1,13 +1,9 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
-import {
-  useAction,
-  useMutation as useConvexMutation,
-  useQuery,
-} from "convex/react";
+import { useAction, useQuery } from "convex/react";
 import { useEffect, useState, type CSSProperties } from "react";
 
 export const Route = createFileRoute("/_dashboard/")({
@@ -17,10 +13,10 @@ export const Route = createFileRoute("/_dashboard/")({
 const TMDB_IMG = "https://image.tmdb.org/t/p/w185";
 
 const overviewClampStyle: CSSProperties = {
-  display: "-webkit-box",
-  WebkitLineClamp: 3,
-  WebkitBoxOrient: "vertical",
   overflow: "hidden",
+  WebkitLineClamp: 3,
+  display: "-webkit-box",
+  WebkitBoxOrient: "vertical",
 };
 
 export function Dashboard() {
@@ -43,12 +39,7 @@ export function Dashboard() {
     },
   });
 
-  const {
-    mutate: addShow,
-    error: addShowError,
-    isPending: isAddingShow,
-    variables: addShowVariables,
-  } = useMutation({
+  const { mutate: addShow, error: addShowError } = useMutation({
     mutationFn: async ({ tmdbId, name }: { tmdbId: number; name: string }) => {
       return await addShowFromTmdbAction({ tmdbId, name });
     },
@@ -248,8 +239,6 @@ export function Dashboard() {
                 <ul className="bg-white divide-y divide-neutral-200">
                   {searchResults.map((show) => {
                     const alreadyAdded = myShowTmdbIds.has(show.tmdbId);
-                    const isAddingCurrent =
-                      isAddingShow && addShowVariables?.tmdbId === show.tmdbId;
                     const existingShowId = myShowIdByTmdbId.get(show.tmdbId);
 
                     return (
@@ -303,7 +292,6 @@ export function Dashboard() {
                           ) : (
                             <button
                               className="inline-flex items-center justify-center px-4 text-sm font-medium transition bg-white border rounded-md h-9 border-neutral-300 text-neutral-700 hover:border-neutral-400 hover:bg-neutral-100 hover:text-neutral-900 disabled:cursor-not-allowed disabled:opacity-60"
-                              disabled={isAddingCurrent}
                               onClick={() =>
                                 addShow({
                                   tmdbId: show.tmdbId,
@@ -312,7 +300,7 @@ export function Dashboard() {
                               }
                               type="button"
                             >
-                              {isAddingCurrent ? "Adding..." : "Add"}
+                              Add
                             </button>
                           )}
                         </div>
