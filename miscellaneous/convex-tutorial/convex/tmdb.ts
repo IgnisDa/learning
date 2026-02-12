@@ -5,10 +5,10 @@ import { components, internal } from "./_generated/api";
 import { Doc, Id } from "./_generated/dataModel";
 import {
   action,
+  ActionCtx,
   internalAction,
   internalMutation,
   internalQuery,
-  mutation,
   query,
   type MutationCtx,
 } from "./_generated/server";
@@ -16,6 +16,25 @@ import {
 const tmdbWorkpool = new Workpool(components.tmdbWorkpool, {
   maxParallelism: 5,
 });
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function pollWorkResults(
+  ctx: ActionCtx,
+  workIds: string | string[],
+  intervalMs = 500,
+) {
+  const pending = new Set(Array.isArray(workIds) ? workIds : [workIds]);
+  while (pending.size > 0) {
+    await sleep(intervalMs);
+    for (const workId of [...pending]) {
+      const status = await ctx.runQuery(internal.tmdb.getWorkResultStatus, {
+        workId,
+      });
+      if (status === "complete") pending.delete(workId);
+    }
+  }
+}
 
 type TmdbSearchTvResponse = {
   results?: Array<{
@@ -147,15 +166,7 @@ export const searchShows = action({
       query: trimmedQuery,
     });
 
-    while (true) {
-      const status = await ctx.runQuery(internal.tmdb.getWorkResultStatus, {
-        workId,
-      });
-      if (status === "complete") {
-        break;
-      }
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
+    await pollWorkResults(ctx, workId, 100);
 
     const workResult = await ctx.runQuery(internal.tmdb.getWorkResult, {
       workId,
@@ -725,22 +736,7 @@ export const addShowFromTmdb = action({
     }
 
     const allWorkIds: string[] = [];
-
-    const generateWorkId = () => crypto.randomUUID();
-
-    const pollUntilComplete = async (workId: string) => {
-      while (true) {
-        const status = await ctx.runQuery(internal.tmdb.getWorkResultStatus, {
-          workId,
-        });
-        if (status === "complete") {
-          return;
-        }
-        await new Promise((resolve) => setTimeout(resolve, 500));
-      }
-    };
-
-    const showDetailsWorkId = generateWorkId();
+    const showDetailsWorkId = crypto.randomUUID();
     allWorkIds.push(showDetailsWorkId);
 
     await ctx.runMutation(internal.tmdb.createPendingWorkResult, {
@@ -755,7 +751,7 @@ export const addShowFromTmdb = action({
       workId: showDetailsWorkId,
     });
 
-    await pollUntilComplete(showDetailsWorkId);
+    await pollWorkResults(ctx, showDetailsWorkId);
 
     const showDetailsResult = await ctx.runQuery(internal.tmdb.getWorkResult, {
       workId: showDetailsWorkId,
@@ -764,7 +760,7 @@ export const addShowFromTmdb = action({
     const seasonNumbers: number[] =
       showDetailsResult?.result?.seasonNumbers ?? [];
 
-    const creditsWorkId = generateWorkId();
+    const creditsWorkId = crypto.randomUUID();
     allWorkIds.push(creditsWorkId);
 
     await ctx.runMutation(internal.tmdb.createPendingWorkResult, {
@@ -780,7 +776,7 @@ export const addShowFromTmdb = action({
     });
 
     for (const seasonNumber of seasonNumbers) {
-      const seasonWorkId = generateWorkId();
+      const seasonWorkId = crypto.randomUUID();
       allWorkIds.push(seasonWorkId);
 
       await ctx.runMutation(internal.tmdb.createPendingWorkResult, {
@@ -801,20 +797,7 @@ export const addShowFromTmdb = action({
     const remainingWorkIds = allWorkIds.filter(
       (id) => id !== showDetailsWorkId,
     );
-    const pendingWorkIds = new Set(remainingWorkIds);
-
-    while (pendingWorkIds.size > 0) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      for (const workId of [...pendingWorkIds]) {
-        const status = await ctx.runQuery(internal.tmdb.getWorkResultStatus, {
-          workId,
-        });
-        if (status === "complete") {
-          pendingWorkIds.delete(workId);
-        }
-      }
-    }
+    await pollWorkResults(ctx, remainingWorkIds);
 
     await ctx.runMutation(internal.tmdb.saveShowDataFromResults, {
       showId,
