@@ -2,7 +2,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { Workpool } from "@convex-dev/workpool";
 import { v } from "convex/values";
 import { components, internal } from "./_generated/api";
-import { Doc, Id } from "./_generated/dataModel";
+import { Id } from "./_generated/dataModel";
 import {
   action,
   ActionCtx,
@@ -160,8 +160,8 @@ export const fetchSearchResults = internalAction({
     }));
 
     await ctx.runMutation(internal.tmdb.saveWorkResult, {
-      workId: args.workId,
       result: results,
+      workId: args.workId,
     });
   },
 });
@@ -206,9 +206,9 @@ export const fetchShowDetails = internalAction({
       workId: args.workId,
       result: {
         name: tv.name,
+        seasonNumbers,
         overview: tv.overview,
         posterPath: tv.poster_path,
-        seasonNumbers,
       },
     });
   },
@@ -224,17 +224,17 @@ export const fetchShowCredits = internalAction({
     const castCredits = (credits.cast ?? []).map((cast) => ({
       personName: cast.name,
       personTmdbId: cast.id,
-      orderIndex: cast.order ?? undefined,
-      character: cast.character ?? undefined,
-      profilePath: cast.profile_path ?? undefined,
+      orderIndex: cast.order,
+      character: cast.character,
+      profilePath: cast.profile_path,
     }));
 
     const crewCredits = (credits.crew ?? []).map((crew) => ({
+      job: crew.job,
       personTmdbId: crew.id,
       personName: crew.name,
-      job: crew.job ?? undefined,
-      department: crew.department ?? undefined,
-      profilePath: crew.profile_path ?? undefined,
+      department: crew.department,
+      profilePath: crew.profile_path,
     }));
 
     await ctx.runMutation(internal.tmdb.saveWorkResult, {
@@ -247,9 +247,9 @@ export const fetchShowCredits = internalAction({
 export const fetchSeasonDetails = internalAction({
   args: {
     tmdbId: v.number(),
-    showId: v.id("shows"),
-    seasonNumber: v.number(),
     workId: v.string(),
+    seasonNumber: v.number(),
+    showId: v.id("shows"),
   },
   handler: async (ctx, args) => {
     const season = await tmdbFetch<TmdbTvSeasonDetails>(
@@ -258,26 +258,26 @@ export const fetchSeasonDetails = internalAction({
 
     const episodes = (season.episodes ?? []).map((episode) => ({
       name: episode.name,
+      runtime: episode.runtime,
+      airDate: episode.air_date,
+      overview: episode.overview,
+      stillPath: episode.still_path,
       episodeNumber: episode.episode_number,
-      runtime: episode.runtime ?? undefined,
-      airDate: episode.air_date ?? undefined,
-      overview: episode.overview ?? undefined,
-      stillPath: episode.still_path ?? undefined,
     }));
 
     await ctx.runMutation(internal.tmdb.saveWorkResult, {
       workId: args.workId,
       result: {
+        episodes,
+        airDate: season.air_date,
+        overview: season.overview,
+        posterPath: season.poster_path,
         seasonNumber: season.season_number,
-        airDate: season.air_date ?? undefined,
-        overview: season.overview ?? undefined,
-        posterPath: season.poster_path ?? undefined,
         name: season.name ?? `Season ${season.season_number}`,
         episodeCount:
           typeof season.episode_count === "number"
             ? season.episode_count
             : episodes.length,
-        episodes,
       },
     });
   },
@@ -295,14 +295,13 @@ export const saveWorkResult = internalMutation({
       .withIndex("workId", (q) => q.eq("workId", args.workId))
       .first();
 
-    if (!workResult) {
+    if (!workResult)
       throw new Error(`Work result not found for workId: ${args.workId}`);
-    }
 
     await ctx.db.patch(workResult._id, {
+      error: args.error,
       status: "complete",
       result: args.result,
-      error: args.error,
     });
   },
 });
@@ -339,12 +338,8 @@ export const createShowRecord = internalMutation({
       )
       .first();
 
-    if (!existingUserShow) {
-      await ctx.db.insert("userShows", {
-        showId,
-        userId: args.userId,
-      });
-    }
+    if (!existingUserShow)
+      await ctx.db.insert("userShows", { showId, userId: args.userId });
 
     return { showId, alreadyExists };
   },
@@ -353,17 +348,17 @@ export const createShowRecord = internalMutation({
 export const createPendingWorkResult = internalMutation({
   args: {
     workId: v.string(),
-    poolName: v.string(),
     jobType: v.string(),
+    poolName: v.string(),
     context: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
     await ctx.db.insert("workPoolResults", {
-      workId: args.workId,
-      poolName: args.poolName,
-      jobType: args.jobType,
       status: "pending",
+      workId: args.workId,
+      jobType: args.jobType,
       context: args.context,
+      poolName: args.poolName,
     });
   },
 });
@@ -397,9 +392,7 @@ export const deleteWorkResult = internalMutation({
       .query("workPoolResults")
       .withIndex("workId", (q) => q.eq("workId", args.workId))
       .first();
-    if (result) {
-      await ctx.db.delete(result._id);
-    }
+    if (result) await ctx.db.delete(result._id);
   },
 });
 
@@ -417,13 +410,12 @@ export const saveShowDataFromResults = internalMutation({
   },
   handler: async (ctx, args) => {
     const workResults = await Promise.all(
-      args.workIds.map(async (workId) => {
-        const result = await ctx.db
+      args.workIds.map((workId) =>
+        ctx.db
           .query("workPoolResults")
           .withIndex("workId", (q) => q.eq("workId", workId))
-          .first();
-        return result;
-      }),
+          .first(),
+      ),
     );
 
     let showDetails: {
@@ -485,38 +477,28 @@ export const saveShowDataFromResults = internalMutation({
       });
     }
 
-    const existingCredits = await ctx.db
-      .query("credits")
-      .withIndex("showId", (q) => q.eq("showId", showId))
-      .collect();
-    for (const credit of existingCredits) {
-      await ctx.db.delete(credit._id);
-    }
+    await deleteRelatedRecords(ctx, "credits", "showId", showId);
 
     const existingSeasons = await ctx.db
       .query("seasons")
       .withIndex("showId", (q) => q.eq("showId", showId))
       .collect();
-    for (const season of existingSeasons) {
-      const existingEpisodes = await ctx.db
-        .query("episodes")
-        .withIndex("seasonId", (q) => q.eq("seasonId", season._id))
-        .collect();
-      for (const episode of existingEpisodes) {
-        await ctx.db.delete(episode._id);
-      }
-      await ctx.db.delete(season._id);
-    }
+    await Promise.all(
+      existingSeasons.map(async (season) => {
+        await deleteRelatedRecords(ctx, "episodes", "seasonId", season._id);
+        await ctx.db.delete(season._id);
+      }),
+    );
 
     for (const season of seasons) {
       const seasonId = await ctx.db.insert("seasons", {
         showId,
-        seasonNumber: season.seasonNumber,
         name: season.name,
+        airDate: season.airDate,
         overview: season.overview,
         posterPath: season.posterPath,
+        seasonNumber: season.seasonNumber,
         episodeCount: season.episodeCount,
-        airDate: season.airDate,
       });
 
       for (const episode of season.episodes) {
@@ -533,42 +515,18 @@ export const saveShowDataFromResults = internalMutation({
     }
 
     for (const castCredit of castCredits) {
-      const personId = await upsertPerson(ctx, {
-        name: castCredit.personName,
-        profilePath: castCredit.profilePath,
-        tmdbPersonId: castCredit.personTmdbId,
-      });
-
-      await ctx.db.insert("credits", {
-        showId,
-        personId,
-        kind: "cast",
-        character: castCredit.character,
-        orderIndex: castCredit.orderIndex,
-      });
+      await insertCredit(ctx, showId, castCredit, "cast");
     }
 
     for (const crewCredit of crewCredits) {
-      const personId = await upsertPerson(ctx, {
-        tmdbPersonId: crewCredit.personTmdbId,
-        name: crewCredit.personName,
-        profilePath: crewCredit.profilePath,
-      });
-
-      await ctx.db.insert("credits", {
-        showId,
-        personId,
-        kind: "crew",
-        job: crewCredit.job,
-        department: crewCredit.department,
-      });
+      await insertCredit(ctx, showId, crewCredit, "crew");
     }
 
-    for (const workResult of workResults) {
-      if (workResult) {
-        await ctx.db.delete(workResult._id);
-      }
-    }
+    await Promise.all(
+      workResults
+        .filter((wr) => wr !== null)
+        .map((wr) => ctx.db.delete(wr!._id)),
+    );
   },
 });
 
@@ -582,28 +540,23 @@ export const listMyShows = query({
       .withIndex("userId", (q) => q.eq("userId", userId))
       .collect();
 
-    const myShows: Array<{
-      name: string;
-      tmdbId: number;
-      _id: Id<"shows">;
-      overview: string | undefined;
-      posterPath: string | undefined;
-      addedAt: number;
-    }> = [];
+    const myShows = (
+      await Promise.all(
+        userShows.map(async (userShow) => {
+          const show = await ctx.db.get(userShow.showId);
+          if (!show) return null;
 
-    for (const userShow of userShows) {
-      const show = await ctx.db.get(userShow.showId);
-      if (!show) continue;
-
-      myShows.push({
-        _id: show._id,
-        name: show.name,
-        tmdbId: show.tmdbId,
-        addedAt: userShow._creationTime,
-        overview: show.overview,
-        posterPath: show.posterPath,
-      });
-    }
+          return {
+            _id: show._id,
+            name: show.name,
+            tmdbId: show.tmdbId,
+            overview: show.overview,
+            posterPath: show.posterPath,
+            addedAt: userShow._creationTime,
+          };
+        }),
+      )
+    ).filter((show) => show !== null);
 
     return myShows.sort((a, b) => b.addedAt - a.addedAt);
   },
@@ -643,23 +596,23 @@ export const getMyShowDetails = query({
 
           return {
             id: season._id,
-            seasonNumber: season.seasonNumber,
             name: season.name,
+            airDate: season.airDate,
             overview: season.overview,
             posterPath: season.posterPath,
             episodeCount: season.episodeCount,
-            airDate: season.airDate,
+            seasonNumber: season.seasonNumber,
             episodes: episodes
               .slice()
               .sort((a, b) => a.episodeNumber - b.episodeNumber)
               .map((episode) => ({
                 id: episode._id,
-                episodeNumber: episode.episodeNumber,
                 name: episode.name,
-                overview: episode.overview,
-                stillPath: episode.stillPath,
                 airDate: episode.airDate,
                 runtime: episode.runtime,
+                overview: episode.overview,
+                stillPath: episode.stillPath,
+                episodeNumber: episode.episodeNumber,
               })),
           };
         }),
@@ -670,16 +623,24 @@ export const getMyShowDetails = query({
       .withIndex("showId", (q) => q.eq("showId", show._id))
       .collect();
 
-    const peopleById = new Map<Id<"persons">, Doc<"persons">>();
-    await Promise.all(
-      credits.map(async (credit) => {
-        if (peopleById.has(credit.personId)) return;
-        const person = await ctx.db.get(credit.personId);
-        if (person) {
-          peopleById.set(person._id, person);
-        }
-      }),
+    const uniquePersonIds = [...new Set(credits.map((c) => c.personId))];
+    const people = await Promise.all(
+      uniquePersonIds.map((id) => ctx.db.get(id)),
     );
+    const peopleById = new Map(
+      people.filter((p) => p !== null).map((p) => [p!._id, p!]),
+    );
+
+    const getPersonData = (personId: Id<"persons">) => {
+      const person = peopleById.get(personId);
+      return person
+        ? {
+            id: personId,
+            name: person.name,
+            profilePath: person.profilePath,
+          }
+        : null;
+    };
 
     const cast = credits
       .filter((credit) => credit.kind === "cast")
@@ -687,13 +648,7 @@ export const getMyShowDetails = query({
         id: credit._id,
         character: credit.character,
         orderIndex: credit.orderIndex,
-        person: peopleById.get(credit.personId)
-          ? {
-              id: credit.personId,
-              name: peopleById.get(credit.personId)!.name,
-              profilePath: peopleById.get(credit.personId)!.profilePath,
-            }
-          : null,
+        person: getPersonData(credit.personId),
       }))
       .sort(
         (a, b) =>
@@ -705,15 +660,9 @@ export const getMyShowDetails = query({
       .filter((credit) => credit.kind === "crew")
       .map((credit) => ({
         id: credit._id,
-        department: credit.department,
         job: credit.job,
-        person: peopleById.get(credit.personId)
-          ? {
-              id: credit.personId,
-              name: peopleById.get(credit.personId)!.name,
-              profilePath: peopleById.get(credit.personId)!.profilePath,
-            }
-          : null,
+        department: credit.department,
+        person: getPersonData(credit.personId),
       }));
 
     return {
@@ -746,9 +695,7 @@ export const addShowFromTmdb = action({
       { name: args.name, tmdbId: args.tmdbId, userId },
     );
 
-    if (alreadyExists) {
-      return { ok: true, tmdbId: args.tmdbId, showId };
-    }
+    if (alreadyExists) return { ok: true, tmdbId: args.tmdbId, showId };
 
     const allWorkIds: string[] = [];
 
@@ -823,5 +770,40 @@ async function upsertPerson(
     name: person.name,
     profilePath: person.profilePath,
     tmdbPersonId: person.tmdbPersonId,
+  });
+}
+
+async function deleteRelatedRecords(
+  ctx: MutationCtx,
+  table: string,
+  indexName: string,
+  indexValue: any,
+) {
+  const records = await ctx.db
+    .query(table as any)
+    .withIndex(indexName, (q) => q.eq(indexName, indexValue))
+    .collect();
+  await Promise.all(records.map((record) => ctx.db.delete(record._id)));
+}
+
+async function insertCredit(
+  ctx: MutationCtx,
+  showId: Id<"shows">,
+  credit: any,
+  kind: "cast" | "crew",
+) {
+  const personId = await upsertPerson(ctx, {
+    name: credit.personName,
+    profilePath: credit.profilePath,
+    tmdbPersonId: credit.personTmdbId,
+  });
+
+  await ctx.db.insert("credits", {
+    kind,
+    showId,
+    personId,
+    ...(kind === "cast"
+      ? { character: credit.character, orderIndex: credit.orderIndex }
+      : { job: credit.job, department: credit.department }),
   });
 }
