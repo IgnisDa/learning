@@ -406,17 +406,6 @@ export const getWorkResult = internalQuery({
   },
 });
 
-export const deleteWorkResult = internalMutation({
-  args: { workId: v.string() },
-  handler: async (ctx, args) => {
-    const result = await ctx.db
-      .query("workPoolResults")
-      .withIndex("workId", (q) => q.eq("workId", args.workId))
-      .first();
-    if (result) await ctx.db.delete(result._id);
-  },
-});
-
 export const getAuthenticatedUserId = internalQuery({
   args: {},
   handler: async (ctx) => {
@@ -535,19 +524,11 @@ export const saveShowDataFromResults = internalMutation({
       }
     }
 
-    for (const castCredit of castCredits) {
+    for (const castCredit of castCredits)
       await insertCredit(ctx, showId, castCredit, "cast");
-    }
 
-    for (const crewCredit of crewCredits) {
+    for (const crewCredit of crewCredits)
       await insertCredit(ctx, showId, crewCredit, "crew");
-    }
-
-    await Promise.all(
-      workResults
-        .filter((wr) => wr !== null)
-        .map((wr) => ctx.db.delete(wr!._id)),
-    );
   },
 });
 
