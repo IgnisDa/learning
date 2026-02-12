@@ -178,10 +178,10 @@ export const fetchSearchResults = internalAction({
 
 export const searchShows = action({
   args: { query: v.string() },
-  handler: async (ctx, args): Promise<SearchResult[]> => {
+  handler: async (ctx, args): Promise<{ workId: string }> => {
     const trimmedQuery = args.query.trim();
 
-    if (trimmedQuery.length < 2) return [];
+    if (trimmedQuery.length < 2) return { workId: "" };
 
     const workId = await enqueueWork(
       ctx,
@@ -191,15 +191,26 @@ export const searchShows = action({
       { query: trimmedQuery },
     );
 
-    await pollWorkResults(ctx, workId, 100);
+    return { workId };
+  },
+});
 
-    const workResult = await ctx.runQuery(internal.tmdb.getWorkResult, {
-      workId,
-    });
+export const searchShowsResult = query({
+  args: { workId: v.string() },
+  handler: async (ctx, args) => {
+    const workResult = await ctx.db
+      .query("workPoolResults")
+      .withIndex("workId", (q) => q.eq("workId", args.workId))
+      .first();
 
-    await ctx.runMutation(internal.tmdb.deleteWorkResult, { workId });
+    if (!workResult) return null;
 
-    return (workResult?.result as SearchResult[]) ?? [];
+    return {
+      workId: args.workId,
+      error: workResult.error,
+      status: workResult.status,
+      result: workResult.result as SearchResult[] | undefined,
+    };
   },
 });
 

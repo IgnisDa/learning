@@ -29,15 +29,20 @@ export function Dashboard() {
   const [debouncedQuery] = useDebouncedValue(searchQuery, 250);
 
   const {
+    data: searchData,
     error: searchError,
     mutate: searchShows,
-    data: searchResults,
-    isPending: isSearching,
+    isPending: isStartingSearch,
   } = useMutation({
     mutationFn: async (query: string) => {
       return await searchShowsAction({ query });
     },
   });
+
+  const searchWorkResult = useQuery(
+    api.tmdb.searchShowsResult,
+    searchData ? { workId: searchData.workId } : "skip",
+  );
 
   const { mutate: addShow, error: addShowError } = useMutation({
     mutationFn: async ({ tmdbId, name }: { tmdbId: number; name: string }) => {
@@ -51,6 +56,12 @@ export function Dashboard() {
     if (trimmed.length < 2) return;
     searchShows(trimmed);
   }, [activeTab, debouncedQuery, searchShows]);
+
+  const searchResults =
+    searchWorkResult?.status === "complete" ? searchWorkResult.result : [];
+  const isSearching =
+    isStartingSearch || searchWorkResult?.status === "pending";
+  const searchResultError = searchWorkResult?.error;
 
   const myShowTmdbIds = new Set(myShows.map((show) => show.tmdbId));
   const myShowIdByTmdbId = new Map(
@@ -211,12 +222,12 @@ export function Dashboard() {
               </div>
             )}
 
-            {searchError && (
+            {(searchError || searchResultError) && (
               <div className="px-4 py-3 mt-4 text-sm text-red-700 border border-red-200 rounded-md bg-red-50">
                 Error:{" "}
                 {searchError instanceof Error
                   ? searchError.message
-                  : "Search failed"}
+                  : searchResultError || "Search failed"}
               </div>
             )}
 
