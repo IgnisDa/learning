@@ -215,6 +215,13 @@
   resolved "https://registry.npmjs.org/@convex-dev/react-query/-/react-query-0.1.0.tgz"
   integrity sha512-ULmBZCtAQDUePdBhUv7hj1Yy4QiCelhi6uEIOtMpjW8db6W9CFKvQwLt9heLngccFyMFfAZdOfSrT+cP4AH0Jw==
 
+"@convex-dev/workflow@^0.3.4":
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/@convex-dev/workflow/-/workflow-0.3.4.tgz#74d88dad7e9ab086718158e4ec3c1a4e78b4a6d2"
+  integrity sha512-uX9qhEbgkgt+touvgLnyKztussT3m5q4c2XH/iBNQxzk8TlL29F1+UeoCxXA6WibWEpOQLeuFA6/QMVP4tEX1w==
+  dependencies:
+    async-channel "^0.2.0"
+
 "@convex-dev/workpool@^0.3.1":
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/@convex-dev/workpool/-/workpool-0.3.1.tgz#14a5c2ae09172286772867181dd48c44fd7a2577"
@@ -1265,6 +1272,11 @@ ast-types@^0.16.1:
   integrity sha512-6t10qk83GOG8p0vKmaCr8eiilZwO171AvbROMtvvNiwrTly62t+7XkA8RdIIVbpMhCASAsxgAzdRSwh6nw/5Dg==
   dependencies:
     tslib "^2.0.1"
+
+async-channel@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/async-channel/-/async-channel-0.2.0.tgz#4260a462e2fe3096f6cf59b5fb9b2e11a11b77bc"
+  integrity sha512-BJyjI/sfKlyijaBt2hbOSxT28xGNtLR0QLzAKO1Hlnv5BULY7sAoYoTPW3lfr1ZIC7y+FxabxO9T8GXpyoofGg==
 
 babel-dead-code-elimination@^1.0.11, babel-dead-code-elimination@^1.0.12:
   version "1.0.12"

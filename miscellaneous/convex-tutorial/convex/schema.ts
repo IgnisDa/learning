@@ -70,13 +70,4 @@ export default defineSchema({
     orderIndex: v.optional(v.number()),
   }).index("showId", ["showId"]),
 
-  workPoolResults: defineTable({
-    workId: v.string(),
-    jobType: v.string(),
-    poolName: v.string(),
-    result: v.optional(v.any()),
-    context: v.optional(v.any()),
-    error: v.optional(v.string()),
-    status: v.union(v.literal("pending"), v.literal("complete")),
-  }).index("workId", ["workId"]),
 });
