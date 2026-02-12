@@ -6,7 +6,7 @@ import { exportJWK, exportPKCS8, generateKeyPair } from "jose";
 config({ path: ".env.local" });
 
 // Auth-related variables that are auto-generated
-const AUTH_VARS = ["JWT_PRIVATE_KEY", "JWKS", "SITE_URL"];
+const AUTH_VARS = ["JWT_PRIVATE_KEY", "JWKS"];
 
 // Environment variables to sync from process.env to Convex
 // These are optional - only synced if present in the local environment
@@ -88,18 +88,6 @@ if (
       console.error("Failed to set JWKS");
       process.exit(1);
     }
-  }
-}
-
-// Set SITE_URL if missing
-if (missingAuthVars.includes("SITE_URL")) {
-  const siteUrl = process.env.SITE_URL || "http://localhost:5173";
-  try {
-    execSync(`npx convex env set SITE_URL "${siteUrl}"`, { stdio: "inherit" });
-    console.log(`Set SITE_URL to ${siteUrl}`);
-  } catch (error) {
-    console.error("Failed to set SITE_URL");
-    process.exit(1);
   }
 }
 
