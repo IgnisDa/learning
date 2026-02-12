@@ -4,15 +4,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConvexReactClient } from "convex/react";
 import { useState, type ReactNode } from "react";
 
-function getConvexUrl() {
-  if (typeof window !== "undefined")
-    return import.meta.env.VITE_CONVEX_URL || window.location.origin;
-  return import.meta.env.VITE_CONVEX_URL || "https://placeholder.convex.cloud";
-}
-
 export function Providers({ children }: { children: ReactNode }) {
   const [{ convex, queryClient }] = useState(() => {
-    const convexUrl = getConvexUrl();
+    const convexUrl = import.meta.env.VITE_CONVEX_URL || window.location.origin;
     const convex = new ConvexReactClient(convexUrl);
     const convexQueryClient = new ConvexQueryClient(convex);
     const queryClient = new QueryClient({
