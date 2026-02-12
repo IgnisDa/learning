@@ -25,7 +25,7 @@ function ShowPage() {
   );
 
   const details = useQuery(
-    api.tmdb.getMyShowDetails,
+    api.tmdb.index.getMyShowDetails,
     id ? { showId: id as Id<"shows"> } : "skip",
   );
 

@@ -10,7 +10,9 @@
 
 import type * as auth from "../auth.js";
 import type * as http from "../http.js";
-import type * as tmdb from "../tmdb.js";
+import type * as tmdb_details from "../tmdb/details.js";
+import type * as tmdb_index from "../tmdb/index.js";
+import type * as tmdb_search from "../tmdb/search.js";
 
 import type {
   ApiFromModules,
@@ -21,7 +23,9 @@ import type {
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   http: typeof http;
-  tmdb: typeof tmdb;
+  "tmdb/details": typeof tmdb_details;
+  "tmdb/index": typeof tmdb_index;
+  "tmdb/search": typeof tmdb_search;
 }>;
 
 /**

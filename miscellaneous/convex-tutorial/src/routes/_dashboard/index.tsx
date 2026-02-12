@@ -23,9 +23,9 @@ export function Dashboard() {
   const { signOut } = useAuthActions();
   const [activeTab, setActiveTab] = useState<"myShows" | "search">("myShows");
   const [searchQuery, setSearchQuery] = useState("");
-  const myShows = useQuery(api.tmdb.listMyShows) ?? [];
-  const searchShowsAction = useAction(api.tmdb.searchShows);
-  const addShowFromTmdbAction = useAction(api.tmdb.addShowFromTmdb);
+  const myShows = useQuery(api.tmdb.index.listMyShows) ?? [];
+  const searchShowsAction = useAction(api.tmdb.search.searchShows);
+  const addShowFromTmdbAction = useAction(api.tmdb.details.addShowFromTmdb);
   const [debouncedQuery] = useDebouncedValue(searchQuery, 250);
 
   const {
@@ -40,7 +40,7 @@ export function Dashboard() {
   });
 
   const searchWorkResult = useQuery(
-    api.tmdb.searchShowsResult,
+    api.tmdb.search.searchShowsResult,
     searchData ? { workId: searchData.workId } : "skip",
   );
 
