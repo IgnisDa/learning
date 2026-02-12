@@ -77,9 +77,9 @@ export const handleWorkpoolCompletion = internalMutation({
         : `TMDB work ${args.workId} was canceled`;
 
     await tmdbWorkflow.sendEvent(ctx, {
+      error,
       workflowId,
       name: args.context.eventName,
-      error,
     });
   },
 });

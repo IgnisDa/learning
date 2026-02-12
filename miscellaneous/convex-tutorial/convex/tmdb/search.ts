@@ -61,13 +61,10 @@ export const fetchSearchResults = internalAction({
   },
 });
 
-export const enqueueSearchShowsJob = internalMutation({
-  args: {
-    query: v.string(),
-    workflowId: v.string(),
-    eventName: v.string(),
-  },
-  handler: async (ctx, args) => {
+export const searchShowsWorkflow = tmdbWorkflow.define({
+  args: { query: v.string() },
+  returns: searchResultsValidator,
+  handler: async (ctx, args): Promise<SearchResult[]> => {
     await tmdbWorkPool.enqueueAction(
       ctx,
       internal.tmdb.search.fetchSearchResults,
@@ -76,23 +73,11 @@ export const enqueueSearchShowsJob = internalMutation({
         retry: TMDB_RETRY_BEHAVIOR,
         onComplete: internal.tmdb.index.handleWorkpoolCompletion,
         context: {
-          workflowId: args.workflowId,
-          eventName: args.eventName,
+          workflowId: ctx.workflowId,
+          eventName: SEARCH_RESULTS_EVENT_NAME,
         },
       },
     );
-  },
-});
-
-export const searchShowsWorkflow = tmdbWorkflow.define({
-  args: { query: v.string() },
-  returns: searchResultsValidator,
-  handler: async (ctx, args): Promise<SearchResult[]> => {
-    await ctx.runMutation(internal.tmdb.search.enqueueSearchShowsJob, {
-      query: args.query,
-      workflowId: ctx.workflowId,
-      eventName: SEARCH_RESULTS_EVENT_NAME,
-    });
 
     return await ctx.awaitEvent({
       name: SEARCH_RESULTS_EVENT_NAME,
