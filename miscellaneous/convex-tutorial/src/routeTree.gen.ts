@@ -47,10 +47,10 @@ const DashboardShowIdRoute = DashboardShowIdRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof DashboardIndexRoute
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
   '/search': typeof DashboardSearchRoute
-  '/': typeof DashboardIndexRoute
   '/show/$id': typeof DashboardShowIdRoute
 }
 export interface FileRoutesByTo {
@@ -71,7 +71,7 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/signin' | '/signup' | '/search' | '/' | '/show/$id'
+  fullPaths: '/' | '/signin' | '/signup' | '/search' | '/show/$id'
   fileRoutesByTo: FileRoutesByTo
   to: '/signin' | '/signup' | '/search' | '/' | '/show/$id'
   id:
@@ -109,7 +109,7 @@ declare module '@tanstack/react-router' {
     '/_dashboard': {
       id: '/_dashboard'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof DashboardRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
