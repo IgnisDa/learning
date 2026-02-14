@@ -4,6 +4,9 @@ import { useEffect } from "react";
 
 export const Route = createFileRoute("/_dashboard")({
   component: IndexPage,
+  beforeLoad: async ({ context }) => {
+    console.log(context);
+  },
 });
 
 function IndexPage() {

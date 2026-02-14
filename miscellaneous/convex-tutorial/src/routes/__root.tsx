@@ -1,16 +1,23 @@
-import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
 import { Providers } from "@/components/Providers";
 import appCss from "@/styles/index.css?url";
+import { QueryClient } from "@tanstack/react-query";
+import {
+  HeadContent,
+  Scripts,
+  createRootRouteWithContext,
+} from "@tanstack/react-router";
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{
+  queryClient: QueryClient;
+}>()({
   shellComponent: RootDocument,
   head: () => ({
+    links: [{ rel: "stylesheet", href: appCss }],
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Convex Tutorial" },
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
   }),
 });
 
