@@ -1,16 +1,16 @@
-import { createRouter } from "@tanstack/react-router";
-import { routeTree } from "./routeTree.gen";
-import { ConvexReactClient } from "convex/react";
 import { ConvexQueryClient } from "@convex-dev/react-query";
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { createRouter } from "@tanstack/react-router";
+import { ConvexProvider, ConvexReactClient } from "convex/react";
+import { routeTree } from "./routeTree.gen";
 
 export const getRouter = () => {
-  const convex = new ConvexReactClient(
+  const convexClient = new ConvexReactClient(
     typeof window !== "undefined"
       ? window.location.origin
       : "http://localhost:3000",
   );
-  const convexQueryClient = new ConvexQueryClient(convex);
+  const convexQueryClient = new ConvexQueryClient(convexClient);
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -24,7 +24,14 @@ export const getRouter = () => {
     routeTree,
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
-    context: { queryClient, convex },
+    context: { queryClient, convexClient },
+    Wrap: ({ children }) => (
+      <ConvexProvider client={convexQueryClient.convexClient}>
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
+      </ConvexProvider>
+    ),
   });
 
   return router;
