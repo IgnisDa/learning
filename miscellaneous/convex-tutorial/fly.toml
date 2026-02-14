@@ -21,7 +21,7 @@ interval = '5s'
 timeout = '30s'
 protocol = 'http'
 path = '/version'
-grace_period = '10s'
+grace_period = '20s'
 
 [[vm]]
 cpus = 1
