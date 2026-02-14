@@ -4,7 +4,7 @@ import { vOnCompleteArgs, Workpool } from "@convex-dev/workpool";
 import { v } from "convex/values";
 import { components } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
-import { internalMutation, internalQuery, query } from "../_generated/server";
+import { internalMutation, query } from "../_generated/server";
 
 export const tmdbWorkPool = new Workpool(components.tmdbWorkpool, {
   maxParallelism: 5,
@@ -120,13 +120,6 @@ export const createShowRecord = internalMutation({
       await ctx.db.insert("userShows", { showId, userId: args.userId });
 
     return { showId, alreadyExists };
-  },
-});
-
-export const getAuthenticatedUserId = internalQuery({
-  args: {},
-  handler: async (ctx) => {
-    return await getAuthUserId(ctx);
   },
 });
 
