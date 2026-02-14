@@ -1,0 +1,21 @@
+app = 'convex-tutorial-shy-water-776'
+primary_region = 'gru'
+
+[build]
+
+[[mounts]]
+source = 'data'
+destination = '/convex/data'
+
+[http_service]
+force_https = true
+processes = ['app']
+internal_port = 3000
+min_machines_running = 0
+auto_start_machines = true
+auto_stop_machines = 'stop'
+
+[[vm]]
+cpus = 1
+memory = '1gb'
+memory_mb = 1024
