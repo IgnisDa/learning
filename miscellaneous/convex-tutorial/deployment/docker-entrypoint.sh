@@ -9,6 +9,8 @@ export POSTGRES_URL
 INSTANCE_NAME=$(echo "$DATABASE_URL" | sed -E 's/.*\/([^/?]+)(\?.*)?$/\1/')
 export INSTANCE_NAME
 
+echo "Values:" "$POSTGRES_URL" "$INSTANCE_NAME"
+
 echo "Starting Convex backend..."
 (
   cd /convex
