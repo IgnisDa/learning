@@ -15,6 +15,14 @@ min_machines_running = 0
 auto_start_machines = true
 auto_stop_machines = 'stop'
 
+[[http_service.checks]]
+method = 'GET'
+interval = '5s'
+timeout = '30s'
+protocol = 'http'
+path = '/version'
+grace_period = '10s'
+
 [[vm]]
 cpus = 1
 memory = '1gb'
