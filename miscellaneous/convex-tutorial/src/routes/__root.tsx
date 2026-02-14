@@ -1,14 +1,17 @@
-import { Providers } from "@/components/Providers";
 import appCss from "@/styles/index.css?url";
-import { QueryClient } from "@tanstack/react-query";
+import { ConvexAuthProvider } from "@convex-dev/auth/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   HeadContent,
   Scripts,
   createRootRouteWithContext,
+  useRouteContext,
 } from "@tanstack/react-router";
+import { ConvexReactClient } from "convex/react";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
+  convex: ConvexReactClient;
 }>()({
   shellComponent: RootDocument,
   head: () => ({
@@ -22,13 +25,19 @@ export const Route = createRootRouteWithContext<{
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const context = useRouteContext({ from: Route.id });
+
   return (
     <html lang="en">
       <head>
         <HeadContent />
       </head>
       <body>
-        <Providers>{children}</Providers>
+        <ConvexAuthProvider client={context.convex}>
+          <QueryClientProvider client={context.queryClient}>
+            {children}
+          </QueryClientProvider>
+        </ConvexAuthProvider>
         <Scripts />
       </body>
     </html>
