@@ -4,12 +4,13 @@ set -euo pipefail
 export CONVEX_CLOUD_ORIGIN="${CONVEX_CLOUD_ORIGIN:-http://localhost:3000}"
 export CONVEX_SITE_ORIGIN="${CONVEX_SITE_ORIGIN:-http://localhost:3000/_site}"
 
-POSTGRES_URL=$(echo "$DATABASE_URL" | sed -E 's/\/[^/]+(\?.*)?$//')
-export POSTGRES_URL
-INSTANCE_NAME=$(echo "$DATABASE_URL" | sed -E 's/.*\/([^/?]+)(\?.*)?$/\1/')
-export INSTANCE_NAME
-
-echo "Values:" "$POSTGRES_URL" "$INSTANCE_NAME"
+if [ -n "${DATABASE_URL:-}" ]; then
+  POSTGRES_URL=$(echo "$DATABASE_URL" | sed -E 's/\/[^/]+(\?.*)?$//')
+  export POSTGRES_URL
+  INSTANCE_NAME=$(echo "$DATABASE_URL" | sed -E 's/.*\/([^/?]+)(\?.*)?$/\1/')
+  export INSTANCE_NAME
+  echo "Values:" "$POSTGRES_URL" "$INSTANCE_NAME"
+fi
 
 echo "Starting Convex backend..."
 (
