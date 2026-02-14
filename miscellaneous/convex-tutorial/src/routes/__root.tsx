@@ -1,4 +1,5 @@
 import appCss from "@/styles/index.css?url";
+import { ConvexQueryClient } from "@convex-dev/react-query";
 import { QueryClient } from "@tanstack/react-query";
 import {
   HeadContent,
@@ -11,6 +12,7 @@ import { ConvexReactClient } from "convex/react";
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
   convexClient: ConvexReactClient;
+  convexQueryClient: ConvexQueryClient;
 }>()({
   shellComponent: RootDocument,
   head: () => ({
