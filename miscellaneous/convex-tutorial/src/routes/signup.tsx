@@ -11,7 +11,7 @@ function SignUpPage() {
   return (
     <>
       <AuthLoading>
-        <div className="mx-auto mt-24 w-fit rounded-md border border-neutral-200 bg-white px-4 py-2 text-sm text-neutral-600 shadow-sm">
+        <div className="px-4 py-2 mx-auto mt-24 text-sm bg-white border rounded-md shadow-sm w-fit border-neutral-200 text-neutral-600">
           Loading...
         </div>
       </AuthLoading>
@@ -33,7 +33,7 @@ function RedirectToHome() {
   }, [navigate]);
 
   return (
-    <div className="mx-auto mt-24 w-fit rounded-md border border-neutral-200 bg-white px-4 py-2 text-sm text-neutral-600 shadow-sm">
+    <div className="px-4 py-2 mx-auto mt-24 text-sm bg-white border rounded-md shadow-sm w-fit border-neutral-200 text-neutral-600">
       Redirecting...
     </div>
   );
@@ -60,7 +60,7 @@ function SignUpForm() {
   };
 
   return (
-    <div className="mx-auto mt-10 w-full max-w-md rounded-xl border border-neutral-200 bg-white p-8 shadow-sm">
+    <div className="w-full max-w-md p-8 mx-auto mt-10 bg-white border shadow-sm rounded-xl border-neutral-200">
       <div className="mb-6 space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
           Convex Tutorial
@@ -74,7 +74,7 @@ function SignUpForm() {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <div className="px-3 py-2 mb-4 text-sm text-red-700 border border-red-200 rounded-md bg-red-50">
           {error}
         </div>
       )}
@@ -115,9 +115,12 @@ function SignUpForm() {
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-neutral-600">
+      <p className="mt-6 text-sm text-center text-neutral-600">
         Already have an account?{" "}
-        <Link className="font-medium text-neutral-900 hover:text-neutral-700" to="/signin">
+        <Link
+          className="font-medium text-neutral-900 hover:text-neutral-700"
+          to="/signin"
+        >
           Sign in
         </Link>
       </p>
