@@ -9,12 +9,7 @@ import {
   type MutationCtx,
 } from "../_generated/server";
 import {
-  SHOW_CREDITS_EVENT_NAME,
-  SHOW_DETAILS_EVENT_NAME,
-  TMDB_RETRY_BEHAVIOR,
-  seasonImportEventName,
   tmdbFetch,
-  tmdbWorkPool,
   tmdbWorkflow,
 } from "./index";
 
@@ -213,73 +208,6 @@ export const fetchSeasonDetails = internalAction({
   },
 });
 
-export const enqueueShowDetailsJob = internalMutation({
-  args: {
-    tmdbId: v.number(),
-    workflowId: v.string(),
-    eventName: v.string(),
-  },
-  handler: async (ctx, args) => {
-    await tmdbWorkPool.enqueueAction(
-      ctx,
-      internal.tmdb.details.fetchShowDetails,
-      { tmdbId: args.tmdbId },
-      {
-        retry: TMDB_RETRY_BEHAVIOR,
-        onComplete: internal.tmdb.index.handleWorkpoolCompletion,
-        context: { eventName: args.eventName, workflowId: args.workflowId },
-      },
-    );
-  },
-});
-
-export const enqueueShowCreditsJob = internalMutation({
-  args: {
-    tmdbId: v.number(),
-    showId: v.id("shows"),
-    workflowId: v.string(),
-    eventName: v.string(),
-  },
-  handler: async (ctx, args) => {
-    await tmdbWorkPool.enqueueAction(
-      ctx,
-      internal.tmdb.details.fetchShowCredits,
-      { tmdbId: args.tmdbId, showId: args.showId },
-      {
-        retry: TMDB_RETRY_BEHAVIOR,
-        onComplete: internal.tmdb.index.handleWorkpoolCompletion,
-        context: { eventName: args.eventName, workflowId: args.workflowId },
-      },
-    );
-  },
-});
-
-export const enqueueSeasonJob = internalMutation({
-  args: {
-    tmdbId: v.number(),
-    eventName: v.string(),
-    workflowId: v.string(),
-    seasonNumber: v.number(),
-    showId: v.id("shows"),
-  },
-  handler: async (ctx, args) => {
-    await tmdbWorkPool.enqueueAction(
-      ctx,
-      internal.tmdb.details.fetchSeasonDetails,
-      {
-        tmdbId: args.tmdbId,
-        showId: args.showId,
-        seasonNumber: args.seasonNumber,
-      },
-      {
-        retry: TMDB_RETRY_BEHAVIOR,
-        onComplete: internal.tmdb.index.handleWorkpoolCompletion,
-        context: { eventName: args.eventName, workflowId: args.workflowId },
-      },
-    );
-  },
-});
-
 export const importShowWorkflow = tmdbWorkflow.define({
   args: {
     tmdbId: v.number(),
@@ -287,16 +215,10 @@ export const importShowWorkflow = tmdbWorkflow.define({
   },
   returns: v.object({ seasonCount: v.number() }),
   handler: async (ctx, args): Promise<{ seasonCount: number }> => {
-    await ctx.runMutation(internal.tmdb.details.enqueueShowDetailsJob, {
-      tmdbId: args.tmdbId,
-      workflowId: ctx.workflowId,
-      eventName: SHOW_DETAILS_EVENT_NAME,
-    });
-
-    const showDetails = await ctx.awaitEvent({
-      name: SHOW_DETAILS_EVENT_NAME,
-      validator: showDetailsValidator,
-    });
+    const showDetails = await ctx.runAction(
+      internal.tmdb.details.fetchShowDetails,
+      { tmdbId: args.tmdbId },
+    );
 
     const seasonNumbers = [...new Set(showDetails.seasonNumbers)]
       .filter((seasonNumber) => Number.isFinite(seasonNumber))
@@ -310,27 +232,19 @@ export const importShowWorkflow = tmdbWorkflow.define({
     });
 
     await Promise.all([
-      ctx.runMutation(internal.tmdb.details.enqueueShowCreditsJob, {
-        tmdbId: args.tmdbId,
-        showId: args.showId,
-        workflowId: ctx.workflowId,
-        eventName: SHOW_CREDITS_EVENT_NAME,
-      }),
-      ...seasonNumbers.map((seasonNumber) =>
-        ctx.runMutation(internal.tmdb.details.enqueueSeasonJob, {
-          tmdbId: args.tmdbId,
-          seasonNumber,
-          showId: args.showId,
-          workflowId: ctx.workflowId,
-          eventName: seasonImportEventName(seasonNumber),
-        }),
+      ctx.runAction(
+        internal.tmdb.details.fetchShowCredits,
+        { tmdbId: args.tmdbId, showId: args.showId },
       ),
-    ]);
-
-    await Promise.all([
-      ctx.awaitEvent({ name: SHOW_CREDITS_EVENT_NAME }),
       ...seasonNumbers.map((seasonNumber) =>
-        ctx.awaitEvent({ name: seasonImportEventName(seasonNumber) }),
+        ctx.runAction(
+          internal.tmdb.details.fetchSeasonDetails,
+          {
+            tmdbId: args.tmdbId,
+            showId: args.showId,
+            seasonNumber: seasonNumber,
+          },
+        ),
       ),
     ]);
 

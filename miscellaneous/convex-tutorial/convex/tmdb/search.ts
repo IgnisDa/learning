@@ -9,9 +9,7 @@ import {
 } from "../_generated/server";
 import {
   SEARCH_RESULTS_EVENT_NAME,
-  TMDB_RETRY_BEHAVIOR,
   tmdbFetch,
-  tmdbWorkPool,
   tmdbWorkflow,
 } from "./index";
 
@@ -65,24 +63,10 @@ export const searchShowsWorkflow = tmdbWorkflow.define({
   args: { query: v.string() },
   returns: searchResultsValidator,
   handler: async (ctx, args): Promise<SearchResult[]> => {
-    await tmdbWorkPool.enqueueAction(
-      ctx,
+    return await ctx.runAction(
       internal.tmdb.search.fetchSearchResults,
       { query: args.query },
-      {
-        retry: TMDB_RETRY_BEHAVIOR,
-        onComplete: internal.tmdb.index.handleWorkpoolCompletion,
-        context: {
-          workflowId: ctx.workflowId,
-          eventName: SEARCH_RESULTS_EVENT_NAME,
-        },
-      },
     );
-
-    return await ctx.awaitEvent({
-      name: SEARCH_RESULTS_EVENT_NAME,
-      validator: searchResultsValidator,
-    });
   },
 });
 

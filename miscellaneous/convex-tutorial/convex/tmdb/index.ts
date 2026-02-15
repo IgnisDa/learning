@@ -1,35 +1,12 @@
 import { WorkflowManager, type WorkflowId } from "@convex-dev/workflow";
-import { vOnCompleteArgs, Workpool } from "@convex-dev/workpool";
 import { v } from "convex/values";
 import { components } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
 import { internalMutation, query } from "../_generated/server";
 
-export const tmdbWorkPool = new Workpool(components.tmdbWorkpool, {
-  maxParallelism: 5,
-});
-
-export const tmdbWorkflow = new WorkflowManager(components.workflow, {
-  workpoolOptions: { maxParallelism: 5 },
-});
-
-export const TMDB_RETRY_BEHAVIOR = {
-  base: 2,
-  maxAttempts: 5,
-  initialBackoffMs: 400,
-} as const;
+export const tmdbWorkflow = new WorkflowManager(components.workflow);
 
 export const SEARCH_RESULTS_EVENT_NAME = "tmdb.search.results";
-export const SHOW_DETAILS_EVENT_NAME = "tmdb.import.showDetails";
-export const SHOW_CREDITS_EVENT_NAME = "tmdb.import.credits";
-
-export const seasonImportEventName = (seasonNumber: number) =>
-  `tmdb.import.season.${seasonNumber}`;
-
-const workCompletionContextValidator = v.object({
-  workflowId: v.string(),
-  eventName: v.string(),
-});
 
 export async function tmdbFetch<T>(path: string): Promise<T> {
   const tmdbKey = process.env.TMDB_API_KEY;
@@ -55,33 +32,6 @@ export async function tmdbFetch<T>(path: string): Promise<T> {
 
   return (await res.json()) as T;
 }
-
-export const handleWorkpoolCompletion = internalMutation({
-  args: vOnCompleteArgs(workCompletionContextValidator),
-  handler: async (ctx, args) => {
-    const workflowId = args.context.workflowId as WorkflowId;
-
-    if (args.result.kind === "success") {
-      await tmdbWorkflow.sendEvent(ctx, {
-        workflowId,
-        name: args.context.eventName,
-        value: args.result.returnValue,
-      });
-      return;
-    }
-
-    const error =
-      args.result.kind === "failed"
-        ? args.result.error
-        : `TMDB work ${args.workId} was canceled`;
-
-    await tmdbWorkflow.sendEvent(ctx, {
-      error,
-      workflowId,
-      name: args.context.eventName,
-    });
-  },
-});
 
 export const createShowRecord = internalMutation({
   args: {
