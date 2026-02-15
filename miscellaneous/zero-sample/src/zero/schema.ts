@@ -1,5 +1,13 @@
-import type { Row } from "@rocicorp/zero";
-import { createBuilder } from "@rocicorp/zero";
+import {
+  table,
+  string,
+  number,
+  boolean,
+  enumeration,
+  relationships,
+  createSchema,
+  createBuilder,
+} from "@rocicorp/zero";
 
 export type EnrichState = "queued" | "running" | "ready" | "error";
 export type CreditKind = "cast" | "crew";
@@ -12,510 +20,181 @@ export type WatchStatus =
   | "dropped";
 export type ZeroContext = { userID: string };
 
-const showTable = {
-  name: "show",
-  columns: {
-    id: {
-      type: "string",
-      optional: false,
-      customType: null as unknown as string,
-    },
-    tmdbId: {
-      type: "number",
-      optional: false,
-      customType: null as unknown as number,
-      serverName: "tmdb_id",
-    },
-    name: {
-      type: "string",
-      optional: false,
-      customType: null as unknown as string,
-    },
-    overview: {
-      type: "string",
-      optional: true,
-      customType: null as unknown as string,
-    },
-    posterPath: {
-      type: "string",
-      optional: true,
-      customType: null as unknown as string,
-      serverName: "poster_path",
-    },
-    enrichState: {
-      type: "string",
-      optional: false,
-      customType: null as unknown as EnrichState,
-      serverName: "enrich_state",
-    },
-    enrichError: {
-      type: "string",
-      optional: true,
-      customType: null as unknown as string,
-      serverName: "enrich_error",
-    },
-    enrichedAt: {
-      type: "number",
-      optional: true,
-      customType: null as unknown as number,
-      serverName: "enriched_at",
-    },
-  },
-  primaryKey: ["id"],
-} as const;
+const show = table("show")
+  .columns({
+    id: string(),
+    name: string(),
+    overview: string().optional(),
+    tmdbId: number().from("tmdb_id"),
+    posterPath: string().optional().from("poster_path"),
+    enrichedAt: number().optional().from("enriched_at"),
+    enrichError: string().optional().from("enrich_error"),
+    enrichState: enumeration<EnrichState>().from("enrich_state"),
+  })
+  .primaryKey("id");
 
-const userShowTable = {
-  name: "userShow",
-  columns: {
-    userId: {
-      type: "string",
-      optional: false,
-      customType: null as unknown as string,
-      serverName: "user_id",
-    },
-    showId: {
-      type: "string",
-      optional: false,
-      customType: null as unknown as string,
-      serverName: "show_id",
-    },
-    addedAt: {
-      type: "number",
-      optional: false,
-      customType: null as unknown as number,
-      serverName: "added_at",
-    },
-    watchStatus: {
-      type: "string",
-      optional: true,
-      customType: null as unknown as WatchStatus,
-      serverName: "watch_status",
-    },
-    startedAt: {
-      type: "number",
-      optional: true,
-      customType: null as unknown as number,
-      serverName: "started_at",
-    },
-    currentSeason: {
-      type: "number",
-      optional: true,
-      customType: null as unknown as number,
-      serverName: "current_season",
-    },
-    currentEpisode: {
-      type: "number",
-      optional: true,
-      customType: null as unknown as number,
-      serverName: "current_episode",
-    },
-    targetFinishAt: {
-      type: "number",
-      optional: true,
-      customType: null as unknown as number,
-      serverName: "target_finish_at",
-    },
-    rating: {
-      type: "number",
-      optional: true,
-      customType: null as unknown as number,
-    },
-    isFavorite: {
-      type: "boolean",
-      optional: true,
-      customType: null as unknown as boolean,
-      serverName: "is_favorite",
-    },
-    notes: {
-      type: "string",
-      optional: true,
-      customType: null as unknown as string,
-    },
-    setupStep: {
-      type: "number",
-      optional: true,
-      customType: null as unknown as number,
-      serverName: "setup_step",
-    },
-    setupCompletedAt: {
-      type: "number",
-      optional: true,
-      customType: null as unknown as number,
-      serverName: "setup_completed_at",
-    },
-  },
-  primaryKey: ["userId", "showId"],
-  serverName: "user_show",
-} as const;
+const userShow = table("userShow")
+  .from("user_show")
+  .columns({
+    notes: string().optional(),
+    rating: number().optional(),
+    userId: string().from("user_id"),
+    showId: string().from("show_id"),
+    addedAt: number().from("added_at"),
+    startedAt: number().optional().from("started_at"),
+    setupStep: number().optional().from("setup_step"),
+    isFavorite: boolean().optional().from("is_favorite"),
+    currentSeason: number().optional().from("current_season"),
+    currentEpisode: number().optional().from("current_episode"),
+    targetFinishAt: number().optional().from("target_finish_at"),
+    setupCompletedAt: number().optional().from("setup_completed_at"),
+    watchStatus: enumeration<WatchStatus>().optional().from("watch_status"),
+  })
+  .primaryKey("userId", "showId");
 
-const seasonTable = {
-  name: "season",
-  columns: {
-    id: {
-      type: "string",
-      optional: false,
-      customType: null as unknown as string,
-    },
-    showId: {
-      type: "string",
-      optional: false,
-      customType: null as unknown as string,
-      serverName: "show_id",
-    },
-    seasonNumber: {
-      type: "number",
-      optional: false,
-      customType: null as unknown as number,
-      serverName: "season_number",
-    },
-    name: {
-      type: "string",
-      optional: false,
-      customType: null as unknown as string,
-    },
-    overview: {
-      type: "string",
-      optional: true,
-      customType: null as unknown as string,
-    },
-    posterPath: {
-      type: "string",
-      optional: true,
-      customType: null as unknown as string,
-      serverName: "poster_path",
-    },
-    episodeCount: {
-      type: "number",
-      optional: true,
-      customType: null as unknown as number,
-      serverName: "episode_count",
-    },
-    airDate: {
-      type: "string",
-      optional: true,
-      customType: null as unknown as string,
-      serverName: "air_date",
-    },
-  },
-  primaryKey: ["id"],
-} as const;
+const season = table("season")
+  .columns({
+    id: string(),
+    name: string(),
+    overview: string().optional(),
+    showId: string().from("show_id"),
+    seasonNumber: number().from("season_number"),
+    airDate: string().optional().from("air_date"),
+    posterPath: string().optional().from("poster_path"),
+    episodeCount: number().optional().from("episode_count"),
+  })
+  .primaryKey("id");
 
-const personTable = {
-  name: "person",
-  columns: {
-    id: {
-      type: "string",
-      optional: false,
-      customType: null as unknown as string,
-    },
-    tmdbPersonId: {
-      type: "number",
-      optional: false,
-      customType: null as unknown as number,
-      serverName: "tmdb_person_id",
-    },
-    name: {
-      type: "string",
-      optional: false,
-      customType: null as unknown as string,
-    },
-    profilePath: {
-      type: "string",
-      optional: true,
-      customType: null as unknown as string,
-      serverName: "profile_path",
-    },
-  },
-  primaryKey: ["id"],
-} as const;
+const person = table("person")
+  .columns({
+    id: string(),
+    name: string(),
+    tmdbPersonId: number().from("tmdb_person_id"),
+    profilePath: string().optional().from("profile_path"),
+  })
+  .primaryKey("id");
 
-const episodeTable = {
-  name: "episode",
-  columns: {
-    id: {
-      type: "string",
-      optional: false,
-      customType: null as unknown as string,
-    },
-    seasonId: {
-      type: "string",
-      optional: false,
-      customType: null as unknown as string,
-      serverName: "season_id",
-    },
-    episodeNumber: {
-      type: "number",
-      optional: false,
-      customType: null as unknown as number,
-      serverName: "episode_number",
-    },
-    name: {
-      type: "string",
-      optional: false,
-      customType: null as unknown as string,
-    },
-    overview: {
-      type: "string",
-      optional: true,
-      customType: null as unknown as string,
-    },
-    stillPath: {
-      type: "string",
-      optional: true,
-      customType: null as unknown as string,
-      serverName: "still_path",
-    },
-    airDate: {
-      type: "string",
-      optional: true,
-      customType: null as unknown as string,
-      serverName: "air_date",
-    },
-    runtime: {
-      type: "number",
-      optional: true,
-      customType: null as unknown as number,
-    },
-  },
-  primaryKey: ["id"],
-} as const;
+const episode = table("episode")
+  .columns({
+    id: string(),
+    name: string(),
+    runtime: number().optional(),
+    overview: string().optional(),
+    seasonId: string().from("season_id"),
+    airDate: string().optional().from("air_date"),
+    episodeNumber: number().from("episode_number"),
+    stillPath: string().optional().from("still_path"),
+  })
+  .primaryKey("id");
 
-const creditTable = {
-  name: "credit",
-  columns: {
-    id: {
-      type: "string",
-      optional: false,
-      customType: null as unknown as string,
-    },
-    showId: {
-      type: "string",
-      optional: false,
-      customType: null as unknown as string,
-      serverName: "show_id",
-    },
-    personId: {
-      type: "string",
-      optional: false,
-      customType: null as unknown as string,
-      serverName: "person_id",
-    },
-    kind: {
-      type: "string",
-      optional: false,
-      customType: null as unknown as CreditKind,
-    },
-    character: {
-      type: "string",
-      optional: true,
-      customType: null as unknown as string,
-    },
-    job: {
-      type: "string",
-      optional: true,
-      customType: null as unknown as string,
-    },
-    department: {
-      type: "string",
-      optional: true,
-      customType: null as unknown as string,
-    },
-    orderIndex: {
-      type: "number",
-      optional: true,
-      customType: null as unknown as number,
-      serverName: "order_index",
-    },
-  },
-  primaryKey: ["id"],
-} as const;
+const credit = table("credit")
+  .columns({
+    id: string(),
+    job: string().optional(),
+    character: string().optional(),
+    kind: enumeration<CreditKind>(),
+    department: string().optional(),
+    showId: string().from("show_id"),
+    personId: string().from("person_id"),
+    orderIndex: number().optional().from("order_index"),
+  })
+  .primaryKey("id");
 
-const outboxTable = {
-  name: "outbox",
-  columns: {
-    id: {
-      type: "string",
-      optional: false,
-      customType: null as unknown as string,
-    },
-    topic: {
-      type: "string",
-      optional: false,
-      customType: null as unknown as string,
-    },
-    showId: {
-      type: "string",
-      optional: false,
-      customType: null as unknown as string,
-      serverName: "show_id",
-    },
-    tmdbId: {
-      type: "number",
-      optional: false,
-      customType: null as unknown as number,
-      serverName: "tmdb_id",
-    },
-    status: {
-      type: "string",
-      optional: false,
-      customType: null as unknown as OutboxStatus,
-    },
-    attempts: {
-      type: "number",
-      optional: false,
-      customType: null as unknown as number,
-    },
-    lockedAt: {
-      type: "number",
-      optional: true,
-      customType: null as unknown as number,
-      serverName: "locked_at",
-    },
-    lastError: {
-      type: "string",
-      optional: true,
-      customType: null as unknown as string,
-      serverName: "last_error",
-    },
-    createdAt: {
-      type: "number",
-      optional: false,
-      customType: null as unknown as number,
-      serverName: "created_at",
-    },
-  },
-  primaryKey: ["id"],
-} as const;
+const outbox = table("outbox")
+  .columns({
+    id: string(),
+    topic: string(),
+    attempts: number(),
+    status: enumeration<OutboxStatus>(),
+    showId: string().from("show_id"),
+    tmdbId: number().from("tmdb_id"),
+    createdAt: number().from("created_at"),
+    lockedAt: number().optional().from("locked_at"),
+    lastError: string().optional().from("last_error"),
+  })
+  .primaryKey("id");
 
-const showRelationships = {
-  seasons: [
-    {
-      sourceField: ["id"],
-      destField: ["showId"],
-      destSchema: "season",
-      cardinality: "many",
-    },
+const showRelationships = relationships(show, ({ many }) => ({
+  seasons: many({
+    destSchema: season,
+    sourceField: ["id"],
+    destField: ["showId"],
+  }),
+  credits: many({
+    destSchema: credit,
+    sourceField: ["id"],
+    destField: ["showId"],
+  }),
+  userShows: many({
+    sourceField: ["id"],
+    destField: ["showId"],
+    destSchema: userShow,
+  }),
+}));
+
+const userShowRelationships = relationships(userShow, ({ one }) => ({
+  show: one({
+    destSchema: show,
+    destField: ["id"],
+    sourceField: ["showId"],
+  }),
+}));
+
+const seasonRelationships = relationships(season, ({ one, many }) => ({
+  show: one({
+    destSchema: show,
+    destField: ["id"],
+    sourceField: ["showId"],
+  }),
+  episodes: many({
+    destSchema: episode,
+    sourceField: ["id"],
+    destField: ["seasonId"],
+  }),
+}));
+
+const episodeRelationships = relationships(episode, ({ one }) => ({
+  season: one({
+    destField: ["id"],
+    destSchema: season,
+    sourceField: ["seasonId"],
+  }),
+}));
+
+const personRelationships = relationships(person, ({ many }) => ({
+  credits: many({
+    destSchema: credit,
+    sourceField: ["id"],
+    destField: ["personId"],
+  }),
+}));
+
+const creditRelationships = relationships(credit, ({ one }) => ({
+  show: one({
+    destSchema: show,
+    destField: ["id"],
+    sourceField: ["showId"],
+  }),
+  person: one({
+    destField: ["id"],
+    destSchema: person,
+    sourceField: ["personId"],
+  }),
+}));
+
+export const schema = createSchema({
+  tables: [show, userShow, season, episode, person, credit, outbox],
+  relationships: [
+    showRelationships,
+    seasonRelationships,
+    personRelationships,
+    creditRelationships,
+    episodeRelationships,
+    userShowRelationships,
   ],
-  credits: [
-    {
-      sourceField: ["id"],
-      destField: ["showId"],
-      destSchema: "credit",
-      cardinality: "many",
-    },
-  ],
-  userShows: [
-    {
-      sourceField: ["id"],
-      destField: ["showId"],
-      destSchema: "userShow",
-      cardinality: "many",
-    },
-  ],
-} as const;
-
-const userShowRelationships = {
-  show: [
-    {
-      sourceField: ["showId"],
-      destField: ["id"],
-      destSchema: "show",
-      cardinality: "one",
-    },
-  ],
-} as const;
-
-const seasonRelationships = {
-  show: [
-    {
-      sourceField: ["showId"],
-      destField: ["id"],
-      destSchema: "show",
-      cardinality: "one",
-    },
-  ],
-  episodes: [
-    {
-      sourceField: ["id"],
-      destField: ["seasonId"],
-      destSchema: "episode",
-      cardinality: "many",
-    },
-  ],
-} as const;
-
-const episodeRelationships = {
-  season: [
-    {
-      sourceField: ["seasonId"],
-      destField: ["id"],
-      destSchema: "season",
-      cardinality: "one",
-    },
-  ],
-} as const;
-
-const personRelationships = {
-  credits: [
-    {
-      sourceField: ["id"],
-      destField: ["personId"],
-      destSchema: "credit",
-      cardinality: "many",
-    },
-  ],
-} as const;
-
-const creditRelationships = {
-  show: [
-    {
-      sourceField: ["showId"],
-      destField: ["id"],
-      destSchema: "show",
-      cardinality: "one",
-    },
-  ],
-  person: [
-    {
-      sourceField: ["personId"],
-      destField: ["id"],
-      destSchema: "person",
-      cardinality: "one",
-    },
-  ],
-} as const;
-
-export const schema = {
-  tables: {
-    show: showTable,
-    userShow: userShowTable,
-    season: seasonTable,
-    episode: episodeTable,
-    person: personTable,
-    credit: creditTable,
-    outbox: outboxTable,
-  },
-  relationships: {
-    show: showRelationships,
-    userShow: userShowRelationships,
-    season: seasonRelationships,
-    episode: episodeRelationships,
-    person: personRelationships,
-    credit: creditRelationships,
-  },
-  enableLegacyQueries: false,
-  enableLegacyMutators: false,
-} as const;
+});
 
 export type Schema = typeof schema;
-
-export type Show = Row["show"];
-export type UserShow = Row["userShow"];
-export type Season = Row["season"];
-export type Episode = Row["episode"];
-export type Person = Row["person"];
-export type Credit = Row["credit"];
-export type Outbox = Row["outbox"];
 
 export const zql = createBuilder(schema);
 
