@@ -2,7 +2,7 @@
 set -euo pipefail
 
 export CONVEX_CLOUD_ORIGIN="${CONVEX_CLOUD_ORIGIN:-http://localhost:3000}"
-export CONVEX_SITE_ORIGIN="${CONVEX_SITE_ORIGIN:-http://localhost:3000/_site}"
+export CONVEX_SITE_ORIGIN="${CONVEX_CLOUD_ORIGIN}/_site"
 
 if [ -n "${DATABASE_URL:-}" ]; then
   POSTGRES_URL=$(echo "$DATABASE_URL" | sed -E 's/\/[^/]+(\?.*)?$//')

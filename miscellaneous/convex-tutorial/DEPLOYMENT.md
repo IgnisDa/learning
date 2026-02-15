@@ -74,7 +74,6 @@ docker compose down -v
 **Docker/Deployment:**
 
 - `CONVEX_CLOUD_ORIGIN` (default: `http://localhost:3000`)
-- `CONVEX_SITE_ORIGIN` (default: `http://localhost:3000/_site`)
 - `DO_NOT_REQUIRE_SSL` (optional for local dev)
 - `DISABLE_BEACON` (optional telemetry disable)
 
