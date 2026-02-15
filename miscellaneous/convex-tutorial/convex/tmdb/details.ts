@@ -1,32 +1,13 @@
 import { v } from "convex/values";
-import { internal } from "../_generated/api";
+import { api, internal } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
 import {
   action,
   internalAction,
   internalMutation,
-  internalQuery,
   type MutationCtx,
 } from "../_generated/server";
-import {
-  tmdbFetch,
-} from "./index";
-
-export const getAuthenticatedUserIdForAction = internalQuery({
-  args: { token: v.string() },
-  handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("token", (q) => q.eq("token", args.token))
-      .first();
-
-    if (!session || session.expiresAt < Date.now()) {
-      return null;
-    }
-
-    return session.userId;
-  },
-});
+import { tmdbFetch } from "./index";
 
 const castCreditValidator = v.object({
   personName: v.string(),
@@ -223,19 +204,16 @@ export const importShow = internalAction({
     });
 
     await Promise.all([
-      ctx.runAction(
-        internal.tmdb.details.fetchShowCredits,
-        { tmdbId: args.tmdbId, showId: args.showId },
-      ),
+      ctx.runAction(internal.tmdb.details.fetchShowCredits, {
+        tmdbId: args.tmdbId,
+        showId: args.showId,
+      }),
       ...seasonNumbers.map((seasonNumber) =>
-        ctx.runAction(
-          internal.tmdb.details.fetchSeasonDetails,
-          {
-            tmdbId: args.tmdbId,
-            showId: args.showId,
-            seasonNumber: seasonNumber,
-          },
-        ),
+        ctx.runAction(internal.tmdb.details.fetchSeasonDetails, {
+          tmdbId: args.tmdbId,
+          showId: args.showId,
+          seasonNumber: seasonNumber,
+        }),
       ),
     ]);
 
@@ -258,12 +236,9 @@ export const addShowFromTmdb = action({
     tmdbId: number;
     showId: Id<"shows">;
   }> => {
-    const userId = await ctx.runQuery(
-      internal.tmdb.details.getAuthenticatedUserIdForAction,
-      {
-        token: args.token,
-      },
-    );
+    const userId = await ctx.runQuery(api.auth.getAuthenticatedUserId, {
+      token: args.token,
+    });
     if (!userId) throw new Error("You must be signed in to add a show");
 
     const { showId, alreadyExists } = await ctx.runMutation(
@@ -271,8 +246,7 @@ export const addShowFromTmdb = action({
       { name: args.name, tmdbId: args.tmdbId, userId },
     );
 
-    if (alreadyExists)
-      return { ok: true, tmdbId: args.tmdbId, showId };
+    if (alreadyExists) return { ok: true, tmdbId: args.tmdbId, showId };
 
     // Start the import asynchronously using scheduler
     await ctx.scheduler.runAfter(0, internal.tmdb.details.importShow, {

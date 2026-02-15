@@ -44,10 +44,7 @@ export const signUp = mutation({
 });
 
 export const signIn = mutation({
-  args: {
-    username: v.string(),
-    password: v.string(),
-  },
+  args: { username: v.string(), password: v.string() },
   handler: async (ctx, args) => {
     const user = await ctx.db
       .query("users")
@@ -72,9 +69,7 @@ export const signIn = mutation({
 });
 
 export const signOut = mutation({
-  args: {
-    token: v.string(),
-  },
+  args: { token: v.string() },
   handler: async (ctx, args) => {
     const session = await ctx.db
       .query("sessions")
@@ -85,36 +80,8 @@ export const signOut = mutation({
   },
 });
 
-export const getCurrentUser = query({
-  args: {
-    token: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    if (!args.token) return null;
-
-    const token = args.token;
-
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("token", (q) => q.eq("token", token))
-      .first();
-
-    if (!session) return null;
-
-    if (session.expiresAt < Date.now()) return null;
-
-    const user = await ctx.db.get(session.userId);
-
-    if (!user) return null;
-
-    return { _id: user._id, name: user.name, username: user.username };
-  },
-});
-
 export const getAuthenticatedUserId = query({
-  args: {
-    token: v.optional(v.string()),
-  },
+  args: { token: v.optional(v.string()) },
   handler: async (ctx, args) => {
     if (!args.token) throw new Error("Not authenticated");
 
