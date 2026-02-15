@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: tv_tracker
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - electric-network
+
+  electric:
+    image: electricsql/electric:latest
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/tv_tracker
+      ELECTRIC_WRITE_TO_PG_MODE: direct_writes
+      LOGICAL_PUBLISHER_HOST: electric
+      HTTP_PORT: 5133
+      PG_PROXY_PORT: 65432
+    ports:
+      - "5133:5133"
+      - "65432:65432"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - electric-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  electric-network:
+    driver: bridge

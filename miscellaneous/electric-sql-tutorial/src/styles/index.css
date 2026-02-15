@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans:
+    "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial,
+    sans-serif;
+}
+
+@layer base {
+  html,
+  body {
+    min-height: 100%;
+  }
+
+  body {
+    @apply bg-[#f7f6f3] text-neutral-900 antialiased;
+    font-family: var(--font-sans);
+  }
+
+  a {
+    @apply text-neutral-700 underline-offset-2 transition hover:text-neutral-900;
+  }
+}
