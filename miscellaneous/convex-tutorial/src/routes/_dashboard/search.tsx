@@ -1,8 +1,7 @@
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { useAuth } from "@/hooks/useAuth";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouteContext } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import { useAction, useQuery } from "convex/react";
 import { useEffect, useState, type CSSProperties } from "react";
@@ -21,7 +20,7 @@ const overviewClampStyle: CSSProperties = {
 };
 
 function DashboardSearch() {
-  const { token } = useAuth();
+  const { token } = useRouteContext({ from: "/_dashboard" });
   const [searchQuery, setSearchQuery] = useState("");
   const myShows =
     useQuery(api.tmdb.index.listMyShows, { token: token ?? undefined }) ?? [];

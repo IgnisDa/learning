@@ -8,6 +8,8 @@ export const Route = createFileRoute("/_dashboard")({
       typeof window !== "undefined" ? getCookie("convex_auth_token") : null;
 
     if (!token) throw redirect({ to: "/signin" });
+
+    return { token };
   },
 });
 

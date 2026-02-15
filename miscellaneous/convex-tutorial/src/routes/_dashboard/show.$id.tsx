@@ -1,5 +1,4 @@
-import { useAuth } from "@/hooks/useAuth";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouteContext } from "@tanstack/react-router";
 import { useQuery } from "convex/react";
 import { useMemo, useState } from "react";
 import { api } from "../../../convex/_generated/api";
@@ -15,7 +14,7 @@ export const Route = createFileRoute("/_dashboard/show/$id")({
 
 function ShowPage() {
   const { id } = Route.useParams();
-  const { token } = useAuth();
+  const { token } = useRouteContext({ from: "/_dashboard" });
   const [activeTab, setActiveTab] = useState<"seasons" | "cast" | "crew">(
     "seasons",
   );

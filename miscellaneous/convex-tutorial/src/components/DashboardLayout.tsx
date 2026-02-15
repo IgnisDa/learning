@@ -1,6 +1,8 @@
-import { useAuth } from "@/hooks/useAuth";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useRouteContext } from "@tanstack/react-router";
+import { useConvex } from "convex/react";
+import { api } from "convex/_generated/api";
 import { type ReactNode } from "react";
+import { removeCookie } from "../utils/cookies";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -9,10 +11,14 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children, activeTab }: DashboardLayoutProps) {
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { token } = useRouteContext({ from: "/_dashboard" });
+  const convex = useConvex();
 
   const handleSignOut = async () => {
-    await signOut();
+    if (token) {
+      await convex.mutation(api.auth.signOut, { token });
+    }
+    removeCookie("convex_auth_token");
     navigate({ to: "/signin" });
   };
 

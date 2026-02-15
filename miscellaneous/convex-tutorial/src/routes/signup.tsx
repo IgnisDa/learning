@@ -1,23 +1,17 @@
-import { useAuth } from "@/hooks/useAuth";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useConvex } from "convex/react";
+import { api } from "convex/_generated/api";
 import { useEffect, useState, type FormEvent } from "react";
+import { getCookie, setCookie } from "../utils/cookies";
 
 export const Route = createFileRoute("/signup")({
   component: SignUpPage,
 });
 
 function SignUpPage() {
-  const { user, isLoading } = useAuth();
+  const token = getCookie("convex_auth_token");
 
-  if (isLoading) {
-    return (
-      <div className="px-4 py-2 mx-auto mt-24 text-sm bg-white border rounded-md shadow-sm w-fit border-neutral-200 text-neutral-600">
-        Loading...
-      </div>
-    );
-  }
-
-  if (user) {
+  if (token) {
     return <RedirectToHome />;
   }
 
@@ -39,7 +33,8 @@ function RedirectToHome() {
 }
 
 function SignUpForm() {
-  const { signUp } = useAuth();
+  const navigate = useNavigate();
+  const convex = useConvex();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,7 +48,12 @@ function SignUpForm() {
     const password = formData.get("password") as string;
 
     try {
-      await signUp(username, password);
+      const result = await convex.mutation(api.auth.signUp, {
+        username,
+        password,
+      });
+      setCookie("convex_auth_token", result.token);
+      navigate({ to: "/" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign up failed");
       setIsLoading(false);

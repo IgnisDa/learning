@@ -1,6 +1,5 @@
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { useAuth } from "@/hooks/useAuth";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouteContext } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import { useQuery } from "convex/react";
 import { type CSSProperties } from "react";
@@ -19,7 +18,7 @@ const overviewClampStyle: CSSProperties = {
 };
 
 export function Dashboard() {
-  const { token } = useAuth();
+  const { token } = useRouteContext({ from: "/_dashboard" });
   const myShows =
     useQuery(api.tmdb.index.listMyShows, { token: token ?? undefined }) ?? [];
 
