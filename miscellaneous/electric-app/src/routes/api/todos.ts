@@ -20,9 +20,5 @@ const serve = async ({ request }: { request: Request }) => {
 }
 
 export const Route = createFileRoute(`/api/todos`)({
-  server: {
-    handlers: {
-      GET: serve,
-    },
-  },
+  server: { handlers: { GET: serve } },
 })
