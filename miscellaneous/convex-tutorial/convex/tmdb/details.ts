@@ -10,7 +10,6 @@ import {
 } from "../_generated/server";
 import {
   tmdbFetch,
-  tmdbWorkflow,
 } from "./index";
 
 export const getAuthenticatedUserIdForAction = internalQuery({
@@ -27,13 +26,6 @@ export const getAuthenticatedUserIdForAction = internalQuery({
 
     return session.userId;
   },
-});
-
-const showDetailsValidator = v.object({
-  name: v.string(),
-  seasonNumbers: v.array(v.number()),
-  overview: v.optional(v.string()),
-  posterPath: v.optional(v.union(v.string(), v.null())),
 });
 
 const castCreditValidator = v.object({
@@ -208,12 +200,11 @@ export const fetchSeasonDetails = internalAction({
   },
 });
 
-export const importShowWorkflow = tmdbWorkflow.define({
+export const importShow = internalAction({
   args: {
     tmdbId: v.number(),
     showId: v.id("shows"),
   },
-  returns: v.object({ seasonCount: v.number() }),
   handler: async (ctx, args): Promise<{ seasonCount: number }> => {
     const showDetails = await ctx.runAction(
       internal.tmdb.details.fetchShowDetails,
@@ -266,7 +257,6 @@ export const addShowFromTmdb = action({
     ok: boolean;
     tmdbId: number;
     showId: Id<"shows">;
-    workflowId: string | null;
   }> => {
     const userId = await ctx.runQuery(
       internal.tmdb.details.getAuthenticatedUserIdForAction,
@@ -282,16 +272,15 @@ export const addShowFromTmdb = action({
     );
 
     if (alreadyExists)
-      return { ok: true, tmdbId: args.tmdbId, showId, workflowId: null };
+      return { ok: true, tmdbId: args.tmdbId, showId };
 
-    const workflowId = await tmdbWorkflow.start(
-      ctx,
-      internal.tmdb.details.importShowWorkflow,
-      { showId, tmdbId: args.tmdbId },
-      { startAsync: true },
-    );
+    // Start the import asynchronously using scheduler
+    await ctx.scheduler.runAfter(0, internal.tmdb.details.importShow, {
+      showId,
+      tmdbId: args.tmdbId,
+    });
 
-    return { ok: true, tmdbId: args.tmdbId, showId, workflowId };
+    return { ok: true, tmdbId: args.tmdbId, showId };
   },
 });
 

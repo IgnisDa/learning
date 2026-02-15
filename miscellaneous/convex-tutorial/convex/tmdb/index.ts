@@ -1,12 +1,6 @@
-import { WorkflowManager, type WorkflowId } from "@convex-dev/workflow";
 import { v } from "convex/values";
-import { components } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
 import { internalMutation, query } from "../_generated/server";
-
-export const tmdbWorkflow = new WorkflowManager(components.workflow);
-
-export const SEARCH_RESULTS_EVENT_NAME = "tmdb.search.results";
 
 export async function tmdbFetch<T>(path: string): Promise<T> {
   const tmdbKey = process.env.TMDB_API_KEY;

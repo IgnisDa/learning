@@ -29,20 +29,15 @@ function DashboardSearch() {
   const addShowFromTmdbAction = useAction(api.tmdb.details.addShowFromTmdb);
 
   const {
-    data: searchData,
+    data: searchResults,
     error: searchError,
     mutate: searchShows,
-    isPending: isStartingSearch,
+    isPending: isSearching,
   } = useMutation({
     mutationFn: async (query: string) => {
       return await searchShowsAction({ query });
     },
   });
-
-  const searchWorkResult = useQuery(
-    api.tmdb.search.searchShowsResult,
-    searchData ? { workId: searchData.workId } : "skip",
-  );
 
   const { mutate: addShow, error: addShowError } = useMutation({
     mutationFn: async ({ tmdbId, name }: { tmdbId: number; name: string }) => {
@@ -56,12 +51,6 @@ function DashboardSearch() {
     if (trimmed.length < 2) return;
     searchShows(trimmed);
   }, [debouncedQuery, searchShows]);
-
-  const searchResults =
-    searchWorkResult?.status === "complete" ? searchWorkResult.result : [];
-  const isSearching =
-    isStartingSearch || searchWorkResult?.status === "pending";
-  const searchResultError = searchWorkResult?.error;
 
   const myShowTmdbIds = new Set(myShows.map((show) => show.tmdbId));
   const myShowIdByTmdbId = new Map(
@@ -95,12 +84,10 @@ function DashboardSearch() {
         </div>
       )}
 
-      {(searchError || searchResultError) && (
+      {searchError && (
         <div className="px-4 py-3 mt-4 text-sm text-red-700 border border-red-200 rounded-md bg-red-50">
           Error:{" "}
-          {searchError instanceof Error
-            ? searchError.message
-            : searchResultError || "Search failed"}
+          {searchError instanceof Error ? searchError.message : "Search failed"}
         </div>
       )}
 
