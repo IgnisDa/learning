@@ -16,14 +16,8 @@ export const todosRouter = router({
 
       return result
     }),
-
   update: authedProcedure
-    .input(
-      z.object({
-        id: z.number(),
-        data: updateTodoSchema,
-      })
-    )
+    .input(z.object({ id: z.number(), data: updateTodoSchema }))
     .mutation(async ({ ctx, input }) => {
       const result = await ctx.db.transaction(async (tx) => {
         const txid = await generateTxId(tx)
