@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { nanoid } from "nanoid";
 import * as React from "react";
 import { useAppForm } from "~/components/forms/app-form";
+import { useTmdbSearch, type SearchResult } from "~/hooks/use-tmdb";
 import { getErrorMessage } from "~/utils/error-message";
 import { mutators } from "~/zero/mutators";
 import { queries } from "~/zero/queries";
@@ -22,14 +23,6 @@ import {
 export const Route = createFileRoute("/")({
 	component: Home,
 });
-
-type SearchResult = {
-	tmdbId: number;
-	name: string;
-	overview: string;
-	posterPath: string | null;
-	firstAirDate?: string;
-};
 
 type WatchStatus =
 	| "plan_to_watch"
@@ -107,9 +100,8 @@ function Home() {
 	}, [libraryRows]);
 
 	const [q, setQ] = React.useState("");
-	const [results, setResults] = React.useState<Array<SearchResult>>([]);
-	const [searching, setSearching] = React.useState(false);
-	const [searchError, setSearchError] = React.useState<string | null>(null);
+	const [debouncedQ, setDebouncedQ] = React.useState("");
+	const { data: results = [], isLoading: searching, error: searchError } = useTmdbSearch(debouncedQ);
 
 	const [wizardResult, setWizardResult] = React.useState<SearchResult | null>(null);
 	const [wizardStep, setWizardStep] = React.useState<1 | 2 | 3>(1);
@@ -244,52 +236,14 @@ function Home() {
 		},
 	});
 
+	// Debounce search query
 	React.useEffect(() => {
-		let cancelled = false;
+		const timer = window.setTimeout(() => {
+			setDebouncedQ(q);
+		}, 300);
 
-		async function run() {
-			const trimmed = q.trim();
-			if (trimmed.length < 2) {
-				setResults([]);
-				setSearchError(null);
-				return;
-			}
-
-			setSearching(true);
-			setSearchError(null);
-
-			try {
-				const res = await fetch(
-					`/api/tmdb/search?q=${encodeURIComponent(trimmed)}`,
-				);
-				if (!res.ok) {
-					throw new Error(`TMDB search failed: ${res.status}`);
-				}
-
-				const data = (await res.json()) as Array<SearchResult>;
-				if (cancelled) {
-					return;
-				}
-
-				setResults(data);
-			} catch (e) {
-				if (cancelled) {
-					return;
-				}
-
-				setResults([]);
-				setSearchError(e instanceof Error ? e.message : "Unknown error");
-			} finally {
-				if (!cancelled) {
-					setSearching(false);
-				}
-			}
-		}
-
-		const t = window.setTimeout(run, 250);
 		return () => {
-			cancelled = true;
-			window.clearTimeout(t);
+			window.clearTimeout(timer);
 		};
 	}, [q]);
 
@@ -555,7 +509,7 @@ function Home() {
 
 				{searchError ? (
 					<Alert color="critical" title="Search Error">
-						{searchError}
+						{searchError instanceof Error ? searchError.message : "Search failed"}
 					</Alert>
 				) : null}
 

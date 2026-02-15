@@ -1,5 +1,7 @@
 import { dropAllDatabases } from "@rocicorp/zero";
 import { ZeroProvider } from "@rocicorp/zero/react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Link } from "@tanstack/react-router";
 import * as React from "react";
 import {
@@ -13,6 +15,7 @@ import {
   View,
 } from "reshaped";
 import { useAppForm } from "~/components/forms/app-form";
+import { createQueryClient } from "~/lib/query-client";
 import { getErrorMessage } from "~/utils/error-message";
 import { mutators } from "./mutators";
 import { schema } from "./schema";
@@ -124,6 +127,7 @@ export function ZeroInit(props: { children: React.ReactNode }) {
   const [session, setSession] = React.useState<Session | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [authError, setAuthError] = React.useState<string | null>(null);
+  const [queryClient] = React.useState(() => createQueryClient());
 
   const refreshSession = React.useCallback(async () => {
     setLoading(true);
@@ -246,17 +250,20 @@ export function ZeroInit(props: { children: React.ReactNode }) {
   }
 
   return (
-    <ZeroProvider
-      schema={schema}
-      cacheURL={cacheURL}
-      logLevel={logLevel}
-      mutators={mutators}
-      userID={session.userID}
-      context={{ userID: session.userID }}
-    >
-      <Header email={session.email} onLogout={onLogout} />
-      {props.children}
-    </ZeroProvider>
+    <QueryClientProvider client={queryClient}>
+      <ZeroProvider
+        schema={schema}
+        cacheURL={cacheURL}
+        logLevel={logLevel}
+        mutators={mutators}
+        userID={session.userID}
+        context={{ userID: session.userID }}
+      >
+        <Header email={session.email} onLogout={onLogout} />
+        {props.children}
+      </ZeroProvider>
+      <ReactQueryDevtools initialIsOpen={false} position="bottom" />
+    </QueryClientProvider>
   );
 }
 
