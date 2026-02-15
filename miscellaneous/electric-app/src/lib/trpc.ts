@@ -4,8 +4,8 @@ import { db } from "@/db/connection"
 import { sql } from "drizzle-orm"
 
 export type Context = {
-  session: Awaited<ReturnType<typeof auth.api.getSession>>
   db: typeof db
+  session: Awaited<ReturnType<typeof auth.api.getSession>>
 }
 
 const t = initTRPC.context<Context>().create()
