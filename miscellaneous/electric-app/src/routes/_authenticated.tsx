@@ -1,10 +1,13 @@
-import * as React from "react"
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router"
-import { useEffect, useState } from "react"
-import { Outlet } from "@tanstack/react-router"
 import { authClient, authStateCollection } from "@/lib/auth-client"
-import { useLiveQuery } from "@tanstack/react-db"
 import { projectCollection } from "@/lib/collections"
+import { useLiveQuery } from "@tanstack/react-db"
+import {
+  createFileRoute,
+  Link,
+  Outlet,
+  useNavigate,
+} from "@tanstack/react-router"
+import { useEffect, useState } from "react"
 
 export const Route = createFileRoute(`/_authenticated`)({
   ssr: false, // Disable SSR - run beforeLoad only on client
@@ -33,15 +36,15 @@ export const Route = createFileRoute(`/_authenticated`)({
 
       // For other errors, render an error message
       return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex items-center justify-center min-h-screen bg-gray-50">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
-            <p className="text-gray-600 mb-4">
+            <h1 className="mb-4 text-2xl font-bold text-red-600">Error</h1>
+            <p className="mb-4 text-gray-600">
               {error?.message || `An unexpected error occurred`}
             </p>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
             >
               Retry
             </button>
@@ -111,9 +114,9 @@ function AuthenticatedLayout() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+      <header className="bg-white border-b border-gray-200 shadow">
+        <div className="px-3 mx-auto max-w-7xl sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
             <div className="flex-shrink-0">
               <h1 className="text-xl font-semibold text-gray-900">
                 TanStack DB / Electric Starter
@@ -125,7 +128,7 @@ function AuthenticatedLayout() {
               </span>
               <button
                 onClick={handleLogout}
-                className="text-sm font-medium text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md hover:bg-gray-100 transition-colors"
+                className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors rounded-md hover:text-gray-900 hover:bg-gray-100"
               >
                 Sign out
               </button>
@@ -134,7 +137,7 @@ function AuthenticatedLayout() {
         </div>
       </header>
       <div className="flex">
-        <aside className="w-64 bg-white shadow-sm border-r border-gray-200 min-h-screen">
+        <aside className="w-64 min-h-screen bg-white border-r border-gray-200 shadow-sm">
           <div className="p-4">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-medium text-gray-900">Projects</h2>
@@ -159,25 +162,25 @@ function AuthenticatedLayout() {
             </div>
 
             {showNewProjectForm && (
-              <div className="mb-4 p-3 bg-gray-50 rounded-md">
+              <div className="p-3 mb-4 rounded-md bg-gray-50">
                 <input
                   type="text"
                   value={newProjectName}
                   onChange={(e) => setNewProjectName(e.target.value)}
                   onKeyDown={(e) => e.key === `Enter` && handleCreateProject()}
                   placeholder="Project name"
-                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
                 />
                 <div className="flex gap-2 mt-2">
                   <button
                     onClick={handleCreateProject}
-                    className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+                    className="px-3 py-1 text-sm text-white bg-blue-500 rounded hover:bg-blue-600"
                   >
                     Create
                   </button>
                   <button
                     onClick={() => setShowNewProjectForm(false)}
-                    className="px-3 py-1 bg-gray-300 text-gray-700 rounded text-sm hover:bg-gray-400"
+                    className="px-3 py-1 text-sm text-gray-700 bg-gray-300 rounded hover:bg-gray-400"
                   >
                     Cancel
                   </button>
@@ -191,7 +194,7 @@ function AuthenticatedLayout() {
                   key={project.id}
                   to="/project/$projectId"
                   params={{ projectId: project.id.toString() }}
-                  className="block px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md"
+                  className="block px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100"
                 >
                   {project.name}
                 </Link>
