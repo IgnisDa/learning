@@ -272,10 +272,9 @@ export const addShowFromTmdb = action({
     tmdbId: number;
     showId: Id<"shows">;
   }> => {
-    const userId = await ctx.runQuery(api.auth.getAuthenticatedUserId, {
+    const userId = await ctx.runQuery(api.auth.authenticatedUserQuery, {
       token: args.token,
     });
-    if (!userId) throw new Error("You must be signed in to add a show");
 
     const { showId } = await ctx.runMutation(
       internal.tmdb.index.createShowRecord,

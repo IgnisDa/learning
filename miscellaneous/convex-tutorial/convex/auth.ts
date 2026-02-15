@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, QueryCtx } from "./_generated/server";
 
 function generateToken(): string {
   const array = new Uint8Array(32);
@@ -80,21 +80,23 @@ export const signOut = mutation({
   },
 });
 
-export const getAuthenticatedUserId = query({
+export const getAuthenticatedUser = async (ctx: QueryCtx, token?: string) => {
+  if (!token) throw new Error("No token provided");
+
+  const session = await ctx.db
+    .query("sessions")
+    .withIndex("token", (q) => q.eq("token", token))
+    .first();
+
+  if (!session || session.expiresAt < Date.now())
+    throw new Error("Invalid or expired token");
+
+  return session.userId;
+};
+
+export const authenticatedUserQuery = query({
   args: { token: v.optional(v.string()) },
   handler: async (ctx, args) => {
-    if (!args.token) throw new Error("Not authenticated");
-
-    const token = args.token;
-
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("token", (q) => q.eq("token", token))
-      .first();
-
-    if (!session || session.expiresAt < Date.now())
-      throw new Error("Not authenticated");
-
-    return session.userId;
+    return getAuthenticatedUser(ctx, args.token);
   },
 });

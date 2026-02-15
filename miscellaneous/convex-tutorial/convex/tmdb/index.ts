@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { Id } from "../_generated/dataModel";
 import { internalMutation, query } from "../_generated/server";
+import { getAuthenticatedUser } from "convex/auth";
 
 export async function tmdbFetch<T>(path: string): Promise<T> {
   const tmdbKey = process.env.TMDB_API_KEY;
@@ -69,17 +70,7 @@ export const createShowRecord = internalMutation({
 export const listMyShows = query({
   args: { token: v.optional(v.string()) },
   handler: async (ctx, args) => {
-    if (!args.token) return [];
-
-    const token = args.token;
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("token", (q) => q.eq("token", token))
-      .first();
-
-    if (!session || session.expiresAt < Date.now()) return [];
-
-    const userId = session.userId;
+    const userId = await getAuthenticatedUser(ctx, args.token);
 
     const userShows = await ctx.db
       .query("userShows")
@@ -111,17 +102,7 @@ export const listMyShows = query({
 export const getMyShowDetails = query({
   args: { showId: v.id("shows"), token: v.optional(v.string()) },
   handler: async (ctx, args) => {
-    if (!args.token) return null;
-
-    const token = args.token;
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("token", (q) => q.eq("token", token))
-      .first();
-
-    if (!session || session.expiresAt < Date.now()) return null;
-
-    const userId = session.userId;
+    const userId = await getAuthenticatedUser(ctx, args.token);
 
     const userShow = await ctx.db
       .query("userShows")
