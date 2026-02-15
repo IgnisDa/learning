@@ -117,7 +117,7 @@ function AuthenticatedLayout() {
       <header className="bg-white border-b border-gray-200 shadow">
         <div className="px-3 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <h1 className="text-xl font-semibold text-gray-900">
                 TanStack DB / Electric Starter
               </h1>
