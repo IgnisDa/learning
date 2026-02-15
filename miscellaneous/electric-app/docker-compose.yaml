@@ -4,9 +4,9 @@ services:
   postgres:
     image: postgres:17-alpine
     environment:
-      POSTGRES_DB: electric
+      POSTGRES_DB: postgres
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: postgres
     ports:
       - 5432:5432
     volumes:
@@ -22,7 +22,7 @@ services:
   electric:
     image: electricsql/electric:latest
     environment:
-      DATABASE_URL: postgresql://postgres:password@postgres:5432/electric?sslmode=disable
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/postgres?sslmode=disable
       ELECTRIC_INSECURE: true
     ports:
       - 30000:3000
