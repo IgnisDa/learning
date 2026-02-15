@@ -1,3 +1,4 @@
+import { convexQuery } from "@convex-dev/react-query";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouteContext } from "@tanstack/react-router";
 import { useAction, useQuery } from "convex/react";
@@ -11,6 +12,14 @@ const TMDB_STILL = "https://image.tmdb.org/t/p/w300";
 
 export const Route = createFileRoute("/_dashboard/show/$id")({
   component: ShowPage,
+  loader: async ({ context, params }) => {
+    context.queryClient.prefetchQuery(
+      convexQuery(api.tmdb.index.getMyShowDetails, {
+        token: context.token,
+        showId: params.id as Id<"shows">,
+      }),
+    );
+  },
 });
 
 function ShowPage() {
@@ -23,11 +32,11 @@ function ShowPage() {
     () => new Set(),
   );
 
-  const details = useQuery(
-    api.tmdb.index.getMyShowDetails,
-    id ? { showId: id as Id<"shows">, token: token ?? undefined } : "skip",
-  );
   const addShowFromTmdbAction = useAction(api.tmdb.details.addShowFromTmdb);
+  const details = useQuery(api.tmdb.index.getMyShowDetails, {
+    token,
+    showId: id as Id<"shows">,
+  });
 
   const {
     mutate: refreshDetails,
@@ -136,7 +145,10 @@ function ShowPage() {
 
       {refreshError && (
         <div className="px-4 py-3 mt-4 text-sm text-red-700 border border-red-200 rounded-md bg-red-50">
-          Error: {refreshError instanceof Error ? refreshError.message : "Refresh failed"}
+          Error:{" "}
+          {refreshError instanceof Error
+            ? refreshError.message
+            : "Refresh failed"}
         </div>
       )}
 
@@ -288,7 +300,9 @@ function ShowPage() {
                             </p>
                             <p className="mt-0.5 text-xs text-neutral-500">
                               {episode.airDate ?? "Unknown air date"}
-                              {episode.runtime ? ` - ${episode.runtime} min` : ""}
+                              {episode.runtime
+                                ? ` - ${episode.runtime} min`
+                                : ""}
                             </p>
                             {episode.overview && (
                               <p className="mt-1 text-sm leading-5 text-neutral-600">
@@ -476,7 +490,7 @@ function EpisodeCreditBadge(props: {
         )}
       </div>
       <div className="min-w-0">
-        <p className="max-w-40 text-xs font-medium truncate text-neutral-900">
+        <p className="text-xs font-medium truncate max-w-40 text-neutral-900">
           {props.name}
         </p>
         <p className="max-w-40 text-[11px] truncate text-neutral-500">

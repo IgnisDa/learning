@@ -1,4 +1,5 @@
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { convexQuery } from "@convex-dev/react-query";
 import { createFileRoute, Link, useRouteContext } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import { useQuery } from "convex/react";
@@ -6,6 +7,11 @@ import { type CSSProperties } from "react";
 
 export const Route = createFileRoute("/_dashboard/")({
   component: Dashboard,
+  loader: async ({ context }) => {
+    context.queryClient.prefetchQuery(
+      convexQuery(api.tmdb.index.listMyShows, { token: context.token }),
+    );
+  },
 });
 
 const TMDB_IMG = "https://image.tmdb.org/t/p/w185";
@@ -19,8 +25,7 @@ const overviewClampStyle: CSSProperties = {
 
 export function Dashboard() {
   const { token } = useRouteContext({ from: "/_dashboard" });
-  const myShows =
-    useQuery(api.tmdb.index.listMyShows, { token: token ?? undefined }) ?? [];
+  const myShows = useQuery(api.tmdb.index.listMyShows, { token }) ?? [];
 
   return (
     <DashboardLayout activeTab="my-shows">
