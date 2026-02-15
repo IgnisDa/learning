@@ -7,32 +7,17 @@ import { defineConfig } from "vite"
 import viteTsConfigPaths from "vite-tsconfig-paths"
 import { caddyPlugin } from "./src/vite-plugin-caddy"
 
-// Use aws-lambda preset for SST deployments (CI), otherwise use default for local dev
-const nitroPreset = process.env.CI ? `aws-lambda` : undefined
-
 const config = defineConfig({
+  ssr: { noExternal: [`zod`, `drizzle-orm`] },
   plugins: [
     devtools(),
-    nitro({
-      preset: nitroPreset,
-      awsLambda: {
-        streaming: true,
-      },
-    }),
-    viteTsConfigPaths({
-      projects: [`./tsconfig.json`],
-    }),
+    nitro(),
+    viteTsConfigPaths({ projects: [`./tsconfig.json`] }),
     caddyPlugin(),
     tailwindcss(),
     tanstackStart(),
     viteReact(),
   ],
-  optimizeDeps: {
-    exclude: [`@tanstack/start-server-core`],
-  },
-  ssr: {
-    noExternal: [`zod`, `drizzle-orm`],
-  },
 })
 
 export default config
