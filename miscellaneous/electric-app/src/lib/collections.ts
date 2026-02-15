@@ -1,11 +1,11 @@
-import { createCollection } from "@tanstack/react-db"
-import { electricCollectionOptions } from "@tanstack/electric-db-collection"
 import {
-  selectTodoSchema,
   selectProjectSchema,
+  selectTodoSchema,
   selectUsersSchema,
 } from "@/db/schema"
 import { trpc } from "@/lib/trpc-client"
+import { electricCollectionOptions } from "@tanstack/electric-db-collection"
+import { createCollection } from "@tanstack/react-db"
 
 export const usersCollection = createCollection(
   electricCollectionOptions({

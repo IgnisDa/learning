@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router"
 import { auth } from "@/lib/auth"
 import { prepareElectricUrl, proxyElectricRequest } from "@/lib/electric-proxy"
+import { createFileRoute } from "@tanstack/react-router"
 
 const serve = async ({ request }: { request: Request }) => {
   const session = await auth.api.getSession({ headers: request.headers })
