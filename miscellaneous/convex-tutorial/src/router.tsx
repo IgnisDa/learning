@@ -22,6 +22,7 @@ export const getRouter = () => {
   convexQueryClient.connect(queryClient);
   const router = createRouter({
     routeTree,
+    defaultPreload: "intent",
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
     context: { queryClient, convexClient, convexQueryClient },

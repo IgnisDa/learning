@@ -1,13 +1,20 @@
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { convexQuery } from "@convex-dev/react-query";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouteContext } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import { useAction, useQuery } from "convex/react";
-import { useEffect, useState, type CSSProperties } from "react";
+import { parseAsString, useQueryState } from "nuqs";
+import { useEffect, type CSSProperties } from "react";
 
 export const Route = createFileRoute("/_dashboard/search")({
   component: DashboardSearch,
+  loader: async ({ context }) => {
+    context.queryClient.prefetchQuery(
+      convexQuery(api.tmdb.index.listMyShows, { token: context.token }),
+    );
+  },
 });
 
 const TMDB_IMG = "https://image.tmdb.org/t/p/w185";
@@ -21,7 +28,10 @@ const overviewClampStyle: CSSProperties = {
 
 function DashboardSearch() {
   const { token } = useRouteContext({ from: "/_dashboard" });
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useQueryState(
+    "q",
+    parseAsString.withDefault(""),
+  );
   const myShows =
     useQuery(api.tmdb.index.listMyShows, { token: token ?? undefined }) ?? [];
   const searchShowsAction = useAction(api.tmdb.search.searchShows);
@@ -52,6 +62,8 @@ function DashboardSearch() {
     searchShows(trimmed);
   }, [debouncedQuery, searchShows]);
 
+  const trimmedSearchQuery = searchQuery.trim();
+
   const myShowTmdbIds = new Set(myShows.map((show) => show.tmdbId));
   const myShowIdByTmdbId = new Map(
     myShows.map((show) => [show.tmdbId, show._id] as const),
@@ -71,7 +83,12 @@ function DashboardSearch() {
       <div className="mt-4">
         <input
           className="w-full rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-900 outline-none transition focus:border-neutral-900 focus:shadow-[0_0_0_1px_rgba(23,23,23,0.16)]"
-          onChange={(event) => setSearchQuery(event.target.value)}
+          onChange={(event) => {
+            const nextQuery = event.target.value;
+            void setSearchQuery(
+              nextQuery.trim().length === 0 ? null : nextQuery,
+            );
+          }}
           placeholder="Search for a TV show..."
           type="text"
           value={searchQuery}
@@ -100,7 +117,7 @@ function DashboardSearch() {
         </div>
       )}
 
-      {searchResults && searchResults.length > 0 && (
+      {trimmedSearchQuery.length >= 2 && searchResults && searchResults.length > 0 && (
         <div className="mt-6 overflow-hidden border rounded-lg border-neutral-200">
           <p className="border-b border-neutral-200 bg-neutral-50 px-4 py-2 text-xs font-medium uppercase tracking-[0.12em] text-neutral-500">
             {searchResults.length} result
@@ -182,12 +199,12 @@ function DashboardSearch() {
         </div>
       )}
 
-      {searchQuery.trim().length >= 2 &&
+      {trimmedSearchQuery.length >= 2 &&
         !isSearching &&
         searchResults?.length === 0 &&
         !searchError && (
           <div className="px-4 py-3 mt-4 text-sm border rounded-md border-neutral-200 bg-neutral-50 text-neutral-600">
-            No shows found for "{searchQuery.trim()}"
+            No shows found for "{trimmedSearchQuery}"
           </div>
         )}
     </DashboardLayout>
