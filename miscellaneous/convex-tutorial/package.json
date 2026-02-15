@@ -25,6 +25,7 @@
     "bcryptjs": "^3.0.3",
     "convex": "1.31.7",
     "convex-helpers": "^0.1.111",
+    "cookie": "1.1.1",
     "dotenv": "^17.2.4",
     "nitro": "npm:nitro-nightly@latest",
     "prettier": "^3.8.0",

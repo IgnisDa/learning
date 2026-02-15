@@ -1,14 +1,18 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { getCookie } from "../../utils/cookies";
+import { createServerFn } from "@tanstack/react-start";
+import { getRequestHeader } from "@tanstack/react-start/server";
+import * as cookie from "cookie";
+
+const getAuthToken = createServerFn({ method: "GET" }).handler(async () => {
+  const cookies = getRequestHeader("cookie");
+  return cookie.parseCookie(cookies || "").convex_auth_token;
+});
 
 export const Route = createFileRoute("/_dashboard")({
   component: IndexPage,
-  beforeLoad: () => {
-    const token =
-      typeof window !== "undefined" ? getCookie("convex_auth_token") : null;
-
+  beforeLoad: async () => {
+    const token = await getAuthToken();
     if (!token) throw redirect({ to: "/signin" });
-
     return { token };
   },
 });
