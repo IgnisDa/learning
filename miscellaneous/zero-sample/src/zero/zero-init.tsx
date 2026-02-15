@@ -6,7 +6,6 @@ import {
   Alert,
   Button,
   Card,
-  Divider,
   Loader,
   Link as ReshapedLink,
   Text,
