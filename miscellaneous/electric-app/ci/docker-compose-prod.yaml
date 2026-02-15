@@ -12,6 +12,11 @@ services:
     command:
       - -c
       - wal_level=logical
+    healthcheck:
+      retries: 5
+      timeout: 5s
+      interval: 10s
+      test: ["CMD", "pg_isready", "-U", "postgres"]
 
   app:
     build:
