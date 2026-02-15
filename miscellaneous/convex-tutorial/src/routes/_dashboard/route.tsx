@@ -1,13 +1,14 @@
-import { convexQuery } from "@convex-dev/react-query";
-import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { api } from "convex/_generated/api";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_dashboard")({
   component: IndexPage,
-  beforeLoad: async ({ context }) => {
-    await context.queryClient.ensureQueryData(
-      convexQuery(api.auth.getAuthenticatedUserId, {}),
-    );
+  beforeLoad: () => {
+    const token =
+      typeof window !== "undefined"
+        ? localStorage.getItem("convex_auth_token")
+        : null;
+
+    if (!token) throw redirect({ to: "/signin" });
   },
 });
 

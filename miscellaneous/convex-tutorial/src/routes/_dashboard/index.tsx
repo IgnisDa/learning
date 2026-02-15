@@ -1,5 +1,5 @@
-import { useAuthActions } from "@convex-dev/auth/react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useAuth } from "@/hooks/useAuth";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import { useQuery } from "convex/react";
 import { type CSSProperties } from "react";
@@ -18,8 +18,15 @@ const overviewClampStyle: CSSProperties = {
 };
 
 export function Dashboard() {
-  const { signOut } = useAuthActions();
-  const myShows = useQuery(api.tmdb.index.listMyShows) ?? [];
+  const navigate = useNavigate();
+  const { signOut, token } = useAuth();
+  const myShows =
+    useQuery(api.tmdb.index.listMyShows, { token: token ?? undefined }) ?? [];
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate({ to: "/signin" });
+  };
 
   return (
     <main className="w-full max-w-6xl min-h-screen px-4 pt-8 pb-10 mx-auto sm:px-6 lg:px-8">
@@ -38,7 +45,7 @@ export function Dashboard() {
 
         <button
           className="inline-flex items-center justify-center px-4 text-sm font-medium transition bg-white border rounded-md h-9 border-neutral-300 text-neutral-700 hover:border-neutral-400 hover:bg-neutral-100 hover:text-neutral-900"
-          onClick={() => void signOut()}
+          onClick={handleSignOut}
           type="button"
         >
           Sign out

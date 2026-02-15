@@ -1,28 +1,27 @@
+import { useAuth } from "@/hooks/useAuth";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useAuthActions } from "@convex-dev/auth/react";
-import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
-import { useState, type FormEvent, useEffect } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 
 export const Route = createFileRoute("/signin")({
   component: SignInPage,
 });
 
 function SignInPage() {
-  return (
-    <>
-      <AuthLoading>
-        <div className="mx-auto mt-24 w-fit rounded-md border border-neutral-200 bg-white px-4 py-2 text-sm text-neutral-600 shadow-sm">
-          Loading...
-        </div>
-      </AuthLoading>
-      <Authenticated>
-        <RedirectToHome />
-      </Authenticated>
-      <Unauthenticated>
-        <SignInForm />
-      </Unauthenticated>
-    </>
-  );
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="px-4 py-2 mx-auto mt-24 text-sm bg-white border rounded-md shadow-sm w-fit border-neutral-200 text-neutral-600">
+        Loading...
+      </div>
+    );
+  }
+
+  if (user) {
+    return <RedirectToHome />;
+  }
+
+  return <SignInForm />;
 }
 
 function RedirectToHome() {
@@ -33,14 +32,14 @@ function RedirectToHome() {
   }, [navigate]);
 
   return (
-    <div className="mx-auto mt-24 w-fit rounded-md border border-neutral-200 bg-white px-4 py-2 text-sm text-neutral-600 shadow-sm">
+    <div className="px-4 py-2 mx-auto mt-24 text-sm bg-white border rounded-md shadow-sm w-fit border-neutral-200 text-neutral-600">
       Redirecting...
     </div>
   );
 }
 
 function SignInForm() {
-  const { signIn } = useAuthActions();
+  const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,9 +49,11 @@ function SignInForm() {
     setError(null);
 
     const formData = new FormData(event.currentTarget);
+    const username = formData.get("username") as string;
+    const password = formData.get("password") as string;
 
     try {
-      await signIn("password", formData);
+      await signIn(username, password);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign in failed");
       setIsLoading(false);
@@ -60,7 +61,7 @@ function SignInForm() {
   };
 
   return (
-    <div className="mx-auto mt-10 w-full max-w-md rounded-xl border border-neutral-200 bg-white p-8 shadow-sm">
+    <div className="w-full max-w-md p-8 mx-auto mt-10 bg-white border shadow-sm rounded-xl border-neutral-200">
       <div className="mb-6 space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
           Convex Tutorial
@@ -72,21 +73,21 @@ function SignInForm() {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <div className="px-3 py-2 mb-4 text-sm text-red-700 border border-red-200 rounded-md bg-red-50">
           {error}
         </div>
       )}
 
       <form className="space-y-4" onSubmit={handleSubmit}>
         <label className="block space-y-1.5">
-          <span className="text-sm font-medium text-neutral-700">Email</span>
+          <span className="text-sm font-medium text-neutral-700">Username</span>
           <input
             className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none transition focus:border-neutral-900 focus:shadow-[0_0_0_1px_rgba(23,23,23,0.15)] disabled:cursor-not-allowed disabled:bg-neutral-100"
             disabled={isLoading}
-            name="email"
-            placeholder="Email"
+            name="username"
+            placeholder="Username"
             required
-            type="email"
+            type="text"
           />
         </label>
         <label className="block space-y-1.5">
@@ -101,8 +102,6 @@ function SignInForm() {
           />
         </label>
 
-        <input name="flow" type="hidden" value="signIn" />
-
         <button
           className="inline-flex w-full items-center justify-center rounded-md bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-400"
           disabled={isLoading}
@@ -112,9 +111,12 @@ function SignInForm() {
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-neutral-600">
+      <p className="mt-6 text-sm text-center text-neutral-600">
         Don't have an account?{" "}
-        <Link className="font-medium text-neutral-900 hover:text-neutral-700" to="/signup">
+        <Link
+          className="font-medium text-neutral-900 hover:text-neutral-700"
+          to="/signup"
+        >
           Sign up
         </Link>
       </p>

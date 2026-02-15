@@ -14,8 +14,6 @@
     "dev:frontend": "vite dev --host 127.0.0.1 --port 3001"
   },
   "dependencies": {
-    "@auth/core": "^0.37.0",
-    "@convex-dev/auth": "^0.0.90",
     "@convex-dev/react-query": "^0.1.0",
     "@convex-dev/workflow": "^0.3.4",
     "@convex-dev/workpool": "^0.3.1",
@@ -24,6 +22,7 @@
     "@tanstack/react-router": "1.159.10",
     "@tanstack/react-start": "1.159.13",
     "@tanstack/router-plugin": "1.159.12",
+    "bcryptjs": "^2.4.3",
     "convex": "1.31.7",
     "convex-helpers": "^0.1.111",
     "dotenv": "^17.2.4",
@@ -35,6 +34,7 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.18",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.10.2",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",

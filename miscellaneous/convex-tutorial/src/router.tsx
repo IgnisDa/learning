@@ -1,4 +1,4 @@
-import { ConvexAuthProvider } from "@convex-dev/auth/react";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { ConvexQueryClient } from "@convex-dev/react-query";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRouter } from "@tanstack/react-router";
@@ -28,11 +28,9 @@ export const getRouter = () => {
     context: { queryClient, convexClient, convexQueryClient },
     Wrap: ({ children }) => (
       <ConvexProvider client={convexQueryClient.convexClient}>
-        <ConvexAuthProvider client={convexQueryClient.convexClient}>
-          <QueryClientProvider client={queryClient}>
-            {children}
-          </QueryClientProvider>
-        </ConvexAuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>{children}</AuthProvider>
+        </QueryClientProvider>
       </ConvexProvider>
     ),
   });

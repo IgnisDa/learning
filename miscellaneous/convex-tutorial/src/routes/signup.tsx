@@ -1,28 +1,27 @@
+import { useAuth } from "@/hooks/useAuth";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useAuthActions } from "@convex-dev/auth/react";
-import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
-import { useState, type FormEvent, useEffect } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 
 export const Route = createFileRoute("/signup")({
   component: SignUpPage,
 });
 
 function SignUpPage() {
-  return (
-    <>
-      <AuthLoading>
-        <div className="px-4 py-2 mx-auto mt-24 text-sm bg-white border rounded-md shadow-sm w-fit border-neutral-200 text-neutral-600">
-          Loading...
-        </div>
-      </AuthLoading>
-      <Authenticated>
-        <RedirectToHome />
-      </Authenticated>
-      <Unauthenticated>
-        <SignUpForm />
-      </Unauthenticated>
-    </>
-  );
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="px-4 py-2 mx-auto mt-24 text-sm bg-white border rounded-md shadow-sm w-fit border-neutral-200 text-neutral-600">
+        Loading...
+      </div>
+    );
+  }
+
+  if (user) {
+    return <RedirectToHome />;
+  }
+
+  return <SignUpForm />;
 }
 
 function RedirectToHome() {
@@ -40,7 +39,7 @@ function RedirectToHome() {
 }
 
 function SignUpForm() {
-  const { signIn } = useAuthActions();
+  const { signUp } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,9 +49,11 @@ function SignUpForm() {
     setError(null);
 
     const formData = new FormData(event.currentTarget);
+    const username = formData.get("username") as string;
+    const password = formData.get("password") as string;
 
     try {
-      await signIn("password", formData);
+      await signUp(username, password);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign up failed");
       setIsLoading(false);
@@ -81,14 +82,14 @@ function SignUpForm() {
 
       <form className="space-y-4" onSubmit={handleSubmit}>
         <label className="block space-y-1.5">
-          <span className="text-sm font-medium text-neutral-700">Email</span>
+          <span className="text-sm font-medium text-neutral-700">Username</span>
           <input
             className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none transition focus:border-neutral-900 focus:shadow-[0_0_0_1px_rgba(23,23,23,0.15)] disabled:cursor-not-allowed disabled:bg-neutral-100"
             disabled={isLoading}
-            name="email"
-            placeholder="Email"
+            name="username"
+            placeholder="Username"
             required
-            type="email"
+            type="text"
           />
         </label>
         <label className="block space-y-1.5">
@@ -96,15 +97,12 @@ function SignUpForm() {
           <input
             className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none transition focus:border-neutral-900 focus:shadow-[0_0_0_1px_rgba(23,23,23,0.15)] disabled:cursor-not-allowed disabled:bg-neutral-100"
             disabled={isLoading}
-            minLength={8}
             name="password"
-            placeholder="Password (min 8 characters)"
+            placeholder="Password"
             required
             type="password"
           />
         </label>
-
-        <input name="flow" type="hidden" value="signUp" />
 
         <button
           className="inline-flex w-full items-center justify-center rounded-md bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-400"

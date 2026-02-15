@@ -1,4 +1,3 @@
-import { getAuthUserId } from "@convex-dev/auth/server";
 import { WorkflowManager, type WorkflowId } from "@convex-dev/workflow";
 import { vOnCompleteArgs, Workpool } from "@convex-dev/workpool";
 import { v } from "convex/values";
@@ -124,9 +123,19 @@ export const createShowRecord = internalMutation({
 });
 
 export const listMyShows = query({
-  handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) return [];
+  args: { token: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    if (!args.token) return [];
+
+    const token = args.token;
+    const session = await ctx.db
+      .query("sessions")
+      .withIndex("token", (q) => q.eq("token", token))
+      .first();
+
+    if (!session || session.expiresAt < Date.now()) return [];
+
+    const userId = session.userId;
 
     const userShows = await ctx.db
       .query("userShows")
@@ -156,10 +165,19 @@ export const listMyShows = query({
 });
 
 export const getMyShowDetails = query({
-  args: { showId: v.id("shows") },
+  args: { showId: v.id("shows"), token: v.optional(v.string()) },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) return null;
+    if (!args.token) return null;
+
+    const token = args.token;
+    const session = await ctx.db
+      .query("sessions")
+      .withIndex("token", (q) => q.eq("token", token))
+      .first();
+
+    if (!session || session.expiresAt < Date.now()) return null;
+
+    const userId = session.userId;
 
     const userShow = await ctx.db
       .query("userShows")
