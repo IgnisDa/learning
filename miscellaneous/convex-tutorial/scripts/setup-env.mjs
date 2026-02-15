@@ -6,8 +6,17 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 
 // Environment variables to sync from process.env to Convex
-// These are optional - only synced if present in the local environment
+// These are required and must be present in the local environment
 const SYNC_FROM_ENV = ["TMDB_API_KEY"];
+
+// Check for missing required env vars
+const missingRequired = SYNC_FROM_ENV.filter((v) => !process.env[v]);
+if (missingRequired.length > 0) {
+  console.error(
+    `Missing required environment variables: ${missingRequired.join(", ")}`,
+  );
+  process.exit(1);
+}
 
 console.log("Checking Convex environment variables...\n");
 
