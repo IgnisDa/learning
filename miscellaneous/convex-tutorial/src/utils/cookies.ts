@@ -1,8 +1,10 @@
+import * as cookie from "cookie";
+
 export interface CookieOptions {
   days?: number;
   path?: string;
   secure?: boolean;
-  sameSite?: "Strict" | "Lax" | "None";
+  sameSite?: "strict" | "lax" | "none";
 }
 
 export function setCookie(
@@ -13,41 +15,28 @@ export function setCookie(
   const {
     days = 30,
     path = "/",
-    sameSite = "Lax",
-    secure = window.location.protocol === "https:",
+    sameSite = "lax",
+    secure = typeof window !== "undefined" &&
+      window.location.protocol === "https:",
   } = options;
 
-  let cookieString = `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
+  const maxAge = days ? days * 24 * 60 * 60 : undefined;
 
-  if (days) {
-    const date = new Date();
-    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-    cookieString += `; expires=${date.toUTCString()}`;
-  }
+  const serialized = cookie.serialize(name, value, {
+    path,
+    secure,
+    maxAge,
+    sameSite,
+  });
 
-  cookieString += `; path=${path}`;
-
-  if (secure) cookieString += "; secure";
-
-  cookieString += `; SameSite=${sameSite}`;
-
-  document.cookie = cookieString;
+  if (typeof document !== "undefined") document.cookie = serialized;
 }
 
 export function getCookie(name: string): string | null {
-  const nameEQ = encodeURIComponent(name) + "=";
-  const cookies = document.cookie.split(";");
+  if (typeof document === "undefined") return null;
 
-  for (let i = 0; i < cookies.length; i++) {
-    let cookie = cookies[i];
-    while (cookie.charAt(0) === " ") {
-      cookie = cookie.substring(1, cookie.length);
-    }
-    if (cookie.indexOf(nameEQ) === 0)
-      return decodeURIComponent(cookie.substring(nameEQ.length, cookie.length));
-  }
-
-  return null;
+  const cookies = cookie.parseCookie(document.cookie);
+  return cookies[name] || null;
 }
 
 export function removeCookie(name: string, path: string = "/"): void {
