@@ -2,6 +2,7 @@ import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { useConvex, useQuery } from "convex/react";
 import { createContext, useCallback, useEffect, useState } from "react";
+import { getCookie, removeCookie, setCookie } from "../utils/cookies";
 
 const AUTH_TOKEN_KEY = "convex_auth_token";
 
@@ -26,8 +27,7 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(() => {
-    if (typeof window !== "undefined")
-      return localStorage.getItem(AUTH_TOKEN_KEY);
+    if (typeof window !== "undefined") return getCookie(AUTH_TOKEN_KEY);
     return null;
   });
 
@@ -36,8 +36,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isLoading = token ? user === undefined : false;
 
   useEffect(() => {
-    if (token) localStorage.setItem(AUTH_TOKEN_KEY, token);
-    else localStorage.removeItem(AUTH_TOKEN_KEY);
+    if (token) setCookie(AUTH_TOKEN_KEY, token);
+    else removeCookie(AUTH_TOKEN_KEY);
   }, [token]);
 
   const signIn = useCallback(
