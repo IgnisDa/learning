@@ -14,6 +14,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
+  token: string | null;
   signOut: () => Promise<void>;
   signIn: (username: string, password: string) => Promise<void>;
   signUp: (username: string, password: string, name?: string) => Promise<void>;
@@ -31,21 +32,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
 
   const convex = useConvex();
-  const user = useQuery(api.auth.getCurrentUser);
-  const isLoading = user === undefined;
+  const user = useQuery(api.auth.getCurrentUser, token ? { token } : "skip");
+  const isLoading = token ? user === undefined : false;
 
   useEffect(() => {
-    const setupAuth = async () => {
-      if (token) {
-        localStorage.setItem(AUTH_TOKEN_KEY, token);
-        convex.setAuth(async () => token);
-      } else {
-        localStorage.removeItem(AUTH_TOKEN_KEY);
-        convex.setAuth(async () => null);
-      }
-    };
-    setupAuth();
-  }, [token, convex]);
+    if (token) localStorage.setItem(AUTH_TOKEN_KEY, token);
+    else localStorage.removeItem(AUTH_TOKEN_KEY);
+  }, [token]);
 
   const signIn = useCallback(
     async (username: string, password: string) => {
@@ -71,13 +64,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const signOut = useCallback(async () => {
-    await convex.mutation(api.auth.signOut);
+    if (token) await convex.mutation(api.auth.signOut, { token });
     setToken(null);
-  }, [convex]);
+  }, [convex, token]);
 
   return (
     <AuthContext.Provider
-      value={{ signIn, signUp, signOut, isLoading, user: user ?? null }}
+      value={{ token, signIn, signUp, signOut, isLoading, user: user ?? null }}
     >
       {children}
     </AuthContext.Provider>

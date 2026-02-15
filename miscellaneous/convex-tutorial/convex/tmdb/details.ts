@@ -1,11 +1,11 @@
 import { v } from "convex/values";
 import { internal } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
-import { getUserIdFromAuth } from "../auth";
 import {
   action,
   internalAction,
   internalMutation,
+  internalQuery,
   type MutationCtx,
 } from "../_generated/server";
 import {
@@ -17,6 +17,22 @@ import {
   tmdbWorkPool,
   tmdbWorkflow,
 } from "./index";
+
+export const getAuthenticatedUserIdForAction = internalQuery({
+  args: { token: v.string() },
+  handler: async (ctx, args) => {
+    const session = await ctx.db
+      .query("sessions")
+      .withIndex("token", (q) => q.eq("token", args.token))
+      .first();
+
+    if (!session || session.expiresAt < Date.now()) {
+      return null;
+    }
+
+    return session.userId;
+  },
+});
 
 const showDetailsValidator = v.object({
   name: v.string(),
@@ -328,7 +344,7 @@ export const importShowWorkflow = tmdbWorkflow.define({
 });
 
 export const addShowFromTmdb = action({
-  args: { name: v.string(), tmdbId: v.number() },
+  args: { name: v.string(), tmdbId: v.number(), token: v.string() },
   handler: async (
     ctx,
     args,
@@ -338,7 +354,12 @@ export const addShowFromTmdb = action({
     showId: Id<"shows">;
     workflowId: string | null;
   }> => {
-    const userId = await getUserIdFromAuth(ctx);
+    const userId = await ctx.runQuery(
+      internal.tmdb.details.getAuthenticatedUserIdForAction,
+      {
+        token: args.token,
+      },
+    );
     if (!userId) throw new Error("You must be signed in to add a show");
 
     const { showId, alreadyExists } = await ctx.runMutation(

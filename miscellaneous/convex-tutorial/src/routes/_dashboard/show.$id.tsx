@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/useAuth";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "convex/react";
 import { useMemo, useState } from "react";
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/_dashboard/show/$id")({
 
 function ShowPage() {
   const { id } = Route.useParams();
+  const { token } = useAuth();
   const [activeTab, setActiveTab] = useState<"seasons" | "cast" | "crew">(
     "seasons",
   );
@@ -23,7 +25,7 @@ function ShowPage() {
 
   const details = useQuery(
     api.tmdb.index.getMyShowDetails,
-    id ? { showId: id as Id<"shows"> } : "skip",
+    id ? { showId: id as Id<"shows">, token: token ?? undefined } : "skip",
   );
 
   const cast = useMemo(() => details?.cast ?? [], [details]);
