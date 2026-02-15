@@ -1,6 +1,6 @@
-import * as React from "react"
-import { createFileRoute } from "@tanstack/react-router"
 import { authClient } from "@/lib/auth-client"
+import { createFileRoute } from "@tanstack/react-router"
+import * as React from "react"
 import { useState } from "react"
 
 export const Route = createFileRoute(`/login`)({
@@ -21,11 +21,7 @@ function Layout() {
 
     try {
       let { data: _data, error } = await authClient.signUp.email(
-        {
-          email,
-          password,
-          name: email,
-        },
+        { email, password, name: email },
         {
           onSuccess: () => {
             window.location.href = `/`
@@ -35,10 +31,7 @@ function Layout() {
 
       if (error?.code === `USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL`) {
         const result = await authClient.signIn.email(
-          {
-            email,
-            password,
-          },
+          { email, password },
           {
             onSuccess: async () => {
               await authClient.getSession()
@@ -64,13 +57,13 @@ function Layout() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="flex items-center justify-center min-h-screen px-4 py-12 bg-gray-50 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-3xl font-extrabold text-center text-gray-900">
             Sign in to your account
           </h2>
-          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+          <div className="p-4 mt-4 border border-blue-200 rounded-md bg-blue-50">
             <p className="text-sm text-blue-700">
               <strong>Development Mode:</strong> Any email/password combination
               will work for testing. Also new accounts will be automatically
@@ -79,20 +72,20 @@ function Layout() {
           </div>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
+          <div className="-space-y-px rounded-md shadow-sm">
             <div>
               <label htmlFor="email" className="sr-only">
                 Email address
               </label>
               <input
+                required
                 id="email"
                 name="email"
                 type="email"
-                autoComplete="email"
-                required
                 value={email}
+                autoComplete="email"
                 onChange={(e) => setEmail(e.target.value)}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Email address"
               />
             </div>
@@ -108,14 +101,14 @@ function Layout() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Password"
               />
             </div>
           </div>
 
           {error && (
-            <div className="rounded-md bg-red-50 p-4">
+            <div className="p-4 rounded-md bg-red-50">
               <div className="text-sm text-red-700">{error}</div>
             </div>
           )}
@@ -124,7 +117,7 @@ function Layout() {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="relative flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md group hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? `Signing in...` : `Sign in`}
             </button>
