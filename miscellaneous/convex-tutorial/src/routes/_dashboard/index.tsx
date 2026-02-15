@@ -1,5 +1,4 @@
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { useAuth } from "@/hooks/useAuth";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import { useQuery } from "convex/react";
@@ -19,9 +18,7 @@ const overviewClampStyle: CSSProperties = {
 };
 
 export function Dashboard() {
-  const { token } = useAuth();
-  const myShows =
-    useQuery(api.tmdb.index.listMyShows, { token: token ?? undefined }) ?? [];
+  const myShows = useQuery(api.tmdb.index.listMyShows) ?? [];
 
   return (
     <DashboardLayout activeTab="my-shows">

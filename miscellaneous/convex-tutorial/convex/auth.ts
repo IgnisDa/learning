@@ -1,13 +1,29 @@
 import bcrypt from "bcryptjs";
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { SignJWT, importPKCS8 } from "jose";
+import { internal } from "./_generated/api";
+import { Id } from "./_generated/dataModel";
+import { internalQuery, mutation, query } from "./_generated/server";
 
-function generateToken(): string {
-  const array = new Uint8Array(32);
-  crypto.getRandomValues(array);
-  return Array.from(array, (byte) => byte.toString(16).padStart(2, "0")).join(
-    "",
-  );
+async function generateJWT(userId: string): Promise<string> {
+  const privateKeyPem = process.env.JWT_PRIVATE_KEY;
+  if (!privateKeyPem)
+    throw new Error("JWT_PRIVATE_KEY environment variable is not set");
+
+  const formattedKey = privateKeyPem.replace(/\|/g, "\n");
+  const privateKey = await importPKCS8(formattedKey, "RS256");
+
+  const jwt = await new SignJWT({
+    sub: userId,
+  })
+    .setProtectedHeader({ alg: "RS256" })
+    .setIssuer("convex-tutorial")
+    .setAudience("convex-tutorial")
+    .setIssuedAt()
+    .setExpirationTime("30d")
+    .sign(privateKey);
+
+  return jwt;
 }
 
 export const signUp = mutation({
@@ -34,10 +50,16 @@ export const signUp = mutation({
       username: args.username.toLowerCase(),
     });
 
-    const token = generateToken();
+    const token = await generateJWT(userId);
     const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
 
-    await ctx.db.insert("sessions", { token, userId, expiresAt });
+    const tokenIdentifier = `convex-tutorial|${userId}`;
+
+    await ctx.db.insert("sessions", {
+      userId,
+      expiresAt,
+      token: tokenIdentifier,
+    });
 
     return { token, userId };
   },
@@ -62,23 +84,30 @@ export const signIn = mutation({
 
     if (!isValid) throw new Error("Invalid username or password");
 
-    const token = generateToken();
+    const token = await generateJWT(user._id);
     const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
 
-    await ctx.db.insert("sessions", { token, expiresAt, userId: user._id });
+    const tokenIdentifier = `convex-tutorial|${user._id}`;
+
+    await ctx.db.insert("sessions", {
+      expiresAt,
+      userId: user._id,
+      token: tokenIdentifier,
+    });
 
     return { token, userId: user._id };
   },
 });
 
 export const signOut = mutation({
-  args: {
-    token: v.string(),
-  },
-  handler: async (ctx, args) => {
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return;
+
     const session = await ctx.db
       .query("sessions")
-      .withIndex("token", (q) => q.eq("token", args.token))
+      .withIndex("token", (q) => q.eq("token", identity.tokenIdentifier))
       .first();
 
     if (session) await ctx.db.delete(session._id);
@@ -86,17 +115,14 @@ export const signOut = mutation({
 });
 
 export const getCurrentUser = query({
-  args: {
-    token: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    if (!args.token) return null;
-
-    const token = args.token;
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return null;
 
     const session = await ctx.db
       .query("sessions")
-      .withIndex("token", (q) => q.eq("token", token))
+      .withIndex("token", (q) => q.eq("token", identity.tokenIdentifier))
       .first();
 
     if (!session) return null;
@@ -112,17 +138,14 @@ export const getCurrentUser = query({
 });
 
 export const getAuthenticatedUserId = query({
-  args: {
-    token: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    if (!args.token) throw new Error("Not authenticated");
-
-    const token = args.token;
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
 
     const session = await ctx.db
       .query("sessions")
-      .withIndex("token", (q) => q.eq("token", token))
+      .withIndex("token", (q) => q.eq("token", identity.tokenIdentifier))
       .first();
 
     if (!session || session.expiresAt < Date.now())
@@ -131,3 +154,33 @@ export const getAuthenticatedUserId = query({
     return session.userId;
   },
 });
+
+export const getUserIdFromIdentity = internalQuery({
+  args: { tokenIdentifier: v.string() },
+  handler: async (ctx, args) => {
+    const session = await ctx.db
+      .query("sessions")
+      .withIndex("token", (q) => q.eq("token", args.tokenIdentifier))
+      .first();
+
+    if (!session || session.expiresAt < Date.now()) return null;
+
+    return session.userId;
+  },
+});
+
+export async function getUserIdFromAuth(ctx: {
+  auth: { getUserIdentity: () => Promise<any> };
+  runQuery?: any;
+}): Promise<Id<"users"> | null> {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity) return null;
+
+  if (!ctx.runQuery) return null;
+
+  const userId = await ctx.runQuery(internal.auth.getUserIdFromIdentity, {
+    tokenIdentifier: identity.tokenIdentifier,
+  });
+
+  return userId;
+}

@@ -1,5 +1,4 @@
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { useAuth } from "@/hooks/useAuth";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -21,10 +20,8 @@ const overviewClampStyle: CSSProperties = {
 };
 
 function DashboardSearch() {
-  const { token } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
-  const myShows =
-    useQuery(api.tmdb.index.listMyShows, { token: token ?? undefined }) ?? [];
+  const myShows = useQuery(api.tmdb.index.listMyShows) ?? [];
   const searchShowsAction = useAction(api.tmdb.search.searchShows);
   const [debouncedQuery] = useDebouncedValue(searchQuery, 1000);
   const addShowFromTmdbAction = useAction(api.tmdb.details.addShowFromTmdb);
@@ -47,8 +44,7 @@ function DashboardSearch() {
 
   const { mutate: addShow, error: addShowError } = useMutation({
     mutationFn: async ({ tmdbId, name }: { tmdbId: number; name: string }) => {
-      if (!token) throw new Error("Not authenticated");
-      return await addShowFromTmdbAction({ tmdbId, name, token });
+      return await addShowFromTmdbAction({ tmdbId, name });
     },
   });
 
