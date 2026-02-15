@@ -1,7 +1,8 @@
 FROM electricsql/electric:latest
 
 RUN apt update && apt install -y nodejs npm
-RUN npm install --global yarn
+RUN npm install --global n yarn
+RUN n 22.12.0
 
 WORKDIR /app
 
@@ -10,6 +11,5 @@ RUN yarn install
 
 COPY . .
 
-EXPOSE 3000
-
+ENTRYPOINT [ "/usr/bin/env" ]
 CMD ["yarn", "start"]
