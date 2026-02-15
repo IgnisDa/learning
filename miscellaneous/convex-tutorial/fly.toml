@@ -4,7 +4,7 @@ primary_region = 'gru'
 [build]
 
 [[mounts]]
-source = 'convex_data'
+source = 'data'
 destination = '/convex/data'
 
 [http_service]
