@@ -8,7 +8,7 @@ import viteTsConfigPaths from "vite-tsconfig-paths"
 import { caddyPlugin } from "./src/vite-plugin-caddy"
 
 const config = defineConfig({
-  ssr: { noExternal: [`zod`, `drizzle-orm`] },
+  ssr: { noExternal: ["zod", "drizzle-orm", "better-auth"] },
   plugins: [
     devtools(),
     nitro(),
