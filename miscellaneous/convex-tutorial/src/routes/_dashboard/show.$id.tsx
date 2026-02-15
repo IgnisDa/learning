@@ -1,5 +1,6 @@
+import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouteContext } from "@tanstack/react-router";
-import { useQuery } from "convex/react";
+import { useAction, useQuery } from "convex/react";
 import { useMemo, useState } from "react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
@@ -26,6 +27,24 @@ function ShowPage() {
     api.tmdb.index.getMyShowDetails,
     id ? { showId: id as Id<"shows">, token: token ?? undefined } : "skip",
   );
+  const addShowFromTmdbAction = useAction(api.tmdb.details.addShowFromTmdb);
+
+  const {
+    mutate: refreshDetails,
+    error: refreshError,
+    isPending: isRefreshing,
+    isSuccess: refreshStarted,
+  } = useMutation({
+    mutationFn: async () => {
+      if (!token) throw new Error("Not authenticated");
+      if (!details) throw new Error("Show details are unavailable");
+      return await addShowFromTmdbAction({
+        tmdbId: details.show.tmdbId,
+        name: details.show.name,
+        token,
+      });
+    },
+  });
 
   const cast = useMemo(() => details?.cast ?? [], [details]);
   const crew = useMemo(() => details?.crew ?? [], [details]);
@@ -92,12 +111,34 @@ function ShowPage() {
 
   return (
     <main className="w-full max-w-6xl min-h-screen px-4 pt-8 pb-10 mx-auto sm:px-6 lg:px-8">
-      <Link
-        className="inline-flex items-center justify-center px-4 text-sm font-medium transition bg-white border rounded-md h-9 border-neutral-300 text-neutral-700 hover:border-neutral-400 hover:bg-neutral-100 hover:text-neutral-900"
-        to="/"
-      >
-        Back to Dashboard
-      </Link>
+      <div className="flex flex-wrap items-center gap-2">
+        <Link
+          className="inline-flex items-center justify-center px-4 text-sm font-medium transition bg-white border rounded-md h-9 border-neutral-300 text-neutral-700 hover:border-neutral-400 hover:bg-neutral-100 hover:text-neutral-900"
+          to="/"
+        >
+          Back to Dashboard
+        </Link>
+        <button
+          className="inline-flex items-center justify-center px-4 text-sm font-medium transition bg-white border rounded-md h-9 border-neutral-300 text-neutral-700 hover:border-neutral-400 hover:bg-neutral-100 hover:text-neutral-900 disabled:cursor-not-allowed disabled:opacity-60"
+          disabled={isRefreshing || !token}
+          onClick={() => refreshDetails()}
+          type="button"
+        >
+          {isRefreshing ? "Refreshing..." : "Refresh details"}
+        </button>
+      </div>
+
+      {refreshStarted && !isRefreshing && !refreshError && (
+        <div className="px-4 py-3 mt-4 text-sm border rounded-md border-neutral-200 bg-neutral-50 text-neutral-600">
+          Refresh started. Updated show details will appear shortly.
+        </div>
+      )}
+
+      {refreshError && (
+        <div className="px-4 py-3 mt-4 text-sm text-red-700 border border-red-200 rounded-md bg-red-50">
+          Error: {refreshError instanceof Error ? refreshError.message : "Refresh failed"}
+        </div>
+      )}
 
       <section className="mt-6 overflow-hidden bg-white border shadow-sm rounded-xl border-neutral-200">
         <div className="grid gap-6 p-5 sm:grid-cols-[12rem_minmax(0,1fr)] sm:p-6">
@@ -221,41 +262,82 @@ function ShowPage() {
 
                 {expandedSeasonIds.has(String(season.id)) && (
                   <ul className="pl-6 bg-white divide-y divide-neutral-200 sm:pl-10">
-                    {season.episodes.map((episode) => (
-                      <li
-                        className="flex items-start gap-3 p-3"
-                        key={episode.id}
-                      >
-                        <div className="overflow-hidden border rounded h-17 w-30 shrink-0 border-neutral-200 bg-neutral-100">
-                          {episode.stillPath ? (
-                            <img
-                              alt={episode.name}
-                              className="object-cover w-full h-full"
-                              src={`${TMDB_STILL}${episode.stillPath}`}
-                            />
-                          ) : (
-                            <div className="flex items-center justify-center w-full h-full text-xs text-neutral-500">
-                              E{episode.episodeNumber}
-                            </div>
-                          )}
-                        </div>
+                    {season.episodes.map((episode) => {
+                      return (
+                        <li
+                          className="flex items-start gap-3 p-3"
+                          key={episode.id}
+                        >
+                          <div className="overflow-hidden border rounded h-17 w-30 shrink-0 border-neutral-200 bg-neutral-100">
+                            {episode.stillPath ? (
+                              <img
+                                alt={episode.name}
+                                className="object-cover w-full h-full"
+                                src={`${TMDB_STILL}${episode.stillPath}`}
+                              />
+                            ) : (
+                              <div className="flex items-center justify-center w-full h-full text-xs text-neutral-500">
+                                E{episode.episodeNumber}
+                              </div>
+                            )}
+                          </div>
 
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-neutral-900">
-                            {episode.episodeNumber}. {episode.name}
-                          </p>
-                          <p className="mt-0.5 text-xs text-neutral-500">
-                            {episode.airDate ?? "Unknown air date"}
-                            {episode.runtime ? ` - ${episode.runtime} min` : ""}
-                          </p>
-                          {episode.overview && (
-                            <p className="mt-1 text-sm leading-5 text-neutral-600">
-                              {episode.overview}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-neutral-900">
+                              {episode.episodeNumber}. {episode.name}
                             </p>
-                          )}
-                        </div>
-                      </li>
-                    ))}
+                            <p className="mt-0.5 text-xs text-neutral-500">
+                              {episode.airDate ?? "Unknown air date"}
+                              {episode.runtime ? ` - ${episode.runtime} min` : ""}
+                            </p>
+                            {episode.overview && (
+                              <p className="mt-1 text-sm leading-5 text-neutral-600">
+                                {episode.overview}
+                              </p>
+                            )}
+                            {episode.castCredits.length > 0 && (
+                              <div className="mt-2">
+                                <p className="text-xs font-medium text-neutral-500">
+                                  Cast
+                                </p>
+                                <div className="flex flex-wrap gap-2 mt-1">
+                                  {episode.castCredits.map((credit, index) => (
+                                    <EpisodeCreditBadge
+                                      key={`${credit.personTmdbId}-${credit.character ?? "cast"}-${index}`}
+                                      name={credit.personName}
+                                      profilePath={credit.profilePath}
+                                      role={credit.character ?? "Unknown role"}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {episode.crewCredits.length > 0 && (
+                              <div className="mt-2">
+                                <p className="text-xs font-medium text-neutral-500">
+                                  Crew
+                                </p>
+                                <div className="flex flex-wrap gap-2 mt-1">
+                                  {episode.crewCredits.map((credit, index) => (
+                                    <EpisodeCreditBadge
+                                      key={`${credit.personTmdbId}-${credit.job ?? "crew"}-${index}`}
+                                      name={credit.personName}
+                                      profilePath={credit.profilePath}
+                                      role={
+                                        [credit.department, credit.job]
+                                          .filter(Boolean)
+                                          .join(" - ") || "Unknown role"
+                                      }
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </li>
+                      );
+                    })}
 
                     {season.episodes.length === 0 && (
                       <li className="px-4 py-3 text-sm text-neutral-500">
@@ -370,5 +452,37 @@ function TabButton(props: {
     >
       {props.label}
     </button>
+  );
+}
+
+function EpisodeCreditBadge(props: {
+  name: string;
+  role: string;
+  profilePath?: string;
+}) {
+  return (
+    <article className="flex items-center gap-2 px-2 py-1.5 border rounded-md border-neutral-200 bg-neutral-50">
+      <div className="w-8 h-8 overflow-hidden border rounded-full shrink-0 border-neutral-200 bg-neutral-100">
+        {props.profilePath ? (
+          <img
+            alt={props.name}
+            className="object-cover w-full h-full"
+            src={`${TMDB_PROFILE}${props.profilePath}`}
+          />
+        ) : (
+          <div className="flex items-center justify-center w-full h-full text-[10px] text-neutral-500">
+            ?
+          </div>
+        )}
+      </div>
+      <div className="min-w-0">
+        <p className="max-w-40 text-xs font-medium truncate text-neutral-900">
+          {props.name}
+        </p>
+        <p className="max-w-40 text-[11px] truncate text-neutral-500">
+          {props.role}
+        </p>
+      </div>
+    </article>
   );
 }

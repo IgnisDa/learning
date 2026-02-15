@@ -32,6 +32,8 @@ const episodeValidator = v.object({
   airDate: v.optional(v.string()),
   overview: v.optional(v.string()),
   stillPath: v.optional(v.string()),
+  castCredits: v.array(castCreditValidator),
+  crewCredits: v.array(crewCreditValidator),
 });
 
 const seasonDetailsValidator = v.object({
@@ -67,6 +69,20 @@ type TmdbTvSeasonDetails = {
     still_path?: string | null;
     air_date?: string | null;
     runtime?: number | null;
+    guest_stars?: Array<{
+      id: number;
+      name: string;
+      character?: string;
+      order?: number;
+      profile_path?: string | null;
+    }>;
+    crew?: Array<{
+      id: number;
+      name: string;
+      department?: string;
+      job?: string;
+      profile_path?: string | null;
+    }>;
   }>;
 };
 
@@ -149,14 +165,34 @@ export const fetchSeasonDetails = internalAction({
       `/tv/${args.tmdbId}/season/${args.seasonNumber}`,
     );
 
-    const episodes = (season.episodes ?? []).map((episode) => ({
-      name: episode.name,
-      runtime: episode.runtime ?? undefined,
-      airDate: episode.air_date ?? undefined,
-      overview: episode.overview ?? undefined,
-      stillPath: episode.still_path ?? undefined,
-      episodeNumber: episode.episode_number,
-    }));
+    const episodes = (season.episodes ?? []).map((episode) => {
+      const castCredits = (episode.guest_stars ?? []).map((cast) => ({
+        personName: cast.name,
+        personTmdbId: cast.id,
+        orderIndex: cast.order,
+        character: cast.character ?? undefined,
+        profilePath: cast.profile_path ?? undefined,
+      }));
+
+      const crewCredits = (episode.crew ?? []).map((crew) => ({
+        job: crew.job ?? undefined,
+        personTmdbId: crew.id,
+        personName: crew.name,
+        department: crew.department ?? undefined,
+        profilePath: crew.profile_path ?? undefined,
+      }));
+
+      return {
+        name: episode.name,
+        runtime: episode.runtime ?? undefined,
+        airDate: episode.air_date ?? undefined,
+        overview: episode.overview ?? undefined,
+        stillPath: episode.still_path ?? undefined,
+        episodeNumber: episode.episode_number,
+        castCredits,
+        crewCredits,
+      };
+    });
 
     await ctx.runMutation(internal.tmdb.details.replaceSeasonWithEpisodes, {
       showId: args.showId,
@@ -241,12 +277,10 @@ export const addShowFromTmdb = action({
     });
     if (!userId) throw new Error("You must be signed in to add a show");
 
-    const { showId, alreadyExists } = await ctx.runMutation(
+    const { showId } = await ctx.runMutation(
       internal.tmdb.index.createShowRecord,
       { name: args.name, tmdbId: args.tmdbId, userId },
     );
-
-    if (alreadyExists) return { ok: true, tmdbId: args.tmdbId, showId };
 
     // Start the import asynchronously using scheduler
     await ctx.scheduler.runAfter(0, internal.tmdb.details.importShow, {
@@ -335,6 +369,8 @@ export const replaceSeasonWithEpisodes = internalMutation({
         overview: episode.overview,
         stillPath: episode.stillPath,
         episodeNumber: episode.episodeNumber,
+        castCredits: episode.castCredits,
+        crewCredits: episode.crewCredits,
       });
     }
   },

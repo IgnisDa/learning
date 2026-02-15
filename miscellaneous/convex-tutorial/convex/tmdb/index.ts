@@ -168,6 +168,14 @@ export const getMyShowDetails = query({
                 overview: episode.overview,
                 stillPath: episode.stillPath,
                 episodeNumber: episode.episodeNumber,
+                castCredits: (episode.castCredits ?? [])
+                  .slice()
+                  .sort(
+                    (a, b) =>
+                      (a.orderIndex ?? Number.MAX_SAFE_INTEGER) -
+                      (b.orderIndex ?? Number.MAX_SAFE_INTEGER),
+                  ),
+                crewCredits: episode.crewCredits ?? [],
               })),
           };
         }),

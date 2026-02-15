@@ -57,6 +57,28 @@ export default defineSchema({
     runtime: v.optional(v.number()),
     overview: v.optional(v.string()),
     stillPath: v.optional(v.string()),
+    castCredits: v.optional(
+      v.array(
+        v.object({
+          personName: v.string(),
+          personTmdbId: v.number(),
+          orderIndex: v.optional(v.number()),
+          character: v.optional(v.string()),
+          profilePath: v.optional(v.string()),
+        }),
+      ),
+    ),
+    crewCredits: v.optional(
+      v.array(
+        v.object({
+          personTmdbId: v.number(),
+          personName: v.string(),
+          job: v.optional(v.string()),
+          department: v.optional(v.string()),
+          profilePath: v.optional(v.string()),
+        }),
+      ),
+    ),
   })
     .index("seasonId", ["seasonId"])
     .index("seasonIdEpisodeNumber", ["seasonId", "episodeNumber"]),
