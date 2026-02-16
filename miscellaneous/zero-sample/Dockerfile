@@ -30,8 +30,4 @@ COPY --from=builder /app/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.s
 
 RUN mkdir -p /data && chmod +x /usr/local/bin/docker-entrypoint.sh
 
-EXPOSE 3000
-
-VOLUME ["/data"]
-
 CMD ["/usr/local/bin/docker-entrypoint.sh"]
