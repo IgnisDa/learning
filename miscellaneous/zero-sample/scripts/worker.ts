@@ -67,7 +67,6 @@ if (!TMDB_API_KEY) {
 }
 
 const sql = postgres(DATABASE_URL, {
-  max: 2,
   ssl: isProd ? "require" : undefined,
 });
 
