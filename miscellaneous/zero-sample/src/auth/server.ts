@@ -7,10 +7,7 @@ import { databaseURL, isProd } from "~/lib/common";
 const SESSION_COOKIE = "zero_sample_session";
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30;
 
-export const sql = postgres(databaseURL, {
-  max: 5,
-  ssl: isProd ? "require" : undefined,
-});
+export const sql = postgres(databaseURL);
 
 export type Session = {
   userID: string;

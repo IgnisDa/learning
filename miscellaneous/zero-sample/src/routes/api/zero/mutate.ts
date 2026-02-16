@@ -9,10 +9,7 @@ import { databaseURL, isProd } from "~/lib/common";
 import { mutators } from "~/zero/mutators";
 import { schema } from "~/zero/schema";
 
-const dbProvider = zeroPostgresJS(
-  schema,
-  postgres(databaseURL, { ssl: isProd ? "require" : undefined }),
-);
+const dbProvider = zeroPostgresJS(schema, postgres(databaseURL));
 
 export const Route = createFileRoute("/api/zero/mutate")({
   server: {

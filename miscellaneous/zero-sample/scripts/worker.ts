@@ -1,9 +1,6 @@
 import "dotenv/config";
-
 import { readFile } from "node:fs/promises";
 import postgres from "postgres";
-
-const isProd = process.env.NODE_ENV === "production";
 
 type OutboxJobRow = {
   id: string;
@@ -63,9 +60,7 @@ if (!DATABASE_URL)
 
 if (!TMDB_API_KEY) throw new Error("TMDB_API_KEY is required");
 
-const sql = postgres(DATABASE_URL, {
-  ssl: isProd ? "require" : undefined,
-});
+const sql = postgres(DATABASE_URL);
 
 process.on("SIGINT", () => {
   console.info("Shutting down worker...");
