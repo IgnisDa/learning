@@ -1,24 +1,23 @@
 import {
-  table,
-  string,
-  number,
   boolean,
-  enumeration,
-  relationships,
-  createSchema,
   createBuilder,
+  createSchema,
+  enumeration,
+  number,
+  relationships,
+  string,
+  table,
 } from "@rocicorp/zero";
 
-export type EnrichState = "queued" | "running" | "ready" | "error";
 export type CreditKind = "cast" | "crew";
-export type OutboxStatus = "pending" | "running" | "done" | "error";
+export type ZeroContext = { userID: string };
+export type EnrichState = "queued" | "running" | "ready" | "error";
 export type WatchStatus =
   | "plan_to_watch"
   | "watching"
   | "completed"
   | "on_hold"
   | "dropped";
-export type ZeroContext = { userID: string };
 
 const show = table("show")
   .columns({
@@ -100,20 +99,6 @@ const credit = table("credit")
   })
   .primaryKey("id");
 
-const outbox = table("outbox")
-  .columns({
-    id: string(),
-    topic: string(),
-    attempts: number(),
-    status: enumeration<OutboxStatus>(),
-    showId: string().from("show_id"),
-    tmdbId: number().from("tmdb_id"),
-    createdAt: number().from("created_at"),
-    lockedAt: number().optional().from("locked_at"),
-    lastError: string().optional().from("last_error"),
-  })
-  .primaryKey("id");
-
 const showRelationships = relationships(show, ({ many }) => ({
   seasons: many({
     destSchema: season,
@@ -183,7 +168,7 @@ const creditRelationships = relationships(credit, ({ one }) => ({
 }));
 
 export const schema = createSchema({
-  tables: [show, userShow, season, episode, person, credit, outbox],
+  tables: [show, userShow, season, episode, person, credit],
   relationships: [
     showRelationships,
     seasonRelationships,

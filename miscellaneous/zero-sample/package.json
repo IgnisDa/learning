@@ -24,6 +24,7 @@
     "@tanstack/react-router": "^1.158.1",
     "@tanstack/react-router-devtools": "^1.158.1",
     "@tanstack/react-start": "^1.158.3",
+    "bullmq": "^5.69.3",
     "concurrently": "^9.2.1",
     "dotenv": "^16.5.0",
     "nanoid": "^5.1.5",

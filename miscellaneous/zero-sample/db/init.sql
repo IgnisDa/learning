@@ -90,24 +90,6 @@ CREATE INDEX IF NOT EXISTS credit_show_kind_order_idx
 CREATE INDEX IF NOT EXISTS credit_person_idx
   ON credit (person_id);
 
-CREATE TABLE IF NOT EXISTS outbox (
-  id text PRIMARY KEY,
-  topic text NOT NULL,
-  show_id text NOT NULL REFERENCES "show" (id) ON DELETE CASCADE,
-  tmdb_id integer NOT NULL,
-  status text NOT NULL,
-  attempts integer NOT NULL,
-  locked_at bigint,
-  last_error text,
-  created_at bigint NOT NULL
-);
-
-CREATE INDEX IF NOT EXISTS outbox_topic_status_idx
-  ON outbox (topic, status);
-
-CREATE INDEX IF NOT EXISTS outbox_status_idx
-  ON outbox (status);
-
 ALTER TABLE IF EXISTS user_show
   ADD COLUMN IF NOT EXISTS watch_status text;
 

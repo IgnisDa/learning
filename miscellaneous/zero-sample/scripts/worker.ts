@@ -1,13 +1,14 @@
 import "dotenv/config";
 import { readFile } from "node:fs/promises";
 import postgres from "postgres";
+import { Worker, Job } from "bullmq";
+import type { TmdbEnrichJobData } from "../src/lib/queue";
 
-type OutboxJobRow = {
-  id: string;
-  show_id: string;
-  tmdb_id: number;
-  attempts: number;
-};
+const REDIS_URL = process.env.REDIS_URL;
+
+if (!REDIS_URL) {
+  throw new Error("REDIS_URL is required");
+}
 
 type TmdbTvDetails = {
   name: string;
@@ -62,89 +63,65 @@ if (!TMDB_API_KEY) throw new Error("TMDB_API_KEY is required");
 
 const sql = postgres(DATABASE_URL);
 
-process.on("SIGINT", () => {
-  console.info("Shutting down worker...");
-  void sql.end({ timeout: 5 });
-  process.exit(0);
-});
-
 await ensureSchemaInitialized();
 
 console.info(`TMDB worker started (node ${process.version})`);
 
-while (true) {
-  const job = await claimJob();
-  if (!job) {
-    await sleep(750);
-    continue;
-  }
-
-  try {
+const worker = new Worker<TmdbEnrichJobData>(
+  "tmdb.enrich_show",
+  async (job: Job<TmdbEnrichJobData>) => {
     console.info(
-      `Job ${job.id}: enriching show_id=${job.show_id} tmdb_id=${job.tmdb_id}`,
+      `Job ${job.id}: enriching show_id=${job.data.showId} tmdb_id=${job.data.tmdbId}`,
     );
-    await enrichShow(job);
+    await enrichShow(job.data);
     console.info(`Job ${job.id}: done`);
-  } catch (e) {
-    const message = formatErrorMessage(e);
-    console.error(`Job ${job.id}: error: ${message}`);
-    if (e instanceof Error) {
-      console.error(e);
-      const cause = e.cause;
-      if (cause) {
-        console.error("cause:", cause);
-      }
-    }
-    await markJobError(job, truncate(message, 1000));
+  },
+  { concurrency: 5, connection: { url: REDIS_URL } },
+);
+
+worker.on("completed", (job) => {
+  console.info(`Job ${job.id} completed successfully`);
+});
+
+worker.on("failed", (job, err) => {
+  console.error(`Job ${job?.id} failed:`, err.message);
+  if (job) {
+    void markShowError(job.data.showId, truncate(err.message, 1000));
   }
-}
+});
 
-async function claimJob(): Promise<OutboxJobRow | null> {
-  const now = Date.now();
+worker.on("error", (err) => {
+  console.error("Worker error:", err);
+});
 
-  return await sql.begin(async (txRaw) => {
-    // `postgres` transaction typings drop call signatures via `Omit<...>`.
-    // Cast to the callable `Sql` interface so we can use the tagged template API.
-    const tx = txRaw as unknown as postgres.Sql;
+process.on("SIGINT", async () => {
+  console.info("Shutting down worker...");
+  await worker.close();
+  await sql.end({ timeout: 5 });
+  process.exit(0);
+});
 
-    const rows = await tx<OutboxJobRow[]>`
-      SELECT id, show_id, tmdb_id, attempts
-      FROM outbox
-      WHERE topic = 'tmdb.enrich_show'
-        AND status = 'pending'
-      ORDER BY created_at ASC
-      LIMIT 1
-      FOR UPDATE SKIP LOCKED
-    `;
+process.on("SIGTERM", async () => {
+  console.info("Shutting down worker...");
+  await worker.close();
+  await sql.end({ timeout: 5 });
+  process.exit(0);
+});
 
-    const job = rows[0];
-    if (!job) {
-      return null;
-    }
+console.info("Worker is ready to process jobs...");
 
-    await tx`
-      UPDATE outbox
-      SET status = 'running',
-          locked_at = ${now},
-          attempts = attempts + 1,
-          last_error = NULL
-      WHERE id = ${job.id}
-    `;
+async function enrichShow(jobData: TmdbEnrichJobData) {
+  const { showId, tmdbId } = jobData;
 
-    await tx`
-      UPDATE "show"
-      SET enrich_state = 'running',
-          enrich_error = NULL
-      WHERE id = ${job.show_id}
-    `;
+  await sql`
+    UPDATE "show"
+    SET enrich_state = 'running',
+        enrich_error = NULL
+    WHERE id = ${showId}
+  `;
 
-    return job;
-  });
-}
-
-async function enrichShow(job: OutboxJobRow) {
-  const tv = await tmdb<TmdbTvDetails>(`/tv/${job.tmdb_id}`);
-  const credits = await tmdb<TmdbTvCredits>(`/tv/${job.tmdb_id}/credits`);
+  const tv = await tmdb<TmdbTvDetails>(`/tv/${tmdbId}`);
+  const credits = await tmdb<TmdbTvCredits>(`/tv/${tmdbId}/credits`);
 
   const seasonNumbers = (tv.seasons ?? [])
     .map((s) => s.season_number)
@@ -152,7 +129,7 @@ async function enrichShow(job: OutboxJobRow) {
 
   const seasonDetails: Array<TmdbTvSeasonDetails> = [];
   for (const n of seasonNumbers) {
-    seasonDetails.push(await tmdb(`/tv/${job.tmdb_id}/season/${n}`));
+    seasonDetails.push(await tmdb(`/tv/${tmdbId}/season/${n}`));
   }
 
   const now = Date.now();
@@ -163,21 +140,20 @@ async function enrichShow(job: OutboxJobRow) {
     await tx`
       DELETE FROM episode
       WHERE season_id IN (
-        SELECT id FROM season WHERE show_id = ${job.show_id}
+        SELECT id FROM season WHERE show_id = ${showId}
       )
     `;
 
     await tx`
       DELETE FROM season
-      WHERE show_id = ${job.show_id}
+      WHERE show_id = ${showId}
     `;
 
     await tx`
       DELETE FROM credit
-      WHERE show_id = ${job.show_id}
+      WHERE show_id = ${showId}
     `;
 
-    // Seasons
     for (const s of seasonDetails) {
       const seasonName = s.name ?? `Season ${s.season_number}`;
       const episodeCount =
@@ -191,7 +167,7 @@ async function enrichShow(job: OutboxJobRow) {
         `Season ${s.season_number}: ${s.episodes?.length ?? 0} episodes found`,
       );
 
-      const seasonId = `season_${job.show_id}_${s.season_number}`;
+      const seasonId = `season_${showId}_${s.season_number}`;
       await tx`
         INSERT INTO season (
           id,
@@ -205,7 +181,7 @@ async function enrichShow(job: OutboxJobRow) {
         )
         VALUES (
           ${seasonId},
-          ${job.show_id},
+          ${showId},
           ${s.season_number},
 					${seasonName},
 					${s.overview ?? null},
@@ -221,7 +197,6 @@ async function enrichShow(job: OutboxJobRow) {
           air_date = EXCLUDED.air_date
       `;
 
-      // Episodes
       if (Array.isArray(s.episodes)) {
         console.log(
           `Inserting ${s.episodes.length} episodes for season ${s.season_number}`,
@@ -262,7 +237,6 @@ async function enrichShow(job: OutboxJobRow) {
       }
     }
 
-    // People + credits
     for (const c of credits.cast ?? []) {
       const personId = `person_${c.id}`;
       await upsertPerson(tx, {
@@ -283,8 +257,8 @@ async function enrichShow(job: OutboxJobRow) {
           order_index
         )
         VALUES (
-          ${`cast_${job.show_id}_${c.id}_${c.order}`},
-          ${job.show_id},
+          ${`cast_${showId}_${c.id}_${c.order}`},
+          ${showId},
           ${personId},
           'cast',
 					${c.character ?? null},
@@ -315,8 +289,8 @@ async function enrichShow(job: OutboxJobRow) {
           order_index
         )
         VALUES (
-          ${`crew_${job.show_id}_${c.id}_${c.department}_${c.job}`},
-          ${job.show_id},
+          ${`crew_${showId}_${c.id}_${c.department}_${c.job}`},
+          ${showId},
           ${personId},
           'crew',
           NULL,
@@ -327,7 +301,6 @@ async function enrichShow(job: OutboxJobRow) {
       `;
     }
 
-    // Show
     await tx`
       UPDATE "show"
 			SET name = ${tv.name},
@@ -336,16 +309,7 @@ async function enrichShow(job: OutboxJobRow) {
           enrich_state = 'ready',
           enrich_error = NULL,
           enriched_at = ${now}
-      WHERE id = ${job.show_id}
-    `;
-
-    // Mark job done
-    await tx`
-      UPDATE outbox
-      SET status = 'done',
-          locked_at = NULL,
-          last_error = NULL
-      WHERE id = ${job.id}
+      WHERE id = ${showId}
     `;
   });
 }
@@ -375,24 +339,13 @@ async function upsertPerson(
   `;
 }
 
-async function markJobError(job: OutboxJobRow, message: string) {
-  await sql.begin(async (txRaw) => {
-    const tx = txRaw as unknown as postgres.Sql;
-
-    await tx`
-      UPDATE "show"
-      SET enrich_state = 'error',
-          enrich_error = ${message}
-      WHERE id = ${job.show_id}
-    `;
-
-    await tx`
-      UPDATE outbox
-      SET status = 'error',
-          last_error = ${message}
-      WHERE id = ${job.id}
-    `;
-  });
+async function markShowError(showId: string, message: string) {
+  await sql`
+    UPDATE "show"
+    SET enrich_state = 'error',
+        enrich_error = ${message}
+    WHERE id = ${showId}
+  `;
 }
 
 async function tmdb<T>(path: string): Promise<T> {
