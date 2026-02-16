@@ -6,8 +6,8 @@ import "dotenv/config";
 import postgres from "postgres";
 import { getSession } from "~/auth/server";
 import { databaseURL, isProd } from "~/lib/common";
-import { mutators } from "~/zero/mutators";
 import { schema } from "~/zero/schema";
+import { serverMutators } from "~/zero/server-mutators";
 
 const dbProvider = zeroPostgresJS(schema, postgres(databaseURL));
 
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/api/zero/mutate")({
           dbProvider,
           async (transact) =>
             await transact(async (tx, name, args) => {
-              const mutator = mustGetMutator(mutators, name);
+              const mutator = mustGetMutator(serverMutators, name);
               return await mutator.fn({
                 args,
                 ctx: { userID: session.userID },

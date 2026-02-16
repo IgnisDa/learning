@@ -1,6 +1,5 @@
 import { defineMutator, defineMutators } from "@rocicorp/zero";
 import { z } from "zod";
-import { tmdbEnrichQueue } from "~/lib/queue";
 import type { EnrichState, WatchStatus } from "./schema";
 import { zql } from "./schema";
 
@@ -104,18 +103,6 @@ export const mutators = defineMutators({
           setupStep: Math.max(2, existingUserShow?.setupStep ?? 1),
           setupCompletedAt: existingUserShow?.setupCompletedAt ?? null,
         });
-
-        if (tx.location === "server" && shouldEnqueue) {
-          await tmdbEnrichQueue.add(
-            "enrich_show",
-            {
-              showId: args.id,
-              jobId: args.jobId,
-              tmdbId: args.tmdbId,
-            },
-            { jobId: args.jobId },
-          );
-        }
       },
     ),
     updateProgressStep: defineMutator(
