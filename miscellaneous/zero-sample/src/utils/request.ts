@@ -1,3 +1,3 @@
-export function getSecureFlag(request: Request): boolean {
+export function getSecureFlag(request: Request) {
   return new URL(request.url).protocol === "https:";
 }

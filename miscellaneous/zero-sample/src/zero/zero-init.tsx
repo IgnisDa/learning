@@ -324,7 +324,7 @@ function LoginForm(props: { onSuccess: () => Promise<void> }) {
         });
 
         if (!res.ok) {
-          const data: unknown = await res.json().catch(() => null);
+          const data = (await res.json().catch(() => null)) as unknown;
           const errorValue =
             data && typeof data === "object" && "error" in data
               ? (data as Record<string, unknown>).error

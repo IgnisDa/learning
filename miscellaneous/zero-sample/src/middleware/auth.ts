@@ -1,6 +1,6 @@
-import { getSession, type Session } from "~/auth/server";
+import { getSession } from "~/auth/server";
 
-export async function requireAuth(request: Request): Promise<Session> {
+export async function requireAuth(request: Request) {
   const session = await getSession(request);
   if (!session) {
     throw new Response(JSON.stringify({ error: "Unauthorized" }), {

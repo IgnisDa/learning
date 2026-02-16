@@ -15,13 +15,13 @@ export const watchStatusSchema = z.enum([
   "dropped",
 ]);
 
-export const WATCH_STATUS_OPTIONS: Array<{
-  label: string;
-  value: WatchStatus;
-}> = [
+export const WATCH_STATUS_OPTIONS = [
   { label: "Plan to watch", value: "plan_to_watch" },
   { label: "Watching", value: "watching" },
   { label: "Completed", value: "completed" },
   { label: "On hold", value: "on_hold" },
   { label: "Dropped", value: "dropped" },
-];
+] satisfies Array<{
+  label: string;
+  value: WatchStatus;
+}>;

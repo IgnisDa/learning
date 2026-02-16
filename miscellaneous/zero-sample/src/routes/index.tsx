@@ -28,23 +28,17 @@ function Home() {
   const [libraryItems] = useQuery(queries.library.items());
 
   const libraryRows = React.useMemo(() => {
-    const list: Array<{
-      show: NonNullable<(typeof libraryItems)[number]["show"]>;
-      watchStatus: (typeof libraryItems)[number]["watchStatus"];
-      setupCompletedAt: (typeof libraryItems)[number]["setupCompletedAt"];
-    }> = [];
-
-    for (const item of libraryItems) {
-      if (!item.show) {
-        continue;
-      }
-
-      list.push({
-        show: item.show,
-        watchStatus: item.watchStatus,
-        setupCompletedAt: item.setupCompletedAt,
-      });
-    }
+    const list = libraryItems.flatMap((item) =>
+      item.show
+        ? [
+            {
+              show: item.show,
+              watchStatus: item.watchStatus,
+              setupCompletedAt: item.setupCompletedAt,
+            },
+          ]
+        : [],
+    );
 
     list.sort((a, b) => a.show.name.localeCompare(b.show.name));
     return list;

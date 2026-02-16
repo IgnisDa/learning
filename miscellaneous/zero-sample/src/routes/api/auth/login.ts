@@ -1,6 +1,6 @@
-import "~/config/env";
 import { createFileRoute } from "@tanstack/react-router";
 import { login, sessionCookieHeader } from "~/auth/server";
+import "~/config/env";
 import { getErrorMessage } from "~/utils/error-message";
 import { getSecureFlag } from "~/utils/request";
 import { safeJsonParse } from "~/utils/safe-parse";
@@ -9,7 +9,7 @@ export const Route = createFileRoute("/api/auth/login")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const body: unknown = await safeJsonParse(request);
+        const body = await safeJsonParse(request);
         const email =
           body && typeof body === "object" && "email" in body
             ? String((body as Record<string, unknown>).email)

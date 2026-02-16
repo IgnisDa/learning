@@ -3,7 +3,6 @@ import { z } from "zod";
 import { watchStatusSchema } from "~/constants/watch-status";
 import { tmdbEnrichQueue } from "~/lib/queue";
 import { mutators } from "./mutators";
-import type { EnrichState } from "./schema";
 import { zql } from "./schema";
 
 export const serverMutators = defineMutators(mutators, {
@@ -23,13 +22,7 @@ export const serverMutators = defineMutators(mutators, {
       async ({ ctx, tx, args }) => {
         const forceEnrich = args.forceEnrich ?? false;
 
-        let existingState: {
-          enrichError: string | null;
-          enrichState: EnrichState;
-          enrichedAt: number | null;
-        } | null = null;
-
-        existingState =
+        const existingState =
           (await tx.run(zql.show.where("id", args.id).one())) ?? null;
 
         const shouldEnqueue =

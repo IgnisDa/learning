@@ -12,7 +12,7 @@ export type Session = {
   userID: string;
 };
 
-export async function getSession(request: Request): Promise<Session | null> {
+export async function getSession(request: Request) {
   const token = getCookie(request.headers.get("cookie"), SESSION_COOKIE);
   if (!token) {
     return null;

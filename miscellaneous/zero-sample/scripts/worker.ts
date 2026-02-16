@@ -1,7 +1,7 @@
+import { Job, Worker } from "bullmq";
 import "dotenv/config";
 import { readFile } from "node:fs/promises";
 import postgres from "postgres";
-import { Worker, Job } from "bullmq";
 import type { TmdbEnrichJobData } from "../src/lib/queue";
 
 const REDIS_URL = process.env.REDIS_URL;
@@ -127,9 +127,9 @@ async function enrichShow(jobData: TmdbEnrichJobData) {
     .map((s) => s.season_number)
     .filter((n) => typeof n === "number");
 
-  const seasonDetails: Array<TmdbTvSeasonDetails> = [];
+  const seasonDetails = [] as Array<TmdbTvSeasonDetails>;
   for (const n of seasonNumbers) {
-    seasonDetails.push(await tmdb(`/tv/${tmdbId}/season/${n}`));
+    seasonDetails.push(await tmdb<TmdbTvSeasonDetails>(`/tv/${tmdbId}/season/${n}`));
   }
 
   const now = Date.now();
@@ -348,23 +348,28 @@ async function markShowError(showId: string, message: string) {
   `;
 }
 
-async function tmdb<T>(path: string): Promise<T> {
+async function tmdb<T>(path: string) {
   const url = new URL(`https://api.themoviedb.org/3${path}`);
   url.searchParams.set("language", "en-US");
 
-  const headers: Record<string, string> = {
+  const baseHeaders = {
     Accept: "application/json",
     "User-Agent": "zero-sample/0.1",
   };
 
   const trimmedKey = TMDB_API_KEY!.trim();
   const isV3ApiKey = /^[a-f0-9]{32}$/i.test(trimmedKey);
+  const headers = isV3ApiKey
+    ? baseHeaders
+    : {
+        ...baseHeaders,
+        Authorization: trimmedKey.toLowerCase().startsWith("bearer ")
+          ? trimmedKey
+          : `Bearer ${trimmedKey}`,
+      };
+
   if (isV3ApiKey) {
     url.searchParams.set("api_key", trimmedKey);
-  } else {
-    headers.Authorization = trimmedKey.toLowerCase().startsWith("bearer ")
-      ? trimmedKey
-      : `Bearer ${trimmedKey}`;
   }
 
   const res = await fetchWithRetry(url, { headers }, 3);
@@ -409,24 +414,26 @@ function sleep(ms: number) {
 }
 
 async function fetchWithRetry(url: URL, init: RequestInit, attempts: number) {
-  let lastError: unknown;
-
   for (let i = 0; i < attempts; i += 1) {
     try {
       return await fetch(url, init);
     } catch (e) {
-      lastError = e;
       if (i < attempts - 1) {
         await sleep(250 * (i + 1));
+        continue;
       }
+
+      throw new Error(
+        `Network error while fetching ${url.hostname}: ${formatErrorMessage(e)}`,
+        {
+          cause: e instanceof Error ? e : undefined,
+        },
+      );
     }
   }
 
   throw new Error(
-    `Network error while fetching ${url.hostname}: ${formatErrorMessage(lastError)}`,
-    {
-      cause: lastError instanceof Error ? lastError : undefined,
-    },
+    `Network error while fetching ${url.hostname}: unknown error`,
   );
 }
 
@@ -453,7 +460,7 @@ function formatErrorMessage(err: unknown) {
   return err.message;
 }
 
-function getRecordString(value: unknown, key: string): string | undefined {
+function getRecordString(value: unknown, key: string) {
   if (!value || typeof value !== "object") {
     return undefined;
   }

@@ -1,4 +1,4 @@
-export function dateInputToMs(value: string): number | null {
+export function dateInputToMs(value: string) {
   const trimmed = value.trim();
   if (!trimmed) {
     return null;
@@ -7,7 +7,7 @@ export function dateInputToMs(value: string): number | null {
   return Number.isNaN(ms) ? null : ms;
 }
 
-export function toDateInputValue(value: number | null): string {
+export function toDateInputValue(value: number | null) {
   if (!value) {
     return "";
   }
@@ -18,7 +18,7 @@ export function toDateInputValue(value: number | null): string {
   return `${yyyy}-${mm}-${dd}`;
 }
 
-export function formatMsDate(value: number | null): string {
+export function formatMsDate(value: number | null) {
   if (!value) {
     return "Not set";
   }

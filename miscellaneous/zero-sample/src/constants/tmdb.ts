@@ -11,7 +11,7 @@ export const TMDB_IMAGE_SIZES = {
 export function getTmdbImageUrl(
   path: string | null,
   size: keyof typeof TMDB_IMAGE_SIZES = "w185",
-): string | null {
+) {
   if (!path) return null;
   return `${TMDB_IMAGE_SIZES[size]}${path}`;
 }

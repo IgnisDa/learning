@@ -1,7 +1,6 @@
 import { defineMutator, defineMutators } from "@rocicorp/zero";
 import { z } from "zod";
-import { watchStatusSchema, type WatchStatus } from "~/constants/watch-status";
-import type { EnrichState } from "./schema";
+import { watchStatusSchema } from "~/constants/watch-status";
 import { zql } from "./schema";
 
 async function ensureUserShowExists(
@@ -37,26 +36,7 @@ export const mutators = defineMutators({
         const now = Date.now();
         const forceEnrich = args.forceEnrich ?? false;
 
-        let existingState: {
-          enrichError: string | null;
-          enrichState: EnrichState;
-          enrichedAt: number | null;
-        } | null = null;
-
-        let existingUserShow: {
-          watchStatus: WatchStatus | null;
-          startedAt: number | null;
-          currentSeason: number | null;
-          currentEpisode: number | null;
-          targetFinishAt: number | null;
-          rating: number | null;
-          isFavorite: boolean | null;
-          notes: string | null;
-          setupStep: number | null;
-          setupCompletedAt: number | null;
-        } | null = null;
-
-        existingUserShow =
+        const existingUserShow =
           (await tx.run(
             zql.userShow
               .where("userId", ctx.userID)
@@ -64,17 +44,17 @@ export const mutators = defineMutators({
               .one(),
           )) ?? null;
 
-        if (tx.location === "server") {
-          existingState =
-            (await tx.run(zql.show.where("id", args.id).one())) ?? null;
-        }
+        const existingState =
+          tx.location === "server"
+            ? ((await tx.run(zql.show.where("id", args.id).one())) ?? null)
+            : null;
 
         const shouldEnqueue =
           forceEnrich ||
           !existingState ||
           existingState.enrichState === "error";
 
-        const nextEnrichState: EnrichState = shouldEnqueue
+        const nextEnrichState = shouldEnqueue
           ? "queued"
           : (existingState?.enrichState ?? "queued");
 

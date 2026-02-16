@@ -34,38 +34,57 @@ export const Route = createFileRoute("/api/tmdb/search")({
         tmdbURL.searchParams.set("include_adult", "false");
         tmdbURL.searchParams.set("language", "en-US");
 
-        const headers: Record<string, string> = {
+        const baseHeaders = {
           Accept: "application/json",
         };
 
         const trimmedKey = tmdbKey.trim();
         const isV3ApiKey = /^[a-f0-9]{32}$/i.test(trimmedKey);
+        const headers = isV3ApiKey
+          ? baseHeaders
+          : {
+              ...baseHeaders,
+              Authorization: trimmedKey.toLowerCase().startsWith("bearer ")
+                ? trimmedKey
+                : `Bearer ${trimmedKey}`,
+            };
+
         if (isV3ApiKey) {
           tmdbURL.searchParams.set("api_key", trimmedKey);
-        } else {
-          headers.Authorization = trimmedKey.toLowerCase().startsWith("bearer ")
-            ? trimmedKey
-            : `Bearer ${trimmedKey}`;
         }
 
-        let res: Response;
-        try {
-          res = await fetch(tmdbURL, { headers });
-        } catch (e) {
-          const message = e instanceof Error ? e.message : String(e);
-          const cause = e instanceof Error ? e.cause : undefined;
-          return Response.json(
-            {
-              error: "TMDB search failed",
-              status: "fetch",
-              details:
-                cause && typeof cause === "object" && "code" in cause
-                  ? `${message} (cause=${String((cause as Record<string, unknown>).code)})`
-                  : message,
-            },
-            { status: 502 },
-          );
+        const fetchResult = await (async () => {
+          try {
+            return {
+              ok: true as const,
+              response: await fetch(tmdbURL, { headers }),
+            };
+          } catch (e) {
+            const message = e instanceof Error ? e.message : String(e);
+            const cause = e instanceof Error ? e.cause : undefined;
+            return {
+              ok: false as const,
+              response: Response.json(
+                {
+                  error: "TMDB search failed",
+                  status: "fetch",
+                  details:
+                    cause && typeof cause === "object" && "code" in cause
+                      ? `${message} (cause=${String((cause as Record<string, unknown>).code)})`
+                      : message,
+                },
+                { status: 502 },
+              ),
+            };
+          }
+        })();
+
+        if (!fetchResult.ok) {
+          return fetchResult.response;
         }
+
+        const res = fetchResult.response;
+
         if (!res.ok) {
           const text = await res.text().catch(() => "");
           return Response.json(

@@ -1,4 +1,4 @@
-export function toNullableNumber(value: string): number | null {
+export function toNullableNumber(value: string) {
   const trimmed = value.trim();
   if (!trimmed) {
     return null;

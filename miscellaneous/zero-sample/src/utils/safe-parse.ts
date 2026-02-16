@@ -1,7 +1,7 @@
-export async function safeJsonParse(request: Request): Promise<unknown> {
-  return request.json().catch(() => null);
+export async function safeJsonParse(request: Request) {
+  return (await request.json().catch(() => null)) as unknown;
 }
 
-export async function safeTextParse(response: Response): Promise<string> {
+export async function safeTextParse(response: Response) {
   return response.text().catch(() => "");
 }
