@@ -3,6 +3,8 @@ import "dotenv/config";
 import { readFile } from "node:fs/promises";
 import postgres from "postgres";
 
+const isProd = process.env.NODE_ENV === "production";
+
 type OutboxJobRow = {
   id: string;
   show_id: string;
@@ -66,7 +68,7 @@ if (!TMDB_API_KEY) {
 
 const sql = postgres(DATABASE_URL, {
   max: 2,
-  ssl: { rejectUnauthorized: false },
+  ssl: isProd ? "require" : undefined,
 });
 
 process.on("SIGINT", () => {
