@@ -64,7 +64,10 @@ if (!TMDB_API_KEY) {
   throw new Error("TMDB_API_KEY is required");
 }
 
-const sql = postgres(DATABASE_URL, { max: 2 });
+const sql = postgres(DATABASE_URL, {
+  max: 2,
+  ssl: { rejectUnauthorized: false },
+});
 
 process.on("SIGINT", () => {
   console.info("Shutting down worker...");
@@ -428,7 +431,10 @@ async function tmdb<T>(path: string): Promise<T> {
 }
 
 async function ensureSchemaInitialized() {
-  const initSql = await readFile(new URL("../db/init.sql", import.meta.url), "utf8");
+  const initSql = await readFile(
+    new URL("../db/init.sql", import.meta.url),
+    "utf8",
+  );
 
   const attempts = 30;
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
