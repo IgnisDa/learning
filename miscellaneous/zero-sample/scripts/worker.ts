@@ -55,16 +55,13 @@ type TmdbTvCredits = {
   }>;
 };
 
-const DATABASE_URL = process.env.DATABASE_URL ?? process.env.ZERO_UPSTREAM_DB;
+const DATABASE_URL = process.env.DATABASE_URL;
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 
-if (!DATABASE_URL) {
+if (!DATABASE_URL)
   throw new Error("DATABASE_URL (or ZERO_UPSTREAM_DB) is required");
-}
 
-if (!TMDB_API_KEY) {
-  throw new Error("TMDB_API_KEY is required");
-}
+if (!TMDB_API_KEY) throw new Error("TMDB_API_KEY is required");
 
 const sql = postgres(DATABASE_URL, {
   ssl: isProd ? "require" : undefined,
