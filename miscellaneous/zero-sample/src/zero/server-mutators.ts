@@ -28,7 +28,6 @@ export const serverMutators = defineMutators(mutators, {
         posterPath: z.string().nullable().optional(),
       }),
       async ({ ctx, tx, args }) => {
-        const now = Date.now();
         const forceEnrich = args.forceEnrich ?? false;
 
         let existingState: {
