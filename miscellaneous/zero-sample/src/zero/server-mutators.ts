@@ -50,11 +50,7 @@ export const serverMutators = defineMutators(mutators, {
         if (shouldEnqueue) {
           await tmdbEnrichQueue.add(
             "enrich_show",
-            {
-              showId: args.id,
-              jobId: args.jobId,
-              tmdbId: args.tmdbId,
-            },
+            { showId: args.id, tmdbId: args.tmdbId },
             { jobId: args.jobId },
           );
         }

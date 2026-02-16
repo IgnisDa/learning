@@ -23,7 +23,6 @@ export const tmdbEnrichQueue = new Queue("tmdb.enrich_show", {
 });
 
 export type TmdbEnrichJobData = {
-  jobId: string;
   showId: string;
   tmdbId: number;
 };
