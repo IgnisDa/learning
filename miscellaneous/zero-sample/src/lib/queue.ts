@@ -1,14 +1,5 @@
 import { Queue, QueueOptions } from "bullmq";
-
-const REDIS_URL = process.env.REDIS_URL;
-
-if (!REDIS_URL) {
-  throw new Error("REDIS_URL is required");
-}
-
-const connection = {
-  url: REDIS_URL,
-};
+import { redisConnection } from "./redis";
 
 const defaultJobOptions: QueueOptions["defaultJobOptions"] = {
   attempts: 3,
@@ -18,11 +9,8 @@ const defaultJobOptions: QueueOptions["defaultJobOptions"] = {
 };
 
 export const tmdbEnrichQueue = new Queue("tmdb.enrich_show", {
-  connection,
   defaultJobOptions,
+  connection: redisConnection,
 });
 
-export type TmdbEnrichJobData = {
-  showId: string;
-  tmdbId: number;
-};
+export type TmdbEnrichJobData = { showId: string; tmdbId: number };

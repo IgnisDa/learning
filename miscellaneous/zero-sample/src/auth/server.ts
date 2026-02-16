@@ -1,17 +1,15 @@
-import "dotenv/config";
 import { nanoid } from "nanoid";
 import { createHash, randomBytes } from "node:crypto";
 import postgres from "postgres";
-import { databaseURL, isProd } from "~/lib/common";
+import "~/config/env";
+import { sql } from "~/lib/db";
 
 const SESSION_COOKIE = "zero_sample_session";
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30;
 
-export const sql = postgres(databaseURL);
-
 export type Session = {
-  userID: string;
   email: string;
+  userID: string;
 };
 
 export async function getSession(request: Request): Promise<Session | null> {
@@ -23,12 +21,7 @@ export async function getSession(request: Request): Promise<Session | null> {
   const now = Date.now();
   const tokenHash = sha256Hex(token);
 
-  const rows = await sql<
-    Array<{
-      user_id: string;
-      email: string;
-    }>
-  >`
+  const rows = await sql<Array<{ email: string; user_id: string }>>`
 		SELECT s.user_id, u.email
 		FROM user_session s
 		JOIN app_user u ON u.id = s.user_id

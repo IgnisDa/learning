@@ -1,24 +1,20 @@
+import "~/config/env";
 import { mustGetMutator } from "@rocicorp/zero";
 import { handleMutateRequest } from "@rocicorp/zero/server";
 import { zeroPostgresJS } from "@rocicorp/zero/server/adapters/postgresjs";
 import { createFileRoute } from "@tanstack/react-router";
-import "dotenv/config";
-import postgres from "postgres";
-import { getSession } from "~/auth/server";
-import { databaseURL, isProd } from "~/lib/common";
+import { sql } from "~/lib/db";
+import { requireAuth } from "~/middleware/auth";
 import { schema } from "~/zero/schema";
 import { serverMutators } from "~/zero/server-mutators";
 
-const dbProvider = zeroPostgresJS(schema, postgres(databaseURL));
+const dbProvider = zeroPostgresJS(schema, sql);
 
 export const Route = createFileRoute("/api/zero/mutate")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const session = await getSession(request);
-        if (!session) {
-          return Response.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        const session = await requireAuth(request);
 
         const result = await handleMutateRequest(
           dbProvider,
@@ -26,9 +22,9 @@ export const Route = createFileRoute("/api/zero/mutate")({
             await transact(async (tx, name, args) => {
               const mutator = mustGetMutator(serverMutators, name);
               return await mutator.fn({
+                tx,
                 args,
                 ctx: { userID: session.userID },
-                tx,
               });
             }),
           request,

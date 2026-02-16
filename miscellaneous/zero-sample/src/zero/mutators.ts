@@ -1,15 +1,23 @@
 import { defineMutator, defineMutators } from "@rocicorp/zero";
 import { z } from "zod";
-import type { EnrichState, WatchStatus } from "./schema";
+import { watchStatusSchema, type WatchStatus } from "~/constants/watch-status";
+import type { EnrichState } from "./schema";
 import { zql } from "./schema";
 
-const watchStatusSchema = z.enum([
-  "plan_to_watch",
-  "watching",
-  "completed",
-  "on_hold",
-  "dropped",
-]);
+async function ensureUserShowExists(
+  tx: any,
+  userId: string,
+  showId: string,
+  errorMessage: string,
+) {
+  const existing = await tx.run(
+    zql.userShow.where("userId", userId).where("showId", showId).one(),
+  );
+  if (!existing) {
+    throw new Error(errorMessage);
+  }
+  return existing;
+}
 
 export const mutators = defineMutators({
   shows: {
@@ -113,16 +121,12 @@ export const mutators = defineMutators({
         targetFinishAt: z.number().nullable().optional(),
       }),
       async ({ ctx, tx, args }) => {
-        const existing = await tx.run(
-          zql.userShow
-            .where("userId", ctx.userID)
-            .where("showId", args.showId)
-            .one(),
+        const existing = await ensureUserShowExists(
+          tx,
+          ctx.userID,
+          args.showId,
+          "Show must be added before progress setup",
         );
-
-        if (!existing) {
-          throw new Error("Show must be added before progress setup");
-        }
 
         await tx.mutate.userShow.update({
           userId: ctx.userID,
@@ -142,16 +146,12 @@ export const mutators = defineMutators({
         notes: z.string().max(2000).nullable().optional(),
       }),
       async ({ ctx, tx, args }) => {
-        const existing = await tx.run(
-          zql.userShow
-            .where("userId", ctx.userID)
-            .where("showId", args.showId)
-            .one(),
+        await ensureUserShowExists(
+          tx,
+          ctx.userID,
+          args.showId,
+          "Show must be added before completing setup",
         );
-
-        if (!existing) {
-          throw new Error("Show must be added before completing setup");
-        }
 
         await tx.mutate.userShow.update({
           userId: ctx.userID,
@@ -177,16 +177,12 @@ export const mutators = defineMutators({
         notes: z.string().max(2000).nullable().optional(),
       }),
       async ({ ctx, tx, args }) => {
-        const existing = await tx.run(
-          zql.userShow
-            .where("userId", ctx.userID)
-            .where("showId", args.showId)
-            .one(),
+        const existing = await ensureUserShowExists(
+          tx,
+          ctx.userID,
+          args.showId,
+          "Show must be added before editing setup",
         );
-
-        if (!existing) {
-          throw new Error("Show must be added before editing setup");
-        }
 
         await tx.mutate.userShow.update({
           userId: ctx.userID,

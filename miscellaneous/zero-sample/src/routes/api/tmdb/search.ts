@@ -1,5 +1,5 @@
+import "~/config/env";
 import { createFileRoute } from "@tanstack/react-router";
-import "dotenv/config";
 import { tmdbKey } from "~/lib/common";
 
 type TmdbSearchTvResponse = {
