@@ -3,7 +3,7 @@ FROM node:22.12.0-bookworm-slim AS builder
 WORKDIR /app
 
 COPY package*.json ./
-RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+RUN npm ci
 
 COPY . .
 RUN npm run build
