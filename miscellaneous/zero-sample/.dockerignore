@@ -4,5 +4,4 @@ node_modules
 .output
 .env
 .env.*
-bun-debug.log*
-.bun
+npm-debug.log*

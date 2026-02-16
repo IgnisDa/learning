@@ -1,14 +1,14 @@
-FROM oven/bun:1.3.9 AS builder
+FROM node:22.12.0-bookworm-slim AS builder
 
 WORKDIR /app
 
-COPY package.json bun.lockb* ./
-RUN bun install --frozen-lockfile
+COPY package*.json ./
+RUN npm ci
 
 COPY . .
-RUN bun run build
+RUN npm run build
 
-FROM oven/bun:1.3.9 AS runtime
+FROM node:22.12.0-bookworm-slim AS runtime
 
 ENV NODE_ENV=production
 
@@ -20,7 +20,7 @@ RUN apt-get update \
 
 COPY --from=caddy:2.9.1 /usr/bin/caddy /usr/local/bin/caddy
 
-COPY --from=builder /app/package.json ./
+COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.output ./.output
 COPY --from=builder /app/scripts ./scripts

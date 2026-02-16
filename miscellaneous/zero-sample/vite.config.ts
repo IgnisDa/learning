@@ -11,6 +11,6 @@ export default defineConfig({
     tsConfigPaths({ projects: ["./tsconfig.json"] }),
     tanstackStart({ srcDirectory: "src" }),
     viteReact(),
-    nitro({ preset: "bun" }),
+    nitro(),
   ],
 });
