@@ -74,7 +74,7 @@ process.on("SIGINT", () => {
 
 await ensureSchemaInitialized();
 
-console.info(`TMDB worker started (node ${process.version})`);
+console.info(`TMDB worker started (bun ${process.versions.bun})`);
 
 while (true) {
   const job = await claimJob();

@@ -4,17 +4,20 @@
   "sideEffects": false,
   "name": "zero-sample",
   "engines": {
-    "node": ">=22.12.0"
+    "bun": ">=1.0.0"
   },
+  "trustedDependencies": [
+    "@rocicorp/zero-sqlite3"
+  ],
   "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
+    "dev": "bun --bun vite dev",
+    "build": "bun --bun vite build",
     "typecheck": "tsc --noEmit",
-    "worker": "tsx scripts/worker.ts",
+    "worker": "bun scripts/worker.ts",
     "start:zero": "ZERO_PORT=4848 zero-cache",
-    "start:app": "PORT=3001 NITRO_PORT=3001 node .output/server/index.mjs",
+    "start:app": "PORT=3001 NITRO_PORT=3001 bun run .output/server/index.mjs",
     "start:proxy": "CADDY_PORT=3000 caddy run --config /etc/caddy/Caddyfile",
-    "start:container": "concurrently --names app,zero,worker,proxy --kill-others \"npm run start:app\" \"npm run start:zero\" \"npm run worker\" \"npm run start:proxy\""
+    "start:container": "concurrently --names app,zero,worker,proxy --kill-others \"bun run start:app\" \"bun run start:zero\" \"bun run worker\" \"bun run start:proxy\""
   },
   "dependencies": {
     "@rocicorp/zero": "0.25.2",
@@ -40,7 +43,6 @@
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^4.6.0",
     "nitro": "3.0.1-alpha.2",
-    "tsx": "^4.19.4",
     "typescript": "^5.7.2",
     "vite": "^7.3.1",
     "vite-tsconfig-paths": "^5.1.4"

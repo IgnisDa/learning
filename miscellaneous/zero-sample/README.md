@@ -10,9 +10,9 @@ POC app that demonstrates:
 
 ## What you'll run
 
-- App server: `npm run dev` (http://localhost:3000)
-- Zero cache: `npx zero-cache-dev` (http://localhost:4848)
-- Worker: `npm run worker`
+- App server: `bun run dev` (http://localhost:3000)
+- Zero cache: `bunx zero-cache-dev` (http://localhost:4848)
+- Worker: `bun run worker`
 
 ## Docker (single container)
 
@@ -20,7 +20,7 @@ This container runs all required processes together:
 
 - app server (TanStack Start)
 - `zero-cache`
-- TMDB worker (`npm run worker`)
+- TMDB worker (`bun run worker`)
 - Caddy reverse proxy (single public port)
 
 At startup, the worker runs `db/init.sql` (with retries) before processing jobs.
@@ -79,7 +79,7 @@ Open http://localhost:3000.
 
 Requirements:
 
-- Node >= 22.12.0
+- Bun >= 1.0.0
 - Postgres with `wal_level=logical` (for `zero-cache`)
 
 1) Fill env vars in `.env`
@@ -96,13 +96,13 @@ Note: this app expects cookie auth forwarding to be enabled in `zero-cache`:
 
 2) Create tables (optional)
 
-`npm run worker` automatically applies `db/init.sql` on startup.
+`bun run worker` automatically applies `db/init.sql` on startup.
 You can still run it manually if you prefer.
 
 3) Install deps
 
 ```sh
-npm install
+bun install
 ```
 
 ## Run
@@ -110,7 +110,7 @@ npm install
 Terminal 1 (app):
 
 ```sh
-npm run dev
+bun run dev
 ```
 
 Terminal 2 (zero-cache):
@@ -119,13 +119,13 @@ Terminal 2 (zero-cache):
 set -a
 source .env
 set +a
-npx zero-cache-dev
+bunx zero-cache-dev
 ```
 
 Terminal 3 (worker):
 
 ```sh
-npm run worker
+bun run worker
 ```
 
 Open http://localhost:3000.
