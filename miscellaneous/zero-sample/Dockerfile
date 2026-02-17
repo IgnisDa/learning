@@ -6,7 +6,7 @@ COPY package.json yarn.lock .yarnrc.yml ./
 RUN corepack enable && yarn install --immutable
 
 COPY . .
-RUN yarn build
+RUN yarn run frontend:build
 
 FROM node:22.12.0-bookworm-slim AS prod-deps
 
