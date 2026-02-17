@@ -422,7 +422,7 @@ function Home() {
                 {wizardSuccess.showName} is now being enriched with metadata.
               </Text>
             </View>
-            <Link to="/shows/$showId" params={{ showId: wizardSuccess.showId }}>
+            <Link to="/shows" search={{ showId: wizardSuccess.showId }}>
               <Button color="primary" size="small">
                 View Details
               </Button>
@@ -594,8 +594,8 @@ function Home() {
                 className="grid-item-animated"
               >
                 <Link
-                  to="/shows/$showId"
-                  params={{ showId: row.show.id }}
+                  to="/shows"
+                  search={{ showId: row.show.id }}
                   style={{
                     textDecoration: "none",
                     display: "block",
