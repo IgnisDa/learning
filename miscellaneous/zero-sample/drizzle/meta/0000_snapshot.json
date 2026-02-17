@@ -1,48 +1,9 @@
 {
-  "id": "c29e6f67-1f9d-4c2c-a617-aa12830de779",
+  "id": "ce3446d3-ff84-430e-b0e4-6c5e6b69d1ff",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.app_user": {
-      "name": "app_user",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "email": {
-          "name": "email",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "app_user_email_unique": {
-          "name": "app_user_email_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.credit": {
       "name": "credit",
       "schema": "",
@@ -600,10 +561,10 @@
         }
       },
       "foreignKeys": {
-        "user_show_user_id_app_user_id_fk": {
-          "name": "user_show_user_id_app_user_id_fk",
+        "user_show_user_id_user_id_fk": {
+          "name": "user_show_user_id_user_id_fk",
           "tableFrom": "user_show",
-          "tableTo": "app_user",
+          "tableTo": "user",
           "columnsFrom": [
             "user_id"
           ],

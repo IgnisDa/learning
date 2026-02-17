@@ -1,10 +1,3 @@
-CREATE TABLE "app_user" (
-	"id" text PRIMARY KEY NOT NULL,
-	"email" text NOT NULL,
-	"created_at" bigint NOT NULL,
-	CONSTRAINT "app_user_email_unique" UNIQUE("email")
-);
---> statement-breakpoint
 CREATE TABLE "credit" (
 	"id" text PRIMARY KEY NOT NULL,
 	"show_id" text NOT NULL,
@@ -134,7 +127,7 @@ ALTER TABLE "credit" ADD CONSTRAINT "credit_show_id_show_id_fk" FOREIGN KEY ("sh
 ALTER TABLE "credit" ADD CONSTRAINT "credit_person_id_person_id_fk" FOREIGN KEY ("person_id") REFERENCES "public"."person"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "episode" ADD CONSTRAINT "episode_season_id_season_id_fk" FOREIGN KEY ("season_id") REFERENCES "public"."season"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "season" ADD CONSTRAINT "season_show_id_show_id_fk" FOREIGN KEY ("show_id") REFERENCES "public"."show"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "user_show" ADD CONSTRAINT "user_show_user_id_app_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."app_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_show" ADD CONSTRAINT "user_show_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_show" ADD CONSTRAINT "user_show_show_id_show_id_fk" FOREIGN KEY ("show_id") REFERENCES "public"."show"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint

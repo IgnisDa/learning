@@ -38,16 +38,8 @@ export async function getSession(request: Request): Promise<Session | null> {
     return null;
   }
 
-  const now = Date.now();
   const email = authSession.user.email;
   const userID = authSession.user.id;
-
-  await sql`
-		INSERT INTO app_user (id, email, created_at)
-		VALUES (${userID}, ${email}, ${now})
-		ON CONFLICT (id) DO UPDATE
-		SET email = EXCLUDED.email
-	`;
 
   return { email, userID };
 }

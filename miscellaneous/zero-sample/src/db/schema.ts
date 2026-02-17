@@ -8,13 +8,9 @@ import {
   text,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
-export * from "./auth-schema";
+import { user } from "./auth-schema";
 
-export const appUser = pgTable("app_user", {
-  id: text("id").primaryKey(),
-  email: text("email").notNull().unique(),
-  createdAt: bigint("created_at", { mode: "number" }).notNull(),
-});
+export * from "./auth-schema";
 
 export const show = pgTable("show", {
   id: text("id").primaryKey(),
@@ -32,7 +28,7 @@ export const userShow = pgTable(
   {
     userId: text("user_id")
       .notNull()
-      .references(() => appUser.id, { onDelete: "cascade" }),
+      .references(() => user.id, { onDelete: "cascade" }),
     showId: text("show_id")
       .notNull()
       .references(() => show.id, { onDelete: "cascade" }),
