@@ -10,13 +10,8 @@
 		reverse_proxy 127.0.0.1:4848
 	}
 
-	handle /healthz {
-		header Content-Type text/plain
-		templates
-		respond <<TXT
-			{{ httpInclude "/_zero" }}
-			{{ httpInclude "/" }}
-		TXT
+	handle_path /api* {
+		reverse_proxy 127.0.0.1:8080
 	}
 
 	reverse_proxy 127.0.0.1:3001
