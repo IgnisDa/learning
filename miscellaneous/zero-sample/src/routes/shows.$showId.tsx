@@ -2,7 +2,6 @@ import { useQuery, useZero } from "@rocicorp/zero/react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { nanoid } from "nanoid";
 import * as React from "react";
-import { z } from "zod";
 import {
   Alert,
   Avatar,
@@ -41,18 +40,13 @@ import { toNullableNumber } from "~/utils/number";
 import { mutators } from "~/zero/mutators";
 import { queries } from "~/zero/queries";
 
-const showSearchSchema = z.object({
-  showId: z.string().min(1),
-});
-
-export const Route = createFileRoute("/shows")({
-  validateSearch: showSearchSchema,
+export const Route = createFileRoute("/shows/$showId")({
   component: ShowDetails,
 });
 
 function ShowDetails() {
   const zero = useZero();
-  const { showId } = Route.useSearch();
+  const { showId } = Route.useParams();
 
   const [rows, detailsResult] = useQuery(
     queries.library.showDetails({ showId }),
