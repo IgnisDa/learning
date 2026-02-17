@@ -40,6 +40,9 @@ export ZERO_REPLICA_FILE
 : "${ZERO_PORT:=4848}"
 export ZERO_PORT
 
+: "${ZERO_LOG_LEVEL:=warn}"
+export ZERO_LOG_LEVEL
+
 if [ "${NODE_ENV:-production}" = "production" ] && [ -z "${ZERO_ADMIN_PASSWORD:-}" ]; then
 	printf '%s\n' "ZERO_ADMIN_PASSWORD is required when NODE_ENV=production" >&2
 	exit 1
