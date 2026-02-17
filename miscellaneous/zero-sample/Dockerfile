@@ -26,7 +26,7 @@ COPY --from=builder /app/.output ./.output
 COPY --from=builder /app/drizzle ./drizzle
 COPY --from=builder /app/src/db ./src/db
 COPY --from=builder /app/server ./server
-COPY --from=builder /app/Caddyfile /etc/caddy/Caddyfile
+COPY --from=builder /app/Caddyfile ./Caddyfile
 COPY --from=builder /app/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 RUN mkdir -p /data && chmod +x /usr/local/bin/docker-entrypoint.sh

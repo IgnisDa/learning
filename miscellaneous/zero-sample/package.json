@@ -11,13 +11,13 @@
     "dev": "vite dev",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
-    "server": "tsx server/index.ts",
     "db:migrate": "drizzle-kit migrate",
     "db:generate": "drizzle-kit generate",
+    "start:server": "tsx server/index.ts",
     "start:zero": "ZERO_PORT=4848 zero-cache",
+    "start:proxy": "CADDY_PORT=3000 caddy run --config Caddyfile",
     "start:app": "PORT=3001 NITRO_PORT=3001 node .output/server/index.mjs",
-    "start:proxy": "CADDY_PORT=3000 caddy run --config /etc/caddy/Caddyfile",
-    "start:container": "concurrently --names app,zero,server,proxy --kill-others \"npm run start:app\" \"npm run start:zero\" \"npm run server\" \"npm run start:proxy\""
+    "start": "concurrently --names app,zero,server,proxy --kill-others \"npm run start:app\" \"npm run start:zero\" \"npm run start:server\" \"npm run start:proxy\""
   },
   "dependencies": {
     "@hono/node-server": "1.19.9",

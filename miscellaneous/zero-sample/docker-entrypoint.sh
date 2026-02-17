@@ -48,4 +48,4 @@ if [ "${NODE_ENV:-production}" = "production" ] && [ -z "${ZERO_ADMIN_PASSWORD:-
 	exit 1
 fi
 
-exec npm run start:container
+exec npm run start
