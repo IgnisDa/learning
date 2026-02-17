@@ -180,23 +180,16 @@ function ColorModeToggle() {
   const toggleColorMode = React.useCallback(() => {
     const newMode = colorMode === "dark" ? "light" : "dark";
     setColorMode(newMode);
-    // Persist to localStorage
-    try {
-      localStorage.setItem("rs-color-mode", newMode);
-    } catch (e) {
-      // Ignore storage errors
-    }
+    localStorage.setItem("rs-color-mode", newMode);
   }, [colorMode, setColorMode]);
 
   return (
     <Button
+      size="small"
       variant="ghost"
       color="neutral"
-      size="small"
       onClick={toggleColorMode}
-      attributes={{
-        "aria-label": `Switch to ${colorMode === "dark" ? "light" : "dark"} mode`,
-      }}
+      attributes={{ "aria-label": `Switch to ${colorMode} mode` }}
     >
       {colorMode === "dark" ? <SunIcon /> : <MoonIcon />}
     </Button>
