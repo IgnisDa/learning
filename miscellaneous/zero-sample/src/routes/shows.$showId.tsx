@@ -7,7 +7,6 @@ import {
   Avatar,
   Badge,
   Button,
-  Card,
   Divider,
   Image,
   Loader,
