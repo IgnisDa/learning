@@ -11,10 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShowsShowIdRouteImport } from './routes/shows.$showId'
-import { Route as ApiZeroQueryRouteImport } from './routes/api/zero/query'
-import { Route as ApiZeroMutateRouteImport } from './routes/api/zero/mutate'
-import { Route as ApiTmdbSearchRouteImport } from './routes/api/tmdb/search'
-import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -26,86 +22,31 @@ const ShowsShowIdRoute = ShowsShowIdRouteImport.update({
   path: '/shows/$showId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiZeroQueryRoute = ApiZeroQueryRouteImport.update({
-  id: '/api/zero/query',
-  path: '/api/zero/query',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiZeroMutateRoute = ApiZeroMutateRouteImport.update({
-  id: '/api/zero/mutate',
-  path: '/api/zero/mutate',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiTmdbSearchRoute = ApiTmdbSearchRouteImport.update({
-  id: '/api/tmdb/search',
-  path: '/api/tmdb/search',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/shows/$showId': typeof ShowsShowIdRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/tmdb/search': typeof ApiTmdbSearchRoute
-  '/api/zero/mutate': typeof ApiZeroMutateRoute
-  '/api/zero/query': typeof ApiZeroQueryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/shows/$showId': typeof ShowsShowIdRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/tmdb/search': typeof ApiTmdbSearchRoute
-  '/api/zero/mutate': typeof ApiZeroMutateRoute
-  '/api/zero/query': typeof ApiZeroQueryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/shows/$showId': typeof ShowsShowIdRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/tmdb/search': typeof ApiTmdbSearchRoute
-  '/api/zero/mutate': typeof ApiZeroMutateRoute
-  '/api/zero/query': typeof ApiZeroQueryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/shows/$showId'
-    | '/api/auth/$'
-    | '/api/tmdb/search'
-    | '/api/zero/mutate'
-    | '/api/zero/query'
+  fullPaths: '/' | '/shows/$showId'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/shows/$showId'
-    | '/api/auth/$'
-    | '/api/tmdb/search'
-    | '/api/zero/mutate'
-    | '/api/zero/query'
-  id:
-    | '__root__'
-    | '/'
-    | '/shows/$showId'
-    | '/api/auth/$'
-    | '/api/tmdb/search'
-    | '/api/zero/mutate'
-    | '/api/zero/query'
+  to: '/' | '/shows/$showId'
+  id: '__root__' | '/' | '/shows/$showId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ShowsShowIdRoute: typeof ShowsShowIdRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-  ApiTmdbSearchRoute: typeof ApiTmdbSearchRoute
-  ApiZeroMutateRoute: typeof ApiZeroMutateRoute
-  ApiZeroQueryRoute: typeof ApiZeroQueryRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -124,44 +65,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShowsShowIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/zero/query': {
-      id: '/api/zero/query'
-      path: '/api/zero/query'
-      fullPath: '/api/zero/query'
-      preLoaderRoute: typeof ApiZeroQueryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/zero/mutate': {
-      id: '/api/zero/mutate'
-      path: '/api/zero/mutate'
-      fullPath: '/api/zero/mutate'
-      preLoaderRoute: typeof ApiZeroMutateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/tmdb/search': {
-      id: '/api/tmdb/search'
-      path: '/api/tmdb/search'
-      fullPath: '/api/tmdb/search'
-      preLoaderRoute: typeof ApiTmdbSearchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ShowsShowIdRoute: ShowsShowIdRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-  ApiTmdbSearchRoute: ApiTmdbSearchRoute,
-  ApiZeroMutateRoute: ApiZeroMutateRoute,
-  ApiZeroQueryRoute: ApiZeroQueryRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

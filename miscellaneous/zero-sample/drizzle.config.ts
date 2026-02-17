@@ -9,6 +9,6 @@ export default defineConfig({
   verbose: true,
   out: "./drizzle",
   dialect: "postgresql",
-  schema: "./src/db/schema.ts",
+  schema: "./server/db/schema.ts",
   dbCredentials: { url: databaseURL },
 });

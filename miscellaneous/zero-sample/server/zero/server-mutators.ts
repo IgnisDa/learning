@@ -1,9 +1,9 @@
 import { defineMutator, defineMutators } from "@rocicorp/zero";
 import { z } from "zod";
-import { watchStatusSchema } from "~/constants/watch-status";
-import { tmdbEnrichQueue } from "~/lib/queue";
-import { mutators } from "./mutators";
-import { zql } from "./schema";
+import { watchStatusSchema } from "../../src/constants/watch-status";
+import { mutators } from "../../src/zero/mutators";
+import { zql } from "../../src/zero/schema";
+import { tmdbEnrichQueue } from "../lib/queue";
 
 export const serverMutators = defineMutators(mutators, {
   shows: {

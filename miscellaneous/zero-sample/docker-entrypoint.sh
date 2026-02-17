@@ -16,7 +16,7 @@ if [ -z "${ZERO_UPSTREAM_DB:-}" ]; then
 	export ZERO_UPSTREAM_DB
 fi
 
-: "${ZERO_QUERY_URL:=http://127.0.0.1:3001/api/zero/query}"
+: "${ZERO_QUERY_URL:=http://127.0.0.1:8080/zero/query}"
 export ZERO_QUERY_URL
 
 : "${ZERO_REPLICA_FILE:=/data/zero.db}"
@@ -25,7 +25,7 @@ export ZERO_REPLICA_FILE
 : "${ZERO_ADMIN_PASSWORD:=admin}"
 export ZERO_ADMIN_PASSWORD
 
-: "${ZERO_MUTATE_URL:=http://127.0.0.1:3001/api/zero/mutate}"
+: "${ZERO_MUTATE_URL:=http://127.0.0.1:8080/zero/mutate}"
 export ZERO_MUTATE_URL
 
 : "${ZERO_QUERY_FORWARD_COOKIES:=true}"

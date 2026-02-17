@@ -3,8 +3,8 @@ import { eq, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import type postgres from "postgres";
-import { credit, episode, person, season, show } from "../src/db/schema";
-import type { TmdbEnrichJobData } from "../src/lib/queue";
+import { credit, episode, person, season, show } from "./db/schema";
+import type { TmdbEnrichJobData } from "./lib/queue";
 
 type TmdbTvDetails = {
   name: string;

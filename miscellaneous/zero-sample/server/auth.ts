@@ -1,9 +1,9 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import "dotenv/config";
 import { drizzle } from "drizzle-orm/postgres-js";
-import "~/config/env";
-import * as authSchema from "~/db/auth-schema";
-import { sql } from "~/lib/db";
+import * as authSchema from "./db/auth-schema";
+import { sql } from "./lib/db";
 
 const db = drizzle(sql, { schema: authSchema });
 
