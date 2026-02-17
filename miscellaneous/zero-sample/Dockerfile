@@ -2,11 +2,11 @@ FROM node:22.12.0-bookworm-slim AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci
+COPY package.json yarn.lock .yarnrc.yml ./
+RUN corepack enable && yarn install --immutable
 
 COPY . .
-RUN npm run build
+RUN yarn build
 
 FROM node:22.12.0-bookworm-slim AS runtime
 
@@ -20,7 +20,7 @@ RUN apt-get update \
 
 COPY --from=caddy:2.9.1 /usr/bin/caddy /usr/local/bin/caddy
 
-COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/package.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.output ./.output
 COPY --from=builder /app/drizzle ./drizzle

@@ -4,4 +4,4 @@ node_modules
 .output
 .env
 .env.*
-npm-debug.log*
+yarn-error.log*
