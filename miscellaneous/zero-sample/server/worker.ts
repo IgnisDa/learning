@@ -1,19 +1,10 @@
 import { Job, Worker } from "bullmq";
-import "dotenv/config";
 import { eq, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import postgres from "postgres";
+import type postgres from "postgres";
 import { credit, episode, person, season, show } from "../src/db/schema";
 import type { TmdbEnrichJobData } from "../src/lib/queue";
-
-const REDIS_URL = process.env.REDIS_URL;
-
-if (!REDIS_URL) {
-  throw new Error("REDIS_URL is required");
-}
 
 type TmdbTvDetails = {
   name: string;
@@ -58,68 +49,57 @@ type TmdbTvCredits = {
   }>;
 };
 
-const DATABASE_URL = process.env.DATABASE_URL;
-const TMDB_API_KEY = process.env.TMDB_API_KEY;
+export async function startWorker(opts: {
+  sql: postgres.Sql;
+  db: ReturnType<typeof drizzle>;
+  migrationsFolder: string;
+}): Promise<Worker<TmdbEnrichJobData>> {
+  const { sql, db, migrationsFolder } = opts;
+  const REDIS_URL = process.env.REDIS_URL!;
+  const TMDB_API_KEY = process.env.TMDB_API_KEY!;
 
-if (!DATABASE_URL) throw new Error("DATABASE_URL is required");
+  await ensureSchemaInitialized(db, migrationsFolder);
 
-if (!TMDB_API_KEY) throw new Error("TMDB_API_KEY is required");
+  console.info(`TMDB worker started (node ${process.version})`);
 
-const sql = postgres(DATABASE_URL);
-const db = drizzle(sql);
-const migrationsFolder = resolve(
-  dirname(fileURLToPath(import.meta.url)),
-  "../drizzle",
-);
+  const worker = new Worker<TmdbEnrichJobData>(
+    "tmdb.enrich_show",
+    async (job: Job<TmdbEnrichJobData>) => {
+      console.info(
+        `Job ${job.id}: enriching show_id=${job.data.showId} tmdb_id=${job.data.tmdbId}`,
+      );
+      await enrichShow({ jobData: job.data, db, tmdbApiKey: TMDB_API_KEY });
+      console.info(`Job ${job.id}: done`);
+    },
+    { concurrency: 5, connection: { url: REDIS_URL } },
+  );
 
-await ensureSchemaInitialized();
+  worker.on("completed", (job) => {
+    console.info(`Job ${job.id} completed successfully`);
+  });
 
-console.info(`TMDB worker started (node ${process.version})`);
+  worker.on("failed", (job, err) => {
+    console.error(`Job ${job?.id} failed:`, err.message);
+    if (job) {
+      void markShowError(db, job.data.showId, truncate(err.message, 1000));
+    }
+  });
 
-const worker = new Worker<TmdbEnrichJobData>(
-  "tmdb.enrich_show",
-  async (job: Job<TmdbEnrichJobData>) => {
-    console.info(
-      `Job ${job.id}: enriching show_id=${job.data.showId} tmdb_id=${job.data.tmdbId}`,
-    );
-    await enrichShow(job.data);
-    console.info(`Job ${job.id}: done`);
-  },
-  { concurrency: 5, connection: { url: REDIS_URL } },
-);
+  worker.on("error", (err) => {
+    console.error("Worker error:", err);
+  });
 
-worker.on("completed", (job) => {
-  console.info(`Job ${job.id} completed successfully`);
-});
+  console.info("Worker is ready to process jobs...");
 
-worker.on("failed", (job, err) => {
-  console.error(`Job ${job?.id} failed:`, err.message);
-  if (job) {
-    void markShowError(job.data.showId, truncate(err.message, 1000));
-  }
-});
+  return worker;
+}
 
-worker.on("error", (err) => {
-  console.error("Worker error:", err);
-});
-
-process.on("SIGINT", async () => {
-  console.info("Shutting down worker...");
-  await worker.close();
-  await sql.end({ timeout: 5 });
-  process.exit(0);
-});
-
-process.on("SIGTERM", async () => {
-  console.info("Shutting down worker...");
-  await worker.close();
-  await sql.end({ timeout: 5 });
-  process.exit(0);
-});
-
-console.info("Worker is ready to process jobs...");
-
-async function enrichShow(jobData: TmdbEnrichJobData) {
+async function enrichShow(opts: {
+  jobData: TmdbEnrichJobData;
+  db: ReturnType<typeof drizzle>;
+  tmdbApiKey: string;
+}) {
+  const { jobData, db, tmdbApiKey } = opts;
   const { showId, tmdbId } = jobData;
 
   await db
@@ -127,8 +107,11 @@ async function enrichShow(jobData: TmdbEnrichJobData) {
     .set({ enrichState: "running", enrichError: null })
     .where(eq(show.id, showId));
 
-  const tv = await tmdb<TmdbTvDetails>(`/tv/${tmdbId}`);
-  const credits = await tmdb<TmdbTvCredits>(`/tv/${tmdbId}/credits`);
+  const tv = await tmdb<TmdbTvDetails>(`/tv/${tmdbId}`, tmdbApiKey);
+  const credits = await tmdb<TmdbTvCredits>(
+    `/tv/${tmdbId}/credits`,
+    tmdbApiKey,
+  );
 
   const seasonNumbers = (tv.seasons ?? [])
     .map((s) => s.season_number)
@@ -137,7 +120,7 @@ async function enrichShow(jobData: TmdbEnrichJobData) {
   const seasonDetails = [] as Array<TmdbTvSeasonDetails>;
   for (const n of seasonNumbers) {
     seasonDetails.push(
-      await tmdb<TmdbTvSeasonDetails>(`/tv/${tmdbId}/season/${n}`),
+      await tmdb<TmdbTvSeasonDetails>(`/tv/${tmdbId}/season/${n}`, tmdbApiKey),
     );
   }
 
@@ -306,14 +289,18 @@ async function enrichShow(jobData: TmdbEnrichJobData) {
   });
 }
 
-async function markShowError(showId: string, message: string) {
+async function markShowError(
+  db: ReturnType<typeof drizzle>,
+  showId: string,
+  message: string,
+) {
   await db
     .update(show)
     .set({ enrichState: "error", enrichError: message })
     .where(eq(show.id, showId));
 }
 
-async function tmdb<T>(path: string) {
+async function tmdb<T>(path: string, apiKey: string) {
   const url = new URL(`https://api.themoviedb.org/3${path}`);
   url.searchParams.set("language", "en-US");
 
@@ -322,7 +309,7 @@ async function tmdb<T>(path: string) {
     "User-Agent": "zero-sample/0.1",
   };
 
-  const trimmedKey = TMDB_API_KEY!.trim();
+  const trimmedKey = apiKey.trim();
   const isV3ApiKey = /^[a-f0-9]{32}$/i.test(trimmedKey);
   const headers = isV3ApiKey
     ? baseHeaders
@@ -346,7 +333,10 @@ async function tmdb<T>(path: string) {
   return (await res.json()) as T;
 }
 
-async function ensureSchemaInitialized() {
+async function ensureSchemaInitialized(
+  db: ReturnType<typeof drizzle>,
+  migrationsFolder: string,
+) {
   const attempts = 30;
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
