@@ -20,7 +20,7 @@ RUN apt-get update \
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/server/db ./server/db
 COPY --from=builder /app/drizzle ./drizzle
-COPY --from=builder /app/.output ./.output
+COPY --from=builder /app/dist/client ./dist/client
 COPY --from=builder /app/Caddyfile ./Caddyfile
 COPY --from=builder /app/server/dist ./server/dist
 COPY --from=prod-deps /app/node_modules ./node_modules

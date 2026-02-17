@@ -14,5 +14,9 @@
 		reverse_proxy 127.0.0.1:8080
 	}
 
-	reverse_proxy 127.0.0.1:3001
+	handle {
+		root * /app/dist/client
+		try_files {path} /_shell.html
+		file_server
+	}
 }
