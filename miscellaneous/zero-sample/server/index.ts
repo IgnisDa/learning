@@ -3,8 +3,7 @@ import "dotenv/config";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { Hono } from "hono";
 import { Redis } from "ioredis";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
 import postgres from "postgres";
 import { startWorker } from "./worker";
 
@@ -23,10 +22,7 @@ const redis = new Redis(REDIS_URL, {
   lazyConnect: true,
   maxRetriesPerRequest: 1,
 });
-const migrationsFolder = resolve(
-  dirname(fileURLToPath(import.meta.url)),
-  "../drizzle",
-);
+const migrationsFolder = resolve(process.cwd(), "drizzle");
 
 const app = new Hono();
 
