@@ -14,9 +14,7 @@ import { Route as ShowsShowIdRouteImport } from './routes/shows.$showId'
 import { Route as ApiZeroQueryRouteImport } from './routes/api/zero/query'
 import { Route as ApiZeroMutateRouteImport } from './routes/api/zero/mutate'
 import { Route as ApiTmdbSearchRouteImport } from './routes/api/tmdb/search'
-import { Route as ApiAuthMeRouteImport } from './routes/api/auth/me'
-import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
-import { Route as ApiAuthLoginRouteImport } from './routes/api/auth/login'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -43,28 +41,16 @@ const ApiTmdbSearchRoute = ApiTmdbSearchRouteImport.update({
   path: '/api/tmdb/search',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiAuthMeRoute = ApiAuthMeRouteImport.update({
-  id: '/api/auth/me',
-  path: '/api/auth/me',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthLogoutRoute = ApiAuthLogoutRouteImport.update({
-  id: '/api/auth/logout',
-  path: '/api/auth/logout',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthLoginRoute = ApiAuthLoginRouteImport.update({
-  id: '/api/auth/login',
-  path: '/api/auth/login',
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/shows/$showId': typeof ShowsShowIdRoute
-  '/api/auth/login': typeof ApiAuthLoginRoute
-  '/api/auth/logout': typeof ApiAuthLogoutRoute
-  '/api/auth/me': typeof ApiAuthMeRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/tmdb/search': typeof ApiTmdbSearchRoute
   '/api/zero/mutate': typeof ApiZeroMutateRoute
   '/api/zero/query': typeof ApiZeroQueryRoute
@@ -72,9 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/shows/$showId': typeof ShowsShowIdRoute
-  '/api/auth/login': typeof ApiAuthLoginRoute
-  '/api/auth/logout': typeof ApiAuthLogoutRoute
-  '/api/auth/me': typeof ApiAuthMeRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/tmdb/search': typeof ApiTmdbSearchRoute
   '/api/zero/mutate': typeof ApiZeroMutateRoute
   '/api/zero/query': typeof ApiZeroQueryRoute
@@ -83,9 +67,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/shows/$showId': typeof ShowsShowIdRoute
-  '/api/auth/login': typeof ApiAuthLoginRoute
-  '/api/auth/logout': typeof ApiAuthLogoutRoute
-  '/api/auth/me': typeof ApiAuthMeRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/tmdb/search': typeof ApiTmdbSearchRoute
   '/api/zero/mutate': typeof ApiZeroMutateRoute
   '/api/zero/query': typeof ApiZeroQueryRoute
@@ -95,9 +77,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/shows/$showId'
-    | '/api/auth/login'
-    | '/api/auth/logout'
-    | '/api/auth/me'
+    | '/api/auth/$'
     | '/api/tmdb/search'
     | '/api/zero/mutate'
     | '/api/zero/query'
@@ -105,9 +85,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/shows/$showId'
-    | '/api/auth/login'
-    | '/api/auth/logout'
-    | '/api/auth/me'
+    | '/api/auth/$'
     | '/api/tmdb/search'
     | '/api/zero/mutate'
     | '/api/zero/query'
@@ -115,9 +93,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/shows/$showId'
-    | '/api/auth/login'
-    | '/api/auth/logout'
-    | '/api/auth/me'
+    | '/api/auth/$'
     | '/api/tmdb/search'
     | '/api/zero/mutate'
     | '/api/zero/query'
@@ -126,9 +102,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ShowsShowIdRoute: typeof ShowsShowIdRoute
-  ApiAuthLoginRoute: typeof ApiAuthLoginRoute
-  ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
-  ApiAuthMeRoute: typeof ApiAuthMeRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiTmdbSearchRoute: typeof ApiTmdbSearchRoute
   ApiZeroMutateRoute: typeof ApiZeroMutateRoute
   ApiZeroQueryRoute: typeof ApiZeroQueryRoute
@@ -171,25 +145,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTmdbSearchRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/auth/me': {
-      id: '/api/auth/me'
-      path: '/api/auth/me'
-      fullPath: '/api/auth/me'
-      preLoaderRoute: typeof ApiAuthMeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/logout': {
-      id: '/api/auth/logout'
-      path: '/api/auth/logout'
-      fullPath: '/api/auth/logout'
-      preLoaderRoute: typeof ApiAuthLogoutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/login': {
-      id: '/api/auth/login'
-      path: '/api/auth/login'
-      fullPath: '/api/auth/login'
-      preLoaderRoute: typeof ApiAuthLoginRouteImport
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -198,9 +158,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ShowsShowIdRoute: ShowsShowIdRoute,
-  ApiAuthLoginRoute: ApiAuthLoginRoute,
-  ApiAuthLogoutRoute: ApiAuthLogoutRoute,
-  ApiAuthMeRoute: ApiAuthMeRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiTmdbSearchRoute: ApiTmdbSearchRoute,
   ApiZeroMutateRoute: ApiZeroMutateRoute,
   ApiZeroQueryRoute: ApiZeroQueryRoute,

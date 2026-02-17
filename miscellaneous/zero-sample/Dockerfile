@@ -23,8 +23,9 @@ COPY --from=caddy:2.9.1 /usr/bin/caddy /usr/local/bin/caddy
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.output ./.output
+COPY --from=builder /app/drizzle ./drizzle
+COPY --from=builder /app/src/db ./src/db
 COPY --from=builder /app/scripts ./scripts
-COPY --from=builder /app/db ./db
 COPY --from=builder /app/Caddyfile /etc/caddy/Caddyfile
 COPY --from=builder /app/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 

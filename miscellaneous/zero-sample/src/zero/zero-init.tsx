@@ -8,12 +8,12 @@ import {
   Alert,
   Button,
   Card,
-  Loader,
   Link as ReshapedLink,
   Text,
   useTheme,
   View,
 } from "reshaped";
+import { authClient } from "~/auth/client";
 import { useAppForm } from "~/components/forms/app-form";
 import {
   ExternalLinkIcon,
@@ -43,52 +43,45 @@ type Session = {
 };
 
 export function ZeroInit(props: { children: React.ReactNode }) {
-  const [session, setSession] = React.useState<Session | null>(null);
-  const [loading, setLoading] = React.useState(true);
+  const sessionState = authClient.useSession();
   const [authError, setAuthError] = React.useState<string | null>(null);
   const [queryClient] = React.useState(() => createQueryClient());
 
+  const session = React.useMemo<Session | null>(() => {
+    const user = sessionState.data?.user;
+    if (!user) {
+      return null;
+    }
+
+    return {
+      email: user.email,
+      userID: user.id,
+    };
+  }, [sessionState.data]);
+
+  const loading = sessionState.isPending;
+  const effectiveAuthError = authError ?? sessionState.error?.message ?? null;
+
   const refreshSession = React.useCallback(async () => {
-    setLoading(true);
+    setAuthError(null);
+    await sessionState.refetch();
+  }, [sessionState]);
+
+  const onLogout = React.useCallback(async () => {
     setAuthError(null);
 
     try {
-      const res = await fetch("/api/auth/me", {
-        credentials: "include",
-      });
-
-      if (res.status === 401) {
-        setSession(null);
-        return;
+      const result = await authClient.signOut();
+      if (result.error) {
+        throw new Error(result.error.message ?? "Sign out failed");
       }
 
-      if (!res.ok) {
-        const text = await res.text().catch(() => "");
-        throw new Error(`Auth failed: ${res.status} ${text}`);
-      }
-
-      setSession((await res.json()) as Session);
+      await dropAllDatabases();
+      await sessionState.refetch();
     } catch (e) {
-      setSession(null);
-      setAuthError(e instanceof Error ? e.message : "Auth failed");
-    } finally {
-      setLoading(false);
+      setAuthError(getErrorMessage(e, "Sign out failed"));
     }
-  }, []);
-
-  React.useEffect(() => {
-    void refreshSession();
-  }, [refreshSession]);
-
-  const onLogout = React.useCallback(async () => {
-    await fetch("/api/auth/logout", {
-      method: "POST",
-      credentials: "include",
-    });
-
-    await dropAllDatabases();
-    setSession(null);
-  }, []);
+  }, [sessionState]);
 
   if (loading) {
     return (
@@ -133,13 +126,13 @@ export function ZeroInit(props: { children: React.ReactNode }) {
                   Welcome back
                 </Text>
                 <Text variant="body-3" color="neutral-faded">
-                  Sign in with your email to continue
+                  Sign in with email and password to continue
                 </Text>
               </View>
               <LoginForm onSuccess={refreshSession} />
-              {authError ? (
+              {effectiveAuthError ? (
                 <Alert color="critical" title="Auth Error">
-                  {authError}
+                  {effectiveAuthError}
                 </Alert>
               ) : null}
             </View>
@@ -305,38 +298,52 @@ function Header(props: {
 }
 
 function LoginForm(props: { onSuccess: () => Promise<void> }) {
+  const [mode, setMode] = React.useState<"sign-in" | "sign-up">("sign-in");
   const [error, setError] = React.useState<string | null>(null);
+
   const form = useAppForm({
     defaultValues: {
+      name: "",
       email: "",
+      password: "",
     },
     onSubmit: async ({ value }) => {
       setError(null);
 
       try {
-        const res = await fetch("/api/auth/login", {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email: value.email }),
-        });
+        const email = value.email.trim().toLowerCase();
+        const password = value.password;
 
-        if (!res.ok) {
-          const data = (await res.json().catch(() => null)) as unknown;
-          const errorValue =
-            data && typeof data === "object" && "error" in data
-              ? (data as Record<string, unknown>).error
-              : null;
-          throw new Error(
-            errorValue ? String(errorValue) : `Login failed: ${res.status}`,
-          );
+        if (mode === "sign-up") {
+          const name = value.name.trim() || email.split("@")[0] || "User";
+          const signUpResult = await authClient.signUp.email({
+            name,
+            email,
+            password,
+          });
+
+          if (signUpResult.error) {
+            throw new Error(signUpResult.error.message ?? "Sign up failed");
+          }
+        } else {
+          const signInResult = await authClient.signIn.email({
+            email,
+            password,
+          });
+
+          if (signInResult.error) {
+            throw new Error(signInResult.error.message ?? "Sign in failed");
+          }
         }
 
         await props.onSuccess();
       } catch (e) {
-        setError(getErrorMessage(e, "Login failed"));
+        setError(
+          getErrorMessage(
+            e,
+            mode === "sign-up" ? "Sign up failed" : "Sign in failed",
+          ),
+        );
       }
     },
   });
@@ -350,6 +357,16 @@ function LoginForm(props: { onSuccess: () => Promise<void> }) {
       }}
     >
       <View gap={4}>
+        {mode === "sign-up" ? (
+          <form.AppField name="name">
+            {(field) => (
+              <field.TextInputField
+                label="Display name"
+                placeholder="Your name"
+              />
+            )}
+          </form.AppField>
+        ) : null}
         <form.AppField name="email">
           {(field) => (
             <field.TextInputField
@@ -359,12 +376,37 @@ function LoginForm(props: { onSuccess: () => Promise<void> }) {
             />
           )}
         </form.AppField>
-        <form.AppForm>
-          <View>
-            <form.SubmitButton
-              idleLabel="Sign in"
-              submittingLabel="Signing in..."
+        <form.AppField name="password">
+          {(field) => (
+            <field.TextInputField
+              label="Password"
+              type="password"
+              placeholder="At least 8 characters"
             />
+          )}
+        </form.AppField>
+        <form.AppForm>
+          <View direction="row" align="center" justify="space-between" gap={3}>
+            <form.SubmitButton
+              idleLabel={mode === "sign-up" ? "Create account" : "Sign in"}
+              submittingLabel={
+                mode === "sign-up" ? "Creating account..." : "Signing in..."
+              }
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              color="neutral"
+              size="small"
+              onClick={() => {
+                setMode(mode === "sign-up" ? "sign-in" : "sign-up");
+                setError(null);
+              }}
+            >
+              {mode === "sign-up"
+                ? "Have an account? Sign in"
+                : "New here? Sign up"}
+            </Button>
           </View>
         </form.AppForm>
         {error ? (

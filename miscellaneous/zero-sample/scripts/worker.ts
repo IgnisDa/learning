@@ -1,7 +1,12 @@
 import { Job, Worker } from "bullmq";
 import "dotenv/config";
-import { readFile } from "node:fs/promises";
+import { eq, inArray } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/postgres-js";
+import { migrate } from "drizzle-orm/postgres-js/migrator";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import postgres from "postgres";
+import { credit, episode, person, season, show } from "../src/db/schema";
 import type { TmdbEnrichJobData } from "../src/lib/queue";
 
 const REDIS_URL = process.env.REDIS_URL;
@@ -56,12 +61,16 @@ type TmdbTvCredits = {
 const DATABASE_URL = process.env.DATABASE_URL;
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 
-if (!DATABASE_URL)
-  throw new Error("DATABASE_URL (or ZERO_UPSTREAM_DB) is required");
+if (!DATABASE_URL) throw new Error("DATABASE_URL is required");
 
 if (!TMDB_API_KEY) throw new Error("TMDB_API_KEY is required");
 
 const sql = postgres(DATABASE_URL);
+const db = drizzle(sql);
+const migrationsFolder = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  "../drizzle",
+);
 
 await ensureSchemaInitialized();
 
@@ -113,12 +122,10 @@ console.info("Worker is ready to process jobs...");
 async function enrichShow(jobData: TmdbEnrichJobData) {
   const { showId, tmdbId } = jobData;
 
-  await sql`
-    UPDATE "show"
-    SET enrich_state = 'running',
-        enrich_error = NULL
-    WHERE id = ${showId}
-  `;
+  await db
+    .update(show)
+    .set({ enrichState: "running", enrichError: null })
+    .where(eq(show.id, showId));
 
   const tv = await tmdb<TmdbTvDetails>(`/tv/${tmdbId}`);
   const credits = await tmdb<TmdbTvCredits>(`/tv/${tmdbId}/credits`);
@@ -129,30 +136,30 @@ async function enrichShow(jobData: TmdbEnrichJobData) {
 
   const seasonDetails = [] as Array<TmdbTvSeasonDetails>;
   for (const n of seasonNumbers) {
-    seasonDetails.push(await tmdb<TmdbTvSeasonDetails>(`/tv/${tmdbId}/season/${n}`));
+    seasonDetails.push(
+      await tmdb<TmdbTvSeasonDetails>(`/tv/${tmdbId}/season/${n}`),
+    );
   }
 
   const now = Date.now();
 
-  await sql.begin(async (txRaw) => {
-    const tx = txRaw as unknown as postgres.Sql;
+  await db.transaction(async (tx) => {
+    const seasonRows = await tx
+      .select({ id: season.id })
+      .from(season)
+      .where(eq(season.showId, showId));
 
-    await tx`
-      DELETE FROM episode
-      WHERE season_id IN (
-        SELECT id FROM season WHERE show_id = ${showId}
-      )
-    `;
+    if (seasonRows.length > 0) {
+      await tx.delete(episode).where(
+        inArray(
+          episode.seasonId,
+          seasonRows.map((row) => row.id),
+        ),
+      );
+    }
 
-    await tx`
-      DELETE FROM season
-      WHERE show_id = ${showId}
-    `;
-
-    await tx`
-      DELETE FROM credit
-      WHERE show_id = ${showId}
-    `;
+    await tx.delete(season).where(eq(season.showId, showId));
+    await tx.delete(credit).where(eq(credit.showId, showId));
 
     for (const s of seasonDetails) {
       const seasonName = s.name ?? `Season ${s.season_number}`;
@@ -168,34 +175,28 @@ async function enrichShow(jobData: TmdbEnrichJobData) {
       );
 
       const seasonId = `season_${showId}_${s.season_number}`;
-      await tx`
-        INSERT INTO season (
-          id,
-          show_id,
-          season_number,
-          name,
-          overview,
-          poster_path,
-          episode_count,
-          air_date
-        )
-        VALUES (
-          ${seasonId},
-          ${showId},
-          ${s.season_number},
-					${seasonName},
-					${s.overview ?? null},
-					${s.poster_path ?? null},
-					${episodeCount},
-					${s.air_date ?? null}
-        )
-        ON CONFLICT (id) DO UPDATE SET
-          name = EXCLUDED.name,
-          overview = EXCLUDED.overview,
-          poster_path = EXCLUDED.poster_path,
-          episode_count = EXCLUDED.episode_count,
-          air_date = EXCLUDED.air_date
-      `;
+      await tx
+        .insert(season)
+        .values({
+          id: seasonId,
+          showId,
+          seasonNumber: s.season_number,
+          name: seasonName,
+          overview: s.overview ?? null,
+          posterPath: s.poster_path ?? null,
+          episodeCount,
+          airDate: s.air_date ?? null,
+        })
+        .onConflictDoUpdate({
+          target: season.id,
+          set: {
+            name: seasonName,
+            overview: s.overview ?? null,
+            posterPath: s.poster_path ?? null,
+            episodeCount,
+            airDate: s.air_date ?? null,
+          },
+        });
 
       if (Array.isArray(s.episodes)) {
         console.log(
@@ -203,34 +204,28 @@ async function enrichShow(jobData: TmdbEnrichJobData) {
         );
         for (const ep of s.episodes) {
           const episodeId = `episode_${seasonId}_${ep.episode_number}`;
-          await tx`
-            INSERT INTO episode (
-              id,
-              season_id,
-              episode_number,
-              name,
-              overview,
-              still_path,
-              air_date,
-              runtime
-            )
-            VALUES (
-              ${episodeId},
-              ${seasonId},
-              ${ep.episode_number},
-              ${ep.name},
-              ${ep.overview ?? null},
-              ${ep.still_path ?? null},
-              ${ep.air_date ?? null},
-              ${ep.runtime ?? null}
-            )
-            ON CONFLICT (id) DO UPDATE SET
-              name = EXCLUDED.name,
-              overview = EXCLUDED.overview,
-              still_path = EXCLUDED.still_path,
-              air_date = EXCLUDED.air_date,
-              runtime = EXCLUDED.runtime
-          `;
+          await tx
+            .insert(episode)
+            .values({
+              id: episodeId,
+              seasonId,
+              episodeNumber: ep.episode_number,
+              name: ep.name,
+              overview: ep.overview ?? null,
+              stillPath: ep.still_path ?? null,
+              airDate: ep.air_date ?? null,
+              runtime: ep.runtime ?? null,
+            })
+            .onConflictDoUpdate({
+              target: episode.id,
+              set: {
+                name: ep.name,
+                overview: ep.overview ?? null,
+                stillPath: ep.still_path ?? null,
+                airDate: ep.air_date ?? null,
+                runtime: ep.runtime ?? null,
+              },
+            });
         }
       } else {
         console.log(`No episodes array found for season ${s.season_number}`);
@@ -239,113 +234,83 @@ async function enrichShow(jobData: TmdbEnrichJobData) {
 
     for (const c of credits.cast ?? []) {
       const personId = `person_${c.id}`;
-      await upsertPerson(tx, {
-        id: c.id,
-        name: c.name,
-        profile_path: c.profile_path,
-      });
+      await tx
+        .insert(person)
+        .values({
+          id: personId,
+          tmdbPersonId: c.id,
+          name: c.name,
+          profilePath: c.profile_path ?? null,
+        })
+        .onConflictDoUpdate({
+          target: person.tmdbPersonId,
+          set: {
+            name: c.name,
+            profilePath: c.profile_path ?? null,
+          },
+        });
 
-      await tx`
-        INSERT INTO credit (
-          id,
-          show_id,
-          person_id,
-          kind,
-          character,
-          job,
-          department,
-          order_index
-        )
-        VALUES (
-          ${`cast_${showId}_${c.id}_${c.order}`},
-          ${showId},
-          ${personId},
-          'cast',
-					${c.character ?? null},
-          NULL,
-          NULL,
-          ${c.order}
-        )
-      `;
+      await tx.insert(credit).values({
+        id: `cast_${showId}_${c.id}_${c.order}`,
+        showId,
+        personId,
+        kind: "cast",
+        character: c.character ?? null,
+        job: null,
+        department: null,
+        orderIndex: c.order,
+      });
     }
 
     for (const c of credits.crew ?? []) {
       const personId = `person_${c.id}`;
-      await upsertPerson(tx, {
-        id: c.id,
-        name: c.name,
-        profile_path: c.profile_path,
-      });
+      await tx
+        .insert(person)
+        .values({
+          id: personId,
+          tmdbPersonId: c.id,
+          name: c.name,
+          profilePath: c.profile_path ?? null,
+        })
+        .onConflictDoUpdate({
+          target: person.tmdbPersonId,
+          set: {
+            name: c.name,
+            profilePath: c.profile_path ?? null,
+          },
+        });
 
-      await tx`
-        INSERT INTO credit (
-          id,
-          show_id,
-          person_id,
-          kind,
-          character,
-          job,
-          department,
-          order_index
-        )
-        VALUES (
-          ${`crew_${showId}_${c.id}_${c.department}_${c.job}`},
-          ${showId},
-          ${personId},
-          'crew',
-          NULL,
-					${c.job ?? null},
-					${c.department ?? null},
-          NULL
-        )
-      `;
+      await tx.insert(credit).values({
+        id: `crew_${showId}_${c.id}_${c.department}_${c.job}`,
+        showId,
+        personId,
+        kind: "crew",
+        character: null,
+        job: c.job ?? null,
+        department: c.department ?? null,
+        orderIndex: null,
+      });
     }
 
-    await tx`
-      UPDATE "show"
-			SET name = ${tv.name},
-				overview = ${tv.overview ?? null},
-				poster_path = ${tv.poster_path ?? null},
-          enrich_state = 'ready',
-          enrich_error = NULL,
-          enriched_at = ${now}
-      WHERE id = ${showId}
-    `;
+    await tx
+      .update(show)
+      .set({
+        name: tv.name,
+        overview: tv.overview ?? null,
+        posterPath: tv.poster_path ?? null,
+        enrichState: "ready",
+        enrichError: null,
+        enrichedAt: now,
+      })
+      .where(eq(show.id, showId));
   });
 }
 
-async function upsertPerson(
-  tx: postgres.Sql,
-  person: { id: number; name: string; profile_path: string | null | undefined },
-) {
-  const personId = `person_${person.id}`;
-
-  await tx`
-    INSERT INTO person (
-      id,
-      tmdb_person_id,
-      name,
-      profile_path
-    )
-    VALUES (
-      ${personId},
-      ${person.id},
-      ${person.name},
-			${person.profile_path ?? null}
-    )
-    ON CONFLICT (tmdb_person_id) DO UPDATE SET
-      name = EXCLUDED.name,
-      profile_path = EXCLUDED.profile_path
-  `;
-}
-
 async function markShowError(showId: string, message: string) {
-  await sql`
-    UPDATE "show"
-    SET enrich_state = 'error',
-        enrich_error = ${message}
-    WHERE id = ${showId}
-  `;
+  await db
+    .update(show)
+    .set({ enrichState: "error", enrichError: message })
+    .where(eq(show.id, showId));
 }
 
 async function tmdb<T>(path: string) {
@@ -382,16 +347,11 @@ async function tmdb<T>(path: string) {
 }
 
 async function ensureSchemaInitialized() {
-  const initSql = await readFile(
-    new URL("../db/init.sql", import.meta.url),
-    "utf8",
-  );
-
   const attempts = 30;
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
-      await sql.unsafe(initSql);
-      console.info("DB init script applied");
+      await migrate(db, { migrationsFolder });
+      console.info("Drizzle migrations applied");
       return;
     } catch (error) {
       if (attempt === attempts) {
@@ -400,7 +360,7 @@ async function ensureSchemaInitialized() {
         });
       }
       console.warn(
-        `DB init attempt ${attempt}/${attempts} failed, retrying in 1s: ${formatErrorMessage(error)}`,
+        `DB migration attempt ${attempt}/${attempts} failed, retrying in 1s: ${formatErrorMessage(error)}`,
       );
       await sleep(1000);
     }
