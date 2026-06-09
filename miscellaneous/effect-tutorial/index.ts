@@ -1,12 +1,12 @@
 import { Data, Effect, Schema } from "effect";
 
-const Pokemon = Schema.Struct({
+class Pokemon extends Schema.Class<Pokemon>("Pokemon")({
   id: Schema.Number,
   name: Schema.String,
   order: Schema.Number,
   height: Schema.Number,
   weight: Schema.Number,
-});
+}) {}
 
 class JsonError extends Data.TaggedError("JsonError")<{}> {}
 class FetchError extends Data.TaggedError("FetchError")<{}> {}
