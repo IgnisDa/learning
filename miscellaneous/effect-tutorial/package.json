@@ -3,6 +3,7 @@
   "module": "index.ts",
   "name": "effect-tutorial",
   "scripts": {
+    "test": "vitest",
     "start": "bun run index.ts"
   },
   "dependencies": {
@@ -11,6 +12,8 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "typescript": "6.0.3"
+    "msw": "^2.14.6",
+    "typescript": "6.0.3",
+    "vitest": "^4.1.8"
   }
 }
