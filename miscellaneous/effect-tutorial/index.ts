@@ -4,7 +4,7 @@ import { PokeApi } from "./poke-api";
 
 dotenv.config();
 
-const MainLayer = Layer.mergeAll(PokeApi.Live);
+const MainLayer = Layer.mergeAll(PokeApi.Default);
 
 const program = Effect.gen(function* () {
   const pokeApi = yield* PokeApi;
