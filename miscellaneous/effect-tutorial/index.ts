@@ -1,6 +1,6 @@
-import { Effect } from "effect";
 import dotenv from "dotenv";
-import { PokeApi, PokeApiLive } from "./pokeapi";
+import { Effect } from "effect";
+import { PokeApi } from "./pokeapi";
 
 dotenv.config();
 
@@ -9,7 +9,7 @@ const program = Effect.gen(function* () {
   return yield* pokeApi.getPokemon;
 });
 
-const runnable = program.pipe(Effect.provideService(PokeApi, PokeApiLive));
+const runnable = program.pipe(Effect.provideService(PokeApi, PokeApi.Live));
 
 const main = runnable.pipe(
   Effect.catchTags({
