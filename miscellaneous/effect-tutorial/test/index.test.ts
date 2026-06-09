@@ -8,7 +8,7 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 const TestConfigProvider = ConfigProvider.fromMap(
-  new Map([["BASE_URL", "http://localhpst:3000"]]),
+  new Map([["BASE_URL", "http://localhost:3000"]]),
 );
 
 const ConfigProviderLayer = Layer.setConfigProvider(TestConfigProvider);
@@ -29,6 +29,6 @@ it("returns a valid pokemon", async () => {
     order: 1,
     height: 10,
     weight: 10,
-    name: "name",
+    name: "myname",
   });
 });
