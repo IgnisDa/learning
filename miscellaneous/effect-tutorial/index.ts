@@ -1,13 +1,12 @@
-import { Console, Effect } from "effect";
+import { Effect } from "effect";
 
-const print = Console.log("Hello World");
+const fetchRequest = Effect.promise(() =>
+  fetch("https://pokeapi.co/api/v2/pokemon/garchomp"),
+);
 
-const printingArray = [print, print, print];
+const jsonResponse = (response: Response) =>
+  Effect.promise(() => response.json());
 
-const printIfTrue = (check: boolean, toPrint: Effect.Effect<void>) => {
-  if (check) {
-    Effect.runSync(toPrint);
-  }
-};
+const main = Effect.flatMap(fetchRequest, jsonResponse);
 
-printIfTrue(true, print);
+Effect.runPromise(main);
