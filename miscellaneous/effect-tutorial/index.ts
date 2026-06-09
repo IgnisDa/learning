@@ -1,19 +1,19 @@
 import dotenv from "dotenv";
-import { Effect, Layer } from "effect";
+import { Effect, Layer, ManagedRuntime } from "effect";
 import { PokeApi } from "./poke-api";
 
 dotenv.config();
 
 const MainLayer = Layer.mergeAll(PokeApi.Default);
 
+const PokemonRuntime = ManagedRuntime.make(MainLayer);
+
 const program = Effect.gen(function* () {
   const pokeApi = yield* PokeApi;
   return yield* pokeApi.getPokemon;
 });
 
-const runnable = program.pipe(Effect.provide(MainLayer));
-
-const main = runnable.pipe(
+const main = program.pipe(
   Effect.catchTags({
     JsonError: () => Effect.succeed("Json Error"),
     FetchError: () => Effect.succeed("Fetch Error"),
@@ -21,4 +21,6 @@ const main = runnable.pipe(
   }),
 );
 
-Effect.runPromise(main).then((a) => console.dir(a, { depth: Infinity }));
+PokemonRuntime.runPromise(main).then((a) =>
+  console.dir(a, { depth: Infinity }),
+);
