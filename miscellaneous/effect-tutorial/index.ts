@@ -1,17 +1,17 @@
-import { Config, Effect, Schema } from "effect";
+import { Effect } from "effect";
 import dotenv from "dotenv";
-import { FetchError, JsonError } from "./errors";
-import { Pokemon } from "./schemas";
-import { PokeApi } from "./pokeapi";
+import { PokeApi, PokeApiLive } from "./pokeapi";
 
 dotenv.config();
 
-const getPokemon = Effect.gen(function* () {
+const program = Effect.gen(function* () {
   const pokeApi = yield* PokeApi;
   return yield* pokeApi.getPokemon;
 });
 
-const main = getPokemon.pipe(
+const runnable = program.pipe(Effect.provideService(PokeApi, PokeApiLive));
+
+const main = runnable.pipe(
   Effect.catchTags({
     JsonError: () => Effect.succeed("Json Error"),
     FetchError: () => Effect.succeed("Fetch Error"),
