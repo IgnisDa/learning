@@ -1,15 +1,13 @@
-import { Context, Effect, Layer } from "effect";
+import { Effect } from "effect";
 import { PokeApiUrl } from "./poke-api-url";
 
-export class BuildPokeApiUrl extends Context.Tag("BuildPokeApiUrl")<
-  BuildPokeApiUrl,
-  (props: { name: string }) => string
->() {
-  static readonly Live = Layer.effect(
-    this,
-    Effect.gen(function* () {
+export class BuildPokeApiUrl extends Effect.Service<BuildPokeApiUrl>()(
+  "BuildPokeApiUrl",
+  {
+    dependencies: [PokeApiUrl.Live],
+    effect: Effect.gen(function* () {
       const pokeApiUrl = yield* PokeApiUrl;
-      return BuildPokeApiUrl.of(({ name }) => `${pokeApiUrl}/${name}`);
+      return ({ name }: { name: string }) => `${pokeApiUrl}/${name}`;
     }),
-  ).pipe(Layer.provide(PokeApiUrl.Live));
-}
+  },
+) {}
