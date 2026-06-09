@@ -1,44 +1,25 @@
-import { Config, Data, Effect, Schema } from "effect";
+import { Config, Effect, Schema } from "effect";
 import dotenv from "dotenv";
+import { FetchError, JsonError } from "./errors";
+import { Pokemon } from "./schemas";
 
 dotenv.config();
 
-const config = Config.string("BASE_URL");
-
-class Pokemon extends Schema.Class<Pokemon>("Pokemon")({
-  id: Schema.Number,
-  name: Schema.String,
-  order: Schema.Number,
-  height: Schema.Number,
-  weight: Schema.Number,
-}) {}
-
-class JsonError extends Data.TaggedError("JsonError")<{}> {}
-class FetchError extends Data.TaggedError("FetchError")<{}> {}
-
-const fetchRequest = (baseUrl: string) =>
-  Effect.tryPromise({
-    try: () => fetch(`${baseUrl}/api/v2/pokemon/garchomp`),
+const getPokemon = Effect.gen(function* () {
+  const baseUrl = yield* Config.string("BASE_URL");
+  const response = yield* Effect.tryPromise({
     catch: () => new FetchError(),
+    try: () => fetch(`${baseUrl}/api/v2/pokemon/garchomp`),
   });
-
-const jsonResponse = (response: Response) =>
-  Effect.tryPromise({
+  if (!response.ok) yield* new FetchError();
+  const json = yield* Effect.tryPromise({
     try: () => response.json(),
     catch: () => new JsonError(),
   });
-
-const decodePokemon = Schema.decodeUnknown(Pokemon);
-
-const program = Effect.gen(function* () {
-  const baseUrl = yield* config;
-  const response = yield* fetchRequest(baseUrl);
-  if (!response.ok) yield* new FetchError();
-  const json = yield* jsonResponse(response);
-  return yield* decodePokemon(json);
+  return yield* Schema.decodeUnknown(Pokemon)(json);
 });
 
-const main = program.pipe(
+const main = getPokemon.pipe(
   Effect.catchTags({
     JsonError: () => Effect.succeed("Json Error"),
     FetchError: () => Effect.succeed("Fetch Error"),
