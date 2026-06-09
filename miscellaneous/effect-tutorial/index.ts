@@ -27,4 +27,4 @@ const main = program.pipe(
   }),
 );
 
-Effect.runPromise(main);
+Effect.runPromise(main).then((a) => console.dir(a, { depth: Infinity }));
