@@ -7,6 +7,11 @@ const fetchRequest = Effect.tryPromise(() =>
 const jsonResponse = (response: Response) =>
   Effect.tryPromise(() => response.json());
 
-const main = Effect.flatMap(fetchRequest, jsonResponse);
+const main = fetchRequest.pipe(
+  Effect.flatMap(jsonResponse),
+  Effect.catchTag("UnknownException", (error) =>
+    Effect.succeed(`An error occurred: ${error.message}`),
+  ),
+);
 
 Effect.runPromise(main);
