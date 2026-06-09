@@ -2,21 +2,13 @@ import { Config, Effect, Schema } from "effect";
 import dotenv from "dotenv";
 import { FetchError, JsonError } from "./errors";
 import { Pokemon } from "./schemas";
+import { PokeApi } from "./pokeapi";
 
 dotenv.config();
 
 const getPokemon = Effect.gen(function* () {
-  const baseUrl = yield* Config.string("BASE_URL");
-  const response = yield* Effect.tryPromise({
-    catch: () => new FetchError(),
-    try: () => fetch(`${baseUrl}/api/v2/pokemon/garchomp`),
-  });
-  if (!response.ok) yield* new FetchError();
-  const json = yield* Effect.tryPromise({
-    try: () => response.json(),
-    catch: () => new JsonError(),
-  });
-  return yield* Schema.decodeUnknown(Pokemon)(json);
+  const pokeApi = yield* PokeApi;
+  return yield* pokeApi.getPokemon;
 });
 
 const main = getPokemon.pipe(
