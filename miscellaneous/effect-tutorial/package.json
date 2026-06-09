@@ -1,7 +1,13 @@
 {
-  "name": "effect-tutorial",
-  "module": "index.ts",
   "type": "module",
+  "module": "index.ts",
+  "name": "effect-tutorial",
+  "scripts": {
+    "start": "bun run index.ts"
+  },
+  "dependencies": {
+    "effect": "^3.21.3"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "typescript": "6.0.3"
