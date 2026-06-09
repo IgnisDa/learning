@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { Effect } from "effect";
-import { PokeApi } from "./pokeapi";
+import { PokeApi } from "./poke-api";
 
 dotenv.config();
 
